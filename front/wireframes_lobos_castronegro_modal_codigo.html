@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframes - Los Lobos de Castronegro (con modal de código)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; color: #1A1A1A; margin-bottom: 10px; font-size: 32px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 40px; font-size: 16px; }
+        .navigation { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-btn { padding: 12px 24px; background: #D4A017; color: #1A1A1A; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .nav-btn:hover { background: #F4C430; transform: translateY(-2px); }
+        .nav-btn.active { background: #1A1A1A; color: #D4A017; }
+        .wireframe { display: none; background: white; border-radius: 8px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .wireframe.active { display: block; }
+        .wireframe-title { font-size: 24px; color: #D4A017; margin-bottom: 20px; border-bottom: 3px solid #D4A017; padding-bottom: 10px; }
+        .wireframe-description { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        .screen { border: 3px solid #333; border-radius: 8px; background: #1A1A1A; padding: 20px; min-height: 700px; position: relative; }
+
+        /* Componentes comunes */
+        .box { background: #2B1810; border: 2px dashed #D4A017; border-radius: 8px; padding: 20px; color: #FFF8DC; margin-bottom: 15px; }
+        .text-placeholder { background: #4A4A4A; height: 20px; border-radius: 4px; margin: 8px 0; }
+        .text-placeholder.short { width: 60%; }
+        .text-placeholder.medium { width: 80%; }
+        .button-primary { background: #F4C430; color: #1A1A1A; padding: 12px 32px; border: 2px solid #D4A017; border-radius: 8px; font-weight: 600; text-align: center; cursor: pointer; }
+        .button-secondary { background: transparent; color: #D4A017; padding: 12px 32px; border: 2px solid #D4A017; border-radius: 8px; font-weight: 600; text-align: center; cursor: pointer; }
+        .input-field { background: #F4C430; color: #1A1A1A; padding: 14px 20px; border-radius: 6px; margin: 10px 0; border: none; }
+        .label { color: #D4A017; font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block; }
+
+        /* LOGIN */
+        .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 650px; }
+        .logo-small { position: absolute; top: 20px; left: 20px; background: #D4A017; padding: 10px 20px; border-radius: 6px; font-size: 12px; color: #1A1A1A; font-weight: bold; }
+        .main-title { font-size: 56px; color: #D4A017; text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 2px; }
+        .subtitle-login { color: #8B7355; font-size: 24px; text-align: center; margin-bottom: 60px; }
+        .wolf-illustration { position: absolute; right: 50px; bottom: 50px; width: 400px; height: 400px; background: linear-gradient(45deg, #D4A01730, #F4C43030); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #D4A017; }
+        .login-form { width: 400px; z-index: 10; }
+        .forgot-password { color: #D4A017; text-align: center; font-size: 14px; margin-top: 15px; cursor: pointer; }
+        .register-link { color: #FFF8DC; text-align: center; margin-top: 20px; background: #2B1810; padding: 15px; border-radius: 6px; }
+        .register-link span { color: #D4A017; font-weight: 600; cursor: pointer; }
+
+        /* PROFILE */
+        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #D4A017; }
+        .back-button { padding: 10px 20px; background: transparent; border: 2px solid #D4A017; color: #D4A017; border-radius: 6px; cursor: pointer; }
+        .profile-container { display: flex; flex-direction: column; align-items: center; }
+        .avatar-container { position: relative; margin-bottom: 30px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: #4A4A4A; border: 4px solid #D4A017; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #D4A017; }
+        .camera-icon { position: absolute; bottom: 0; right: 0; background: #F4C430; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #1A1A1A; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; }
+        .username-display { color: #D4A017; font-size: 24px; font-weight: bold; margin-bottom: 40px; }
+        .form-container { width: 500px; }
+        .form-row { margin-bottom: 20px; }
+        .button-group { display: flex; gap: 15px; margin-top: 30px; }
+        .button-group > * { flex: 1; }
+
+        /* MAIN MENU */
+        .menu-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid #D4A017; margin-bottom: 40px; }
+        .logo-title { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { width: 50px; height: 50px; background: #D4A017; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .title-text { color: #D4A017; font-size: 28px; font-weight: bold; }
+        .user-menu { display: flex; align-items: center; gap: 15px; background: #2B1810; padding: 10px 20px; border-radius: 8px; border: 2px solid #D4A017; cursor: pointer; }
+        .user-avatar-small { width: 40px; height: 40px; border-radius: 50%; background: #4A4A4A; border: 2px solid #D4A017; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #D4A017; }
+        .user-name { color: #FFF8DC; font-weight: 600; }
+        .cards-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 900px; margin: 0 auto; }
+        .menu-card { background: #2B1810; border: 2px solid #D4A017; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-card:hover { transform: translateY(-8px); box-shadow: 0 8px 24px rgba(212, 160, 23, 0.3); }
+        .card-icon { width: 80px; height: 80px; background: #D4A017; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; color: #1A1A1A; }
+        .card-title { color: #D4A017; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+        .card-description { color: #FFF8DC; font-size: 14px; line-height: 1.6; }
+
+        /* GAME VIEW */
+        .game-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; height: 650px; }
+        .game-area { background: #2B1810; border: 2px solid #D4A017; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid #D4A017; margin-bottom: 20px; }
+        .game-title { color: #D4A017; font-size: 20px; font-weight: bold; }
+        .timer { background: #F4C430; color: #1A1A1A; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 18px; }
+        .players-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex: 1; margin-bottom: 20px; }
+        .player-card { background: #1A1A1A; border: 2px solid #4A4A4A; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .player-card.active { border-color: #D4A017; box-shadow: 0 0 15px rgba(212, 160, 23, 0.5); }
+        .player-avatar { width: 60px; height: 60px; border-radius: 50%; background: #4A4A4A; border: 2px solid #D4A017; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #D4A017; }
+        .player-name { color: #FFF8DC; font-weight: 600; font-size: 14px; }
+        .player-role { color: #8B7355; font-size: 12px; font-style: italic; }
+        .game-actions { display: flex; gap: 10px; }
+        .action-button { flex: 1; padding: 12px; background: #D4A017; color: #1A1A1A; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .action-button.danger { background: #D32F2F; color: white; }
+        .action-button.success { background: #4CAF50; color: white; }
+        .chat-panel { background: #2B1810; border: 2px solid #D4A017; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
+        .chat-header { color: #D4A017; font-size: 18px; font-weight: bold; padding-bottom: 15px; border-bottom: 2px solid #D4A017; margin-bottom: 15px; }
+        .chat-messages { flex: 1; overflow-y: auto; margin-bottom: 15px; }
+        .message { background: #1A1A1A; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+        .message.own { background: #D4A017; color: #1A1A1A; margin-left: 20px; }
+        .message.other { background: #4A4A4A; color: #FFF8DC; margin-right: 20px; }
+        .message-author { font-weight: bold; font-size: 12px; margin-bottom: 5px; }
+        .message-text { font-size: 14px; }
+        .message-time { font-size: 10px; opacity: 0.7; margin-top: 5px; }
+        .chat-input-container { display: flex; gap: 10px; }
+        .chat-input { flex: 1; background: #1A1A1A; color: #FFF8DC; border: 1px solid #D4A017; border-radius: 6px; padding: 10px; font-size: 14px; }
+        .send-button { background: #D4A017; color: #1A1A1A; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+        /* LOBBY SCREENS */
+        .lobby-container { max-width: 800px; margin: 0 auto; }
+        .lobby-header { text-align: center; margin-bottom: 40px; }
+        .lobby-title { color: #D4A017; font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        .lobby-subtitle { color: #FFF8DC; font-size: 16px; }
+        .lobby-form { background: #2B1810; border: 2px solid #D4A017; border-radius: 12px; padding: 40px; }
+        .form-section { margin-bottom: 30px; }
+        .section-title { color: #D4A017; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .lobby-list { display: flex; flex-direction: column; gap: 15px; }
+        .lobby-item { background: #1A1A1A; border: 2px solid #4A4A4A; border-radius: 8px; padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s; }
+        .lobby-item:hover { border-color: #D4A017; transform: translateX(5px); }
+        .lobby-info { flex: 1; }
+        .lobby-name { color: #D4A017; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .lobby-details { color: #FFF8DC; font-size: 14px; }
+        .lobby-status { display: flex; align-items: center; gap: 10px; }
+        .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status-badge.open { background: #4CAF50; color: white; }
+        .status-badge.full { background: #D32F2F; color: white; }
+        /* Nuevos badges */
+        .status-badge.public { background: #1E90FF; color: white; }
+        .status-badge.code { background: #F4C430; color: #1A1A1A; border: 1px solid #D4A017; }
+        .players-count { color: #FFF8DC; font-size: 14px; }
+        .join-button { padding: 10px 24px; background: #D4A017; color: #1A1A1A; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; color: #FFF8DC; }
+        .checkbox { width: 20px; height: 20px; border: 2px solid #D4A017; border-radius: 4px; background: #1A1A1A; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+        /* Modal para ingresar código */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 999; }
+        .modal.open { display: flex; }
+        .modal-content { background: #1A1A1A; border: 2px solid #D4A017; border-radius: 12px; width: 420px; max-width: 90vw; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+        .modal-title { color: #D4A017; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .modal-subtitle { color: #FFF8DC; font-size: 14px; margin-bottom: 16px; }
+        .modal-actions { display: flex; gap: 12px; margin-top: 10px; }
+        .input-code { background: #FFF8DC; color: #1A1A1A; padding: 12px 14px; border-radius: 8px; border: 2px solid #D4A017; font-size: 16px; width: 100%; letter-spacing: 2px; text-align: center; }
+        .error-text { color: #FF7373; font-size: 12px; margin-top: 6px; display: none; }
+
+        /* Annotations */
+        .annotation { position: absolute; background: #F4C430; color: #1A1A1A; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; pointer-events: none; z-index: 100; }
+        .annotation::after { content: ''; position: absolute; width: 0; height: 0; border-style: solid; }
+        .annotation.top::after { bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 6px 0 6px; border-color: #F4C430 transparent transparent transparent; }
+        .annotation.left::after { right: -8px; top: 50%; transform: translateY(-50%); border-width: 6px 0 6px 8px; border-color: transparent transparent transparent #F4C430; }
+
+        @media print { .navigation { display: none; } .wireframe { display: block; page-break-after: always; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Wireframes - Los Lobos de Castronegro</h1>
+    <p class="subtitle">Aplicación de Juego de Escritorio</p>
+
+    <div class="navigation">
+        <button class="nav-btn active" onclick="showWireframe(0)">1. Login</button>
+        <button class="nav-btn" onclick="showWireframe(1)">2. Registro</button>
+        <button class="nav-btn" onclick="showWireframe(2)">3. Menú Principal</button>
+        <button class="nav-btn" onclick="showWireframe(3)">4. Crear Lobby</button>
+        <button class="nav-btn" onclick="showWireframe(4)">5. Unirse a Lobby</button>
+        <button class="nav-btn" onclick="showWireframe(5)">6. Perfil</button>
+        <button class="nav-btn" onclick="showWireframe(6)">7. Vista de Juego</button>
+    </div>
+
+    <!-- WIREFRAME 1: LOGIN -->
+    <div class="wireframe active" id="wireframe-0">
+        <h2 class="wireframe-title">1. Pantalla de Inicio de Sesión</h2>
+        <p class="wireframe-description">Pantalla principal de acceso. Presenta el branding del juego con el título prominente y una ilustración de lobo. Los campos de entrada son amplios y el diseño es limpio y centrado.</p>
+        <div class="screen">
+            <div class="logo-small">MANADA<br>FULL HOUSE</div>
+            <div class="login-container">
+                <h1 class="main-title">LOS LOBOS DE<br>CASTRONEGRO</h1>
+                <p class="subtitle-login">Iniciar Sesión</p>
+                <div class="login-form">
+                    <div class="form-row">
+                        <span class="label">Nombre/Correo</span>
+                        <div class="input-field">1100 0000 0000 0000</div>
+                    </div>
+                    <div class="form-row">
+                        <span class="label">Contraseña</span>
+                        <div class="input-field">••••••••••••••</div>
+                    </div>
+                    <div class="forgot-password">¿Olvidaste tu contraseña?</div>
+                    <div style="margin-top: 30px;">
+                        <div class="button-primary">Iniciar sesión</div>
+                    </div>
+                    <div class="register-link">¿No tienes cuenta? <span>Regístrate</span></div>
+                </div>
+            </div>
+            <div class="wolf-illustration">🐺</div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 2: REGISTRO -->
+    <div class="wireframe" id="wireframe-1">
+        <h2 class="wireframe-title">2. Pantalla de Registro</h2>
+        <p class="wireframe-description">Formulario de registro con campos para crear una nueva cuenta. Similar al login pero con campos adicionales.</p>
+        <div class="screen">
+            <div class="logo-small">MANADA<br>FULL HOUSE</div>
+            <div class="login-container">
+                <h1 class="main-title">UNIRSE A LA MANADA</h1>
+                <p class="subtitle-login">Crear Cuenta</p>
+                <div class="login-form">
+                    <div class="form-row"><span class="label">Nombre de Usuario</span><div class="input-field"></div></div>
+                    <div class="form-row"><span class="label">Correo Electrónico</span><div class="input-field"></div></div>
+                    <div class="form-row"><span class="label">Contraseña</span><div class="input-field"></div></div>
+                    <div class="form-row"><span class="label">Confirmar Contraseña</span><div class="input-field"></div></div>
+                    <div style="margin-top: 30px;"><div class="button-primary">Registrarse</div></div>
+                    <div class="register-link">¿Ya tienes cuenta? <span>Inicia sesión</span></div>
+                </div>
+            </div>
+            <div class="wolf-illustration">🐺</div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 3: MENÚ PRINCIPAL -->
+    <div class="wireframe" id="wireframe-2">
+        <h2 class="wireframe-title">3. Menú Principal</h2>
+        <p class="wireframe-description">Hub central de la aplicación. Desde aquí el usuario puede crear un nuevo lobby, unirse a uno existente, o acceder a su perfil. Las opciones se presentan como tarjetas grandes e interactivas.</p>
+        <div class="screen">
+            <div class="menu-header">
+                <div class="logo-title">
+                    <div class="logo-icon">🐺</div>
+                    <div class="title-text">LOS LOBOS DE CASTRONEGRO</div>
+                </div>
+                <div class="user-menu">
+                    <div class="user-avatar-small">👤</div>
+                    <div class="user-name">NombreUsuario</div>
+                    <div style="color: #D4A017;">▼</div>
+                </div>
+            </div>
+            <div class="cards-container">
+                <div class="menu-card">
+                    <div class="card-icon">➕</div>
+                    <div class="card-title">Crear Lobby</div>
+                    <p class="card-description">Inicia una nueva partida y configura las reglas del juego. Invita a otros jugadores a unirse.</p>
+                </div>
+                <div class="menu-card">
+                    <div class="card-icon">🚪</div>
+                    <div class="card-title">Unirse a Lobby</div>
+                    <p class="card-description">Explora las partidas disponibles y únete a una sala existente para comenzar a jugar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 4: CREAR LOBBY -->
+    <div class="wireframe" id="wireframe-3">
+        <h2 class="wireframe-title">4. Crear Lobby</h2>
+        <p class="wireframe-description">Formulario para configurar una nueva partida. El anfitrión puede establecer el nombre del lobby, número de jugadores, y reglas específicas del juego.</p>
+        <div class="screen">
+            <div class="profile-header">
+                <div class="back-button">← Volver</div>
+                <div style="color: #D4A017; font-size: 20px; font-weight: bold;">Crear Nuevo Lobby</div>
+                <div style="width: 100px;"></div>
+            </div>
+            <div class="lobby-container">
+                <div class="lobby-form">
+                    <div class="form-section">
+                        <div class="section-title">Información Básica</div>
+                        <div class="form-row"><span class="label">Nombre del Lobby</span><div class="input-field">Mi Partida Épica</div></div>
+                        <div class="form-row"><span class="label">Número de Jugadores</span><div class="input-field">8 jugadores</div></div>
+                    </div>
+                    <div class="form-section">
+                        <div class="section-title">Configuración del Juego</div>
+                        <div class="settings-grid">
+                            <div class="checkbox-group"><div class="checkbox">✓</div><span>Roles especiales</span></div>
+                            <div class="checkbox-group"><div class="checkbox">✓</div><span>Modo noche</span></div>
+                            <div class="checkbox-group"><div class="checkbox"></div><span>Votación secreta</span></div>
+                            <div class="checkbox-group"><div class="checkbox">✓</div><span>Timer de turno</span></div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="section-title">Privacidad</div>
+                        <div class="form-row"><span class="label">Tipo de Lobby</span><div class="input-field">Público / Con código</div></div>
+                        <div class="form-row"><span class="label">Código de acceso (solo si es con código)</span><div class="input-field"></div></div>
+                    </div>
+                    <div class="button-group">
+                        <div class="button-secondary">Cancelar</div>
+                        <div class="button-primary">Crear Lobby</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 5: UNIRSE A LOBBY -->
+    <div class="wireframe" id="wireframe-4">
+        <h2 class="wireframe-title">5. Unirse a Lobby</h2>
+        <p class="wireframe-description">Lista de lobbies disponibles. Los jugadores pueden ver información sobre cada partida (número de jugadores, estado, nombre) y seleccionar uno para unirse. Ahora indica si son públicas o requieren código.</p>
+        <div class="screen">
+            <div class="profile-header">
+                <div class="back-button">← Volver</div>
+                <div style="color: #D4A017; font-size: 20px; font-weight: bold;">Lobbies Disponibles</div>
+                <div style="width: 100px;"></div>
+            </div>
+            <div class="lobby-container">
+                <div class="lobby-header">
+                    <div class="lobby-title">Selecciona una Partida</div>
+                    <div class="lobby-subtitle">Haz clic en un lobby para unirte</div>
+                </div>
+                <div class="lobby-list">
+                    <!-- PÚBLICO -->
+                    <div class="lobby-item">
+                        <div class="lobby-info">
+                            <div class="lobby-name">🐺 La Guarida del Lobo</div>
+                            <div class="lobby-details">Creado por: AlphaWolf • Modo: Clásico</div>
+                        </div>
+                        <div class="lobby-status">
+                            <span class="status-badge open">ABIERTO</span>
+                            <span class="status-badge public">PÚBLICO</span>
+                            <span class="players-count">5/8 jugadores</span>
+                            <button class="join-button" data-lobby-name="La Guarida del Lobo">Unirse</button>
+                        </div>
+                    </div>
+                    <!-- PÚBLICO -->
+                    <div class="lobby-item">
+                        <div class="lobby-info">
+                            <div class="lobby-name">🌙 Noche en Castronegro</div>
+                            <div class="lobby-details">Creado por: LunaLoba • Modo: Avanzado</div>
+                        </div>
+                        <div class="lobby-status">
+                            <span class="status-badge open">ABIERTO</span>
+                            <span class="status-badge public">PÚBLICO</span>
+                            <span class="players-count">3/10 jugadores</span>
+                            <button class="join-button" data-lobby-name="Noche en Castronegro">Unirse</button>
+                        </div>
+                    </div>
+                    <!-- LLENO -->
+                    <div class="lobby-item">
+                        <div class="lobby-info">
+                            <div class="lobby-name">⚔️ Batalla Épica</div>
+                            <div class="lobby-details">Creado por: Guerrero123 • Modo: Rápido</div>
+                        </div>
+                        <div class="lobby-status">
+                            <span class="status-badge full">LLENO</span>
+                            <span class="status-badge public">PÚBLICO</span>
+                            <span class="players-count">8/8 jugadores</span>
+                        </div>
+                    </div>
+                    <!-- CON CÓDIGO -->
+                    <div class="lobby-item">
+                        <div class="lobby-info">
+                            <div class="lobby-name">🎭 Los Misteriosos</div>
+                            <div class="lobby-details">Creado por: Enigma • Modo: Especial</div>
+                        </div>
+                        <div class="lobby-status">
+                            <span class="status-badge open">ABIERTO</span>
+                            <span class="status-badge code">CON CÓDIGO</span>
+                            <span class="players-count">6/12 jugadores</span>
+                            <button class="join-button code-required" data-lobby-name="Los Misteriosos">🔑 Ingresar</button>
+                        </div>
+                    </div>
+                    <!-- PÚBLICO -->
+                    <div class="lobby-item">
+                        <div class="lobby-info">
+                            <div class="lobby-name">🏰 El Reino del Norte</div>
+                            <div class="lobby-details">Creado por: ReyLobo • Modo: Clásico</div>
+                        </div>
+                        <div class="lobby-status">
+                            <span class="status-badge open">ABIERTO</span>
+                            <span class="status-badge public">PÚBLICO</span>
+                            <span class="players-count">2/8 jugadores</span>
+                            <button class="join-button" data-lobby-name="El Reino del Norte">Unirse</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; text-align: center;">
+                    <div class="button-secondary" style="display: inline-block;">Actualizar Lista</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 6: PERFIL -->
+    <div class="wireframe" id="wireframe-5">
+        <h2 class="wireframe-title">6. Perfil de Usuario</h2>
+        <p class="wireframe-description">Página de perfil donde el usuario puede ver y editar su información personal, cambiar su avatar, y actualizar sus datos de cuenta.</p>
+        <div class="screen">
+            <div class="profile-header">
+                <div class="back-button">← Volver al Menú</div>
+                <div style="color: #D4A017; font-size: 20px; font-weight: bold;">Mi Perfil</div>
+                <div style="width: 150px;"></div>
+            </div>
+            <div class="profile-container">
+                <div class="avatar-container">
+                    <div class="avatar">👤</div>
+                    <div class="camera-icon">📷</div>
+                </div>
+                <div class="username-display">@NombreUsuario</div>
+                <div class="form-container">
+                    <div class="form-row"><span class="label">Nombre Completo</span><div class="input-field">Juan Pérez García</div></div>
+                    <div class="form-row"><span class="label">Nombre de Usuario</span><div class="input-field">NombreUsuario</div></div>
+                    <div class="form-row"><span class="label">Correo Electrónico</span><div class="input-field">usuario@email.com</div></div>
+                    <div class="form-row"><span class="label">Biografía</span><div class="input-field" style="height: 80px;">Jugador apasionado de Los Lobos de Castronegro...</div></div>
+                    <div class="form-section" style="margin-top: 30px;">
+                        <div class="section-title">Cambiar Contraseña</div>
+                        <div class="form-row"><span class="label">Contraseña Actual</span><div class="input-field">••••••••••</div></div>
+                        <div class="form-row"><span class="label">Nueva Contraseña</span><div class="input-field"></div></div>
+                        <div class="form-row"><span class="label">Confirmar Nueva Contraseña</span><div class="input-field"></div></div>
+                    </div>
+                    <div class="button-group">
+                        <div class="button-secondary">Cancelar</div>
+                        <div class="button-primary">Guardar Cambios</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIREFRAME 7: VISTA DE JUEGO -->
+    <div class="wireframe" id="wireframe-6">
+        <h2 class="wireframe-title">7. Vista de Juego</h2>
+        <p class="wireframe-description">Pantalla principal durante una partida activa. Muestra a todos los jugadores en una cuadrícula, sus roles (si son visibles), y un panel de chat lateral para comunicación entre jugadores. Incluye botones de acción para las mecánicas del juego.</p>
+        <div class="screen">
+            <div class="game-layout">
+                <div class="game-area">
+                    <div class="game-header">
+                        <div class="game-title">🐺 La Guarida del Lobo</div>
+                        <div class="timer">⏱ 02:45</div>
+                        <div class="back-button">☰ Menú</div>
+                    </div>
+                    <div class="players-grid">
+                        <div class="player-card active"><div class="player-avatar">👤</div><div class="player-name">Tú</div><div class="player-role">Aldeano</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador2</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador3</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador4</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador5</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador6</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador7</div><div class="player-role">???</div></div>
+                        <div class="player-card"><div class="player-avatar">👤</div><div class="player-name">Jugador8</div><div class="player-role">???</div></div>
+                        <div class="player-card" style="opacity: 0.3;"><div class="player-avatar">➕</div><div class="player-name">Esperando...</div><div class="player-role">-</div></div>
+                    </div>
+                    <div class="game-actions">
+                        <button class="action-button">🗳️ Votar</button>
+                        <button class="action-button success">✓ Confirmar</button>
+                        <button class="action-button danger">✗ Acusar</button>
+                    </div>
+                </div>
+                <div class="chat-panel">
+                    <div class="chat-header">💬 Chat del Juego</div>
+                    <div class="chat-messages">
+                        <div class="message other"><div class="message-author">Jugador2</div><div class="message-text">¡Buena suerte a todos!</div><div class="message-time">10:23</div></div>
+                        <div class="message own"><div class="message-author">Tú</div><div class="message-text">¡Empecemos!</div><div class="message-time">10:24</div></div>
+                        <div class="message other"><div class="message-author">Jugador5</div><div class="message-text">Sospecho del jugador 3...</div><div class="message-time">10:25</div></div>
+                        <div class="message other"><div class="message-author">Jugador3</div><div class="message-text">¡Yo no he sido! 😤</div><div class="message-time">10:25</div></div>
+                        <div class="message own"><div class="message-author">Tú</div><div class="message-text">Necesitamos más pruebas</div><div class="message-time">10:26</div></div>
+                        <div class="message other"><div class="message-author">Jugador7</div><div class="message-text">Propongo votación</div><div class="message-time">10:27</div></div>
+                    </div>
+                    <div class="chat-input-container"><input type="text" class="chat-input" placeholder="Escribe un mensaje..."><button class="send-button">📤</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Ingresar código para unirse -->
+<div class="modal" id="codeModal" aria-hidden="true" role="dialog" aria-labelledby="codeModalTitle">
+    <div class="modal-content">
+        <div class="modal-title" id="codeModalTitle">🔑 Ingresar código</div>
+        <div class="modal-subtitle">Introduce el código para unirte a <span id="codeModalLobby" style="font-weight:700; color:#F4C430;">este lobby</span>.</div>
+        <input id="accessCodeInput" class="input-code" type="text" placeholder="Ej.: 4F9K-2B" maxlength="12" autocomplete="one-time-code" />
+        <div id="codeError" class="error-text">El código no puede estar vacío.</div>
+        <div class="modal-actions">
+            <button id="cancelCodeBtn" class="button-secondary" type="button">Cancelar</button>
+            <button id="confirmCodeBtn" class="button-primary" type="button">Unirse</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showWireframe(index) {
+    const wireframes = document.querySelectorAll('.wireframe');
+    wireframes.forEach(w => w.classList.remove('active'));
+    document.getElementById(`wireframe-${index}`).classList.add('active');
+    const buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(b => b.classList.remove('active'));
+    buttons[index].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ---- Lógica del modal de código ----
+(function setupJoinFlow(){
+    const modal = document.getElementById('codeModal');
+    const lobbySpan = document.getElementById('codeModalLobby');
+    const input = document.getElementById('accessCodeInput');
+    const error = document.getElementById('codeError');
+    const cancelBtn = document.getElementById('cancelCodeBtn');
+    const confirmBtn = document.getElementById('confirmCodeBtn');
+    let currentLobbyName = null;
+
+    function openModal(lobbyName){
+        currentLobbyName = lobbyName || 'este lobby';
+        lobbySpan.textContent = currentLobbyName;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+        input.value = '';
+        error.style.display = 'none';
+        setTimeout(()=>input.focus(), 0);
+    }
+
+    function closeModal(){
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden','true');
+    }
+
+    function validateAndJoin(){
+        const code = (input.value || '').trim();
+        if(!code){
+            error.style.display = 'block';
+            input.focus();
+            return;
+        }
+        error.style.display = 'none';
+        // Mock de unión: en producto real, validar código en backend
+        alert(`Uniéndote a "${currentLobbyName}" con código: ${code}`);
+        closeModal();
+    }
+
+    document.addEventListener('click', (ev)=>{
+        const btn = ev.target.closest('.join-button');
+        if(!btn) return;
+        const lobbyName = btn.getAttribute('data-lobby-name') || 'Lobby';
+        const requiresCode = btn.classList.contains('code-required') || /Ingresar/i.test(btn.textContent);
+        if(requiresCode){
+            ev.preventDefault();
+            openModal(lobbyName);
+        } else {
+            ev.preventDefault();
+            alert(`Uniéndote a "${lobbyName}" (público)`);
+        }
+    });
+
+    cancelBtn.addEventListener('click', closeModal);
+    confirmBtn.addEventListener('click', validateAndJoin);
+
+    // Cerrar con ESC o clic fuera
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+})();
+</script>
+</body>
+</html>
