@@ -2,47 +2,98 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Nombre de la tabla.
+     */
+    protected $table = 'users';
+
+    /**
+     * Clave primaria.
+     */
+    protected $primaryKey = 'id';
+    public $incrementing = false; // UUID
+    protected $keyType = 'string';
+
+    /**
+     * Campos que se pueden asignar masivamente.
      */
     protected $fillable = [
-        'name',
+        'id',
+        'username',
         'email',
-        'password',
+        'password_hash',
+        'is_bot',
+        'avatar_image_id',
+        'created_at',
+        'last_login_at',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Campos ocultos al serializar.
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts automáticos de tipos.
      */
-    protected function casts(): array
+    protected $casts = [
+        'is_bot' => 'boolean',
+        'created_at' => 'datetime',
+        'last_login_at' => 'datetime',
+    ];
+
+    /**
+     * RELACIONES
+     */
+
+    // 1:1 con estadísticas del usuario
+    public function stats()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(UserStats::class, 'user_id');
+    }
+
+    // 1:N con las partidas creadas
+    public function createdGames()
+    {
+        return $this->hasMany(Game::class, 'created_by_user_id');
+    }
+
+    // 1:N con las participaciones en partidas
+    public function gamePlayers()
+    {
+        return $this->hasMany(GamePlayer::class, 'user_id');
+    }
+
+    // (Opcional) Imagen de avatar
+    public function avatar()
+    {
+        return $this->belongsTo(Image::class, 'avatar_image_id');
+    }
+
+    /**
+     * Helpers útiles
+     */
+
+    // Comprueba si el usuario es un bot
+    public function isBot(): bool
+    {
+        return $this->is_bot;
+    }
+
+    // Nombre visible (p. ej. para logs o chat)
+    public function displayName(): string
+    {
+        return $this->username ?: 'Jugador Anónimo';
     }
 }
