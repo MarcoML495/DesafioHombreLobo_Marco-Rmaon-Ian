@@ -6,8 +6,10 @@
 
 body {
 	font-family: Arial, sans-serif;
+	/* Estilos específicos de tu body */
 	background: #1A1A1A;
-	padding: 20px;
+	padding: 0px;
+	color: #D4A017;
 }
 
 h1 {
@@ -31,7 +33,7 @@ label {
 	cursor: pointer;
 }
 
-
+/* LOGIN (Elementos presentes en tu HTML) */
 .login-container {
 	display: flex;
 	flex-direction: column;
@@ -54,6 +56,11 @@ label {
 .logo-small img {
 	width: 200px;
 	height: 200px;
+}
+
+.logo-large img {
+	margin-top: 20px;
+	width: 700px;
 }
 
 .main-title {
@@ -115,4 +122,74 @@ label {
 	background: #2B1810;
 	padding: 15px;
 	border-radius: 6px;
+}
+
+.header {
+	margin:0px;
+	padding:0px;
+	position:sticky;
+	width: 100%;
+	background-color: #333333;
+	top:0;
+	display: flex;
+    justify-content: space-around;
+    align-items: center;
+	z-index: 99;
+}
+
+.header ul{
+	list-style-type: none;
+	padding: 20px;
+    display: inline-flex;
+}
+
+li {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+li a {
+	color:dodgerblue;
+}
+
+.lista-roles {
+	display:flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	padding-top:20px;
+}
+div.rol {
+	width:300px;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	padding:15px;
+	margin:15px;
+	background-color:#2B1810;
+	border: 2px solid #D4A017;
+	border-radius: 12px;
+}
+
+img.carta-rol {
+	display:block;
+	margin:auto;
+	width:250px;
+	padding:25px;
+	align-items: center;
+}
+
+.rol p {
+	color:#FFF8DC;
+}
+
+.rol.lobo h1{
+ color:brown;
+}
+
+.rol.aldea h1{
+ color:gold;
+}
+
+.rol.neutro h1{
+ color:white;
 }
