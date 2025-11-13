@@ -1,5 +1,5 @@
 import './style.css'
-import { initRegistration } from './registration'; 
+import { initRegistration } from './components/registration'; 
 
 function main() {
     console.log("Aplicación principal inicializada.");

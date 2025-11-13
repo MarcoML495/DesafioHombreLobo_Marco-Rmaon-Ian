@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
-{
+class User extends Authenticatable{
     use HasFactory, Notifiable;
 
     /**
@@ -27,14 +26,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'id',
-        'username',
+        'name',
         'email',
-        'password_hash',
-        'is_bot',
+        'password',
         'avatar_image_id',
         'created_at',
         'last_login_at',
-    ];
+];
 
     /**
      * Campos ocultos al serializar.
@@ -48,7 +46,6 @@ class User extends Authenticatable
      * Casts automáticos de tipos.
      */
     protected $casts = [
-        'is_bot' => 'boolean',
         'created_at' => 'datetime',
         'last_login_at' => 'datetime',
     ];
@@ -81,15 +78,6 @@ class User extends Authenticatable
         return $this->belongsTo(Image::class, 'avatar_image_id');
     }
 
-    /**
-     * Helpers útiles
-     */
-
-    // Comprueba si el usuario es un bot
-    public function isBot(): bool
-    {
-        return $this->is_bot;
-    }
 
     // Nombre visible (p. ej. para logs o chat)
     public function displayName(): string
