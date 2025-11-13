@@ -1,4 +1,4 @@
-const nameInput = document.querySelector('input[placeholder="name"]') as HTMLInputElement | null;
+const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
 const emailInput = document.querySelector('input[placeholder="Email"]') as HTMLInputElement | null;
 const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
 const confirmPasswordInput = document.querySelector('div.form-row:nth-child(4) input') as HTMLInputElement | null;
