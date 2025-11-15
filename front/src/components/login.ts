@@ -1,31 +1,24 @@
+import '../style.css'
+
 const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
-const emailInput = document.querySelector('input[placeholder="Email"]') as HTMLInputElement | null;
 const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
-const confirmPasswordInput = document.querySelector('div.form-row:nth-child(4) input') as HTMLInputElement | null;
-const registerButton = document.querySelector('.button-register') as HTMLElement | null;
+const loginButton = document.querySelector('.button-login') as HTMLElement | null;
 
 
 function validateForm(): boolean {
-    if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
+    if (!nameInput || !passwordInput) {
         console.error("Error: No se encontraron todos los campos del formulario.");
         return false;
     }
 
     const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
     const password = passwordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
     
     let isValid = true;
     let errors: string[] = [];
 
     if (name.length < 3) {
         errors.push("El nombre de usuario debe tener al menos 3 caracteres.");
-        isValid = false;
-    }
-
-    if (!email.includes('@') || !email.includes('.')) {
-        errors.push("Por favor, introduce un correo electrónico válido.");
         isValid = false;
     }
 
@@ -41,11 +34,6 @@ function validateForm(): boolean {
         isValid = false;
     }
 
-    if (password !== confirmPassword) {
-        errors.push("Las contraseñas no coinciden.");
-        isValid = false;
-    }
-
     if (!isValid) {
         alert("Errores de validación:\n" + errors.join('\n'));
     }
@@ -54,10 +42,11 @@ function validateForm(): boolean {
 }
 
 
-async function sendToApi(userData: any): Promise<void> {
-    const API_URL = 'http://localhost:8000/api/register'; 
+async function sendLoginToApi(userData: any): Promise<void> {
+    const API_URL = 'http://localhost:8000/api/login'; 
 
     try {
+        console.log("LOGIN")
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -67,14 +56,12 @@ async function sendToApi(userData: any): Promise<void> {
             body: JSON.stringify(userData)
         });
 
-        console.log(response);
-
         const data = await response.json();
         console.log("Respuesta completa del servidor:", data);
 
         if (response.ok) {
-            console.log("Usuario registrado correctamente:", data.user?.name || data.user?.username);
-            alert(`¡Bienvenido, ${data.user?.name || data.user?.username || 'nuevo usuario'}! Tu cuenta se ha creado correctamente.`);
+            console.log("Usuario logeado correctamente:", data.data.name);
+            alert(`¡Bienvenido, ${data.data.name || 'nuevo usuario'}! Tu token es ${data.data.token}`);
         } else { 
             const errorMessage = data.message || (data.errors ? JSON.stringify(data.errors) : 'Error desconocido.');
             console.error("Error en el registro:", data);
@@ -87,25 +74,24 @@ async function sendToApi(userData: any): Promise<void> {
     }
 }
 
-export function initRegistration() {
-    if (registerButton) {
-        registerButton.addEventListener('click', async (event) => {
+export function initLogin() {
+    if (loginButton) {
+        loginButton.addEventListener('click', async (event) => {
             event.preventDefault(); 
             
             if (validateForm()) {
                 const userData = {
                     name: nameInput?.value.trim() || '',
-                    email: emailInput?.value.trim() || '',
+                    email: '',
                     password: passwordInput?.value || '',
-                    confirm_password: confirmPasswordInput?.value || ''
+                    confirm_password:  ''
                 };
-                console.log(userData);
-                await sendToApi(userData);
+                await sendLoginToApi(userData);
             } else {
-                console.log("Intento de registro fallido debido a errores de validación.");
+                console.log("Intento de login fallido debido a errores de validación.");
             }
         });
     } else {
-        console.warn("El botón de registro no se encontró en el DOM")
+        console.warn("El botón de login no se encontró en el DOM")
     }
 }

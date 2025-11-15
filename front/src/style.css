@@ -125,71 +125,76 @@ label {
 }
 
 .header {
-	margin:0px;
-	padding:0px;
-	position:sticky;
+	margin: 0px;
+	padding: 0px;
+	position: sticky;
 	width: 100%;
 	background-color: #333333;
-	top:0;
+	top: 0;
 	display: flex;
-    justify-content: space-around;
-    align-items: center;
+	justify-content: space-around;
+	align-items: center;
 	z-index: 99;
 }
 
-.header ul{
+.header ul {
 	list-style-type: none;
 	padding: 20px;
-    display: inline-flex;
+	display: inline-flex;
 }
 
 li {
-    padding-left: 10px;
-    padding-right: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
-li a {
-	color:dodgerblue;
+a {
+	color: #D4A017;
+	text-align: center;
+	font-size: 14px;
+	margin-top: 15px;
+	cursor: pointer;
 }
 
 .lista-roles {
-	display:flex;
+	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	padding-top:20px;
+	padding-top: 20px;
 }
+
 div.rol {
-	width:300px;
+	width: 300px;
 	text-align: center;
 	align-items: center;
 	justify-content: center;
-	padding:15px;
-	margin:15px;
-	background-color:#2B1810;
+	padding: 15px;
+	margin: 15px;
+	background-color: #2B1810;
 	border: 2px solid #D4A017;
 	border-radius: 12px;
 }
 
 img.carta-rol {
-	display:block;
-	margin:auto;
-	width:250px;
-	padding:25px;
+	display: block;
+	margin: auto;
+	width: 250px;
+	padding: 25px;
 	align-items: center;
 }
 
 .rol p {
-	color:#FFF8DC;
+	color: #FFF8DC;
 }
 
-.rol.lobo h1{
- color:brown;
+.rol.lobo h1 {
+	color: brown;
 }
 
-.rol.aldea h1{
- color:gold;
+.rol.aldea h1 {
+	color: gold;
 }
 
-.rol.neutro h1{
- color:white;
+.rol.neutro h1 {
+	color: white;
 }
