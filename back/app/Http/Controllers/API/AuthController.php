@@ -75,28 +75,50 @@ class AuthController extends Controller{
             return response()->json($validator->errors(),422);
         }
 
+        if (str_contains($request->name,'@') && str_contains($request->name,'.')) {
+            if(Auth::attempt(['email' => $request->name, 'password' => $request->password])){
+                $auth = Auth::user();
+                // return $auth;
+                //$tokenResult = $auth->createToken('LaravelSanctumAuth');
+                $tokenResult = $auth->createToken('LaravelSanctumAuth',['usuario']); // Asignar abilities al token
 
-        if(Auth::attempt(['name' => $request->name, 'password' => $request->password])){
-            $auth = Auth::user();
-            // return $auth;
-            //$tokenResult = $auth->createToken('LaravelSanctumAuth');
-            $tokenResult = $auth->createToken('LaravelSanctumAuth',['usuario']); // Asignar abilities al token
+                // Actualizar expiración
+                // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
+                // $tokenResult->accessToken->expires_at = now()->addHours($hours);
+                $tokenResult->accessToken->save();
 
-            // Actualizar expiración
-            // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
-            // $tokenResult->accessToken->expires_at = now()->addHours($hours);
-            $tokenResult->accessToken->save();
+                $success = [
+                    'id'         => $auth->id,
+                    'name'       => $auth->name,
+                    'token'      => $tokenResult->plainTextToken,
+                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null :  $tokenResult->accessToken->expires_at->toDateTimeString()
+                ];
+                return response()->json(["success"=>true,"data"=>$success, "message" => "User logged-in!"]);
+            } else {
+                return response()->json(["success"=>false, "message" => "Unauthorised"],404);
+            }
+        } else {
+            if(Auth::attempt(['name' => $request->name, 'password' => $request->password])){
+                $auth = Auth::user();
+                // return $auth;
+                //$tokenResult = $auth->createToken('LaravelSanctumAuth');
+                $tokenResult = $auth->createToken('LaravelSanctumAuth',['usuario']); // Asignar abilities al token
 
-            $success = [
-                'id'         => $auth->id,
-                'name'       => $auth->name,
-                'token'      => $tokenResult->plainTextToken,
-                'expires_at' => $tokenResult->accessToken->expires_at == null ? null :  $tokenResult->accessToken->expires_at->toDateTimeString()
-            ];
-            return response()->json(["success"=>true,"data"=>$success, "message" => "User logged-in!"]);
-        }
-        else{
-            return response()->json(["success"=>false, "message" => "Unauthorised"],404);
+                // Actualizar expiración
+                // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
+                // $tokenResult->accessToken->expires_at = now()->addHours($hours);
+                $tokenResult->accessToken->save();
+
+                $success = [
+                    'id'         => $auth->id,
+                    'name'       => $auth->name,
+                    'token'      => $tokenResult->plainTextToken,
+                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null :  $tokenResult->accessToken->expires_at->toDateTimeString()
+                ];
+                return response()->json(["success"=>true,"data"=>$success, "message" => "User logged-in!"]);
+            } else {
+                return response()->json(["success"=>false, "message" => "Unauthorised"],404);
+            }
         }
     }
 }

@@ -62,6 +62,10 @@ async function sendLoginToApi(userData: any): Promise<void> {
         if (response.ok) {
             console.log("Usuario logeado correctamente:", data.data.name);
             alert(`¡Bienvenido, ${data.data.name || 'nuevo usuario'}! Tu token es ${data.data.token}`);
+            sessionStorage.setItem("name", data.data.name);
+            sessionStorage.setItem("password", userData.password);
+            sessionStorage.setItem("token", data.data.token);
+            window.location.href = "menuprincipal.html"
         } else { 
             const errorMessage = data.message || (data.errors ? JSON.stringify(data.errors) : 'Error desconocido.');
             console.error("Error en el registro:", data);
