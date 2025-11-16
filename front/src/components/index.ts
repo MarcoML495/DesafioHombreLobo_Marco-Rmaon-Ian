@@ -110,7 +110,5 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML= `
       <p>Al morir: Puede elegir otro jugador para que herede el rol.</p><br>
     </div>
   </div>
-
-  <div class="wolf-illustration">Pito</div>
 `
 
