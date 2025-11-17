@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable;
+class User extends Authenticatable{
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * Nombre de la tabla.
@@ -33,13 +33,13 @@ class User extends Authenticatable
         'avatar_image_id',
         'created_at',
         'last_login_at',
-    ];
+];
 
     /**
      * Campos ocultos al serializar.
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 

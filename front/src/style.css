@@ -6,8 +6,10 @@
 
 body {
 	font-family: Arial, sans-serif;
+	/* Estilos específicos de tu body */
 	background: #1A1A1A;
-	padding: 20px;
+	padding: 0px;
+	color: #D4A017;
 }
 
 h1 {
@@ -31,7 +33,7 @@ label {
 	cursor: pointer;
 }
 
-
+/* LOGIN (Elementos presentes en tu HTML) */
 .login-container {
 	display: flex;
 	flex-direction: column;
@@ -54,6 +56,11 @@ label {
 .logo-small img {
 	width: 200px;
 	height: 200px;
+}
+
+.logo-large img {
+	margin-top: 20px;
+	width: 700px;
 }
 
 .main-title {
@@ -115,4 +122,195 @@ label {
 	background: #2B1810;
 	padding: 15px;
 	border-radius: 6px;
+}
+
+.header {
+	margin: 0px;
+	padding: 0px;
+	position: sticky;
+	width: 100%;
+	background-color: #333333;
+	top: 0;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	z-index: 99;
+}
+
+.header ul {
+	list-style-type: none;
+	padding: 20px;
+	display: inline-flex;
+}
+
+li {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+a {
+	color: #D4A017;
+	text-align: center;
+	font-size: 14px;
+	margin-top: 15px;
+	cursor: pointer;
+}
+
+.lista-roles {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	padding-top: 20px;
+}
+
+div.rol {
+	width: 300px;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	padding: 15px;
+	margin: 15px;
+	background-color: #2B1810;
+	border: 2px solid #D4A017;
+	border-radius: 12px;
+}
+
+img.carta-rol {
+	display: block;
+	margin: auto;
+	width: 250px;
+	padding: 25px;
+	align-items: center;
+}
+
+.rol p {
+	color: #FFF8DC;
+}
+
+.rol.lobo h1 {
+	color: brown;
+}
+
+.rol.aldea h1 {
+	color: gold;
+}
+
+.rol.neutro h1 {
+	color: white;
+}
+
+/* MAIN MENU */
+.menu-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #D4A017;
+	margin-bottom: 40px;
+}
+
+.logo-title {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.logo-icon {
+	width: 50px;
+	height: 50px;
+	background: #D4A017;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24px;
+}
+
+.title-text {
+	color: #D4A017;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.user-menu {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	background: #2B1810;
+	padding: 10px 20px;
+	border-radius: 8px;
+	border: 2px solid #D4A017;
+	cursor: pointer;
+}
+
+.user-avatar-small {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: #4A4A4A;
+	border: 2px solid #D4A017;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	color: #D4A017;
+}
+
+.user-name {
+	color: #FFF8DC;
+	font-weight: 600;
+}
+
+.cards-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 30px;
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.menu-card {
+	background: #2B1810;
+	border: 2px solid #D4A017;
+	border-radius: 12px;
+	padding: 40px;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.3s;
+	min-height: 300px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.menu-card:hover {
+	transform: translateY(-8px);
+	box-shadow: 0 8px 24px rgba(212, 160, 23, 0.3);
+}
+
+.card-icon {
+	width: 80px;
+	height: 80px;
+	background: #D4A017;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 40px;
+	margin-bottom: 20px;
+	color: #1A1A1A;
+}
+
+.card-title {
+	color: #D4A017;
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: 15px;
+}
+
+.card-description {
+	color: #FFF8DC;
+	font-size: 14px;
+	line-height: 1.6;
 }
