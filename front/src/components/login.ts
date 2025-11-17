@@ -1,4 +1,4 @@
-import '../style.css'
+import '../style.css';
 
 const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
 const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
@@ -65,7 +65,7 @@ async function sendLoginToApi(userData: any): Promise<void> {
             sessionStorage.setItem("name", data.data.name);
             sessionStorage.setItem("password", userData.password);
             sessionStorage.setItem("token", data.data.token);
-            window.location.href = "menuprincipal.html"
+            window.location.href = "../views/menuprincipal.html"
         } else { 
             const errorMessage = data.message || (data.errors ? JSON.stringify(data.errors) : 'Error desconocido.');
             console.error("Error en el registro:", data);

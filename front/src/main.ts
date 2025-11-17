@@ -1,4 +1,4 @@
-import './style.css'
+import './style.css';
 import { initRegistration } from './components/registration'; 
 import { initLogin } from './components/login'; 
 
