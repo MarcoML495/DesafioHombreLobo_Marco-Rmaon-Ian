@@ -19,10 +19,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
 
-            // Password (ajusta el nombre si quieres usar password_hash)
+            // Password (el campo del modelo es "password")
             $table->string('password');
 
-            // Avatar opcional
+            // Avatar opcional (ajusta tipo si tu tabla images usa UUID)
             $table->unsignedBigInteger('avatar_image_id')->nullable();
 
             // Último login
@@ -34,11 +34,12 @@ return new class extends Migration
             // created_at / updated_at
             $table->timestamps();
 
-            // FOREIGN KEY al modelo Image 
-            $table->foreign('avatar_image_id')
-                ->references('id')
-                ->on('images')
-                ->onDelete('set null');
+            // FOREIGN KEY a images
+
+            // $table->foreign('avatar_image_id')
+            //     ->references('id')
+            //     ->on('images')
+            //     ->onDelete('set null');
         });
     }
 
@@ -47,6 +48,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Primero quitamos la foreign
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['avatar_image_id']);
         });

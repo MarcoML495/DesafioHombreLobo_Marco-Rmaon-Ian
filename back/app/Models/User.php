@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable{
+class User extends Authenticatable
+{
     use HasFactory, Notifiable;
 
     /**
@@ -32,13 +33,13 @@ class User extends Authenticatable{
         'avatar_image_id',
         'created_at',
         'last_login_at',
-];
+    ];
 
     /**
      * Campos ocultos al serializar.
      */
     protected $hidden = [
-        'password_hash',
+        'password',
         'remember_token',
     ];
 
