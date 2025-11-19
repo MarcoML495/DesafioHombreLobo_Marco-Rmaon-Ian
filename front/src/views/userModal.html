@@ -1,38 +1,161 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Los lobos de castronegro</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../style.css" />
+    <title>Mi Perfil - Los Lobos de Castronegro</title>
 </head>
 
-<body>
-    <div class="screen">
-        <div class="menu-header">
-            <div class="logo-title">
-                <div class="logo-icon">🐺</div>
-                <div class="title-text">LOS LOBOS DE CASTRONEGRO</div>
-            </div>
-            <div class="user-menu">
-                <div class="user-avatar-small">👤</div>
-                <div class="user-name">NombreUsuario</div>
-                <div style="color: #D4A017;">▼</div>
-            </div>
+<body class="profile-page">
+    <!-- Pantalla de Perfil -->
+    <div class="profile-screen">
+        <div class="profile-header-new">
+            <div class="back-button-new" id="close-modal-btn">← Volver al Menú</div>
         </div>
-        <div class="cards-container">
-            <div class="menu-card">
-                <div class="card-icon">➕</div>
-                <div class="card-title">Crear Lobby</div>
-                <p class="card-description">Inicia una nueva partida y configura las reglas del juego. Invita a otros
-                    jugadores a unirse.</p>
+
+        <div class="profile-content">
+            <!-- Avatar Grande Circular -->
+            <div class="avatar-container-new">
+                <div class="avatar-new">
+                    <svg width="150" height="150" viewBox="0 0 150 150" fill="none">
+                        <circle cx="75" cy="75" r="73" fill="#5A5A5A" stroke="#D4A017" stroke-width="4" />
+                        <path
+                            d="M75 45C65.335 45 57.5 52.835 57.5 62.5C57.5 72.165 65.335 80 75 80C84.665 80 92.5 72.165 92.5 62.5C92.5 52.835 84.665 45 75 45Z"
+                            fill="#87CEEB" />
+                        <path
+                            d="M43.75 118.75C43.75 98.039 60.539 81.25 81.25 81.25H68.75C51.491 81.25 37.5 95.241 37.5 112.5V118.75H43.75Z"
+                            fill="#87CEEB" />
+                        <path
+                            d="M106.25 118.75C106.25 98.039 89.461 81.25 68.75 81.25H81.25C98.509 81.25 112.5 95.241 112.5 112.5V118.75H106.25Z"
+                            fill="#87CEEB" />
+                    </svg>
+                </div>
+                <div class="camera-icon-new" title="Cambiar avatar (próximamente)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#1A1A1A">
+                        <path
+                            d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+                    </svg>
+                </div>
             </div>
-            <div class="menu-card">
-                <div class="card-icon">🚪</div>
-                <div class="card-title">Unirse a Lobby</div>
-                <p class="card-description">Explora las partidas disponibles y únete a una sala existente para comenzar
-                    a jugar.</p>
+
+            <!-- Username Display -->
+            <div class="username-display-new" id="modal-username-display">@NombreUsuario</div>
+
+            <!-- Formulario -->
+            <div class="form-container-new">
+                <!-- Nombre Completo (Real Name) -->
+                <div class="form-row-with-button">
+                    <div class="form-row-new">
+                        <label class="label-new">Nombre Completo</label>
+                        <input type="text" id="modal-profile-realname" class="input-field-new input-readonly-new"
+                            placeholder="Juan Pérez García" maxlength="100" readonly />
+                    </div>
+                    <button class="button-edit-field" id="edit-realname-btn" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                        </svg>
+                        Editar
+                    </button>
+                </div>
+                <!-- Nombre de Usuario (Username) -->
+                <div class="form-row-with-button">
+                    <div class="form-row-new">
+                        <label class="label-new">Nombre de Usuario</label>
+                        <input type="text" id="modal-profile-username" class="input-field-new input-readonly-new"
+                            placeholder="NombreUsuario" readonly />
+                    </div>
+                    <button class="button-edit-field" id="edit-username-btn" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                        </svg>
+                        Editar
+                    </button>
+                </div>
+
+                <!-- Correo Electrónico -->
+                <div class="form-row-with-button">
+                    <div class="form-row-new">
+                        <label class="label-new">Correo Electrónico</label>
+                        <input type="email" id="modal-profile-email" class="input-field-new input-readonly-new"
+                            placeholder="usuario@email.com" readonly />
+                    </div>
+                    <button class="button-edit-field" id="edit-email-btn" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                        </svg>
+                        Editar
+                    </button>
+                </div>
+
+                <!-- Biografía -->
+                <div class="form-row-with-button">
+                    <div class="form-row-new">
+                        <label class="label-new">Biografía</label>
+                        <textarea id="modal-profile-bio" class="input-field-new textarea-new input-readonly-new"
+                            placeholder="Jugador apasionado de Los Lobos de Castronegro..." maxlength="500" rows="3"
+                            readonly></textarea>
+                    </div>
+                    <button class="button-edit-field" id="edit-bio-btn" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                        </svg>
+                        Editar
+                    </button>
+                </div>
+
+                <!-- Botón para mostrar campos de contraseña -->
+                <div class="password-toggle-section">
+                    <button class="button-toggle-password" id="toggle-password-btn" type="button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                            <path
+                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                        </svg>
+                        Cambiar Contraseña
+                    </button>
+                </div>
+
+                <!-- Cambiar Contraseña (oculto por defecto) -->
+                <div class="password-fields-container" id="password-fields" style="display: none;">
+                    <div class="form-section-new">
+                        <div class="section-title-new">Cambiar Contraseña</div>
+
+                        <div class="form-row-new">
+                            <label class="label-new">Contraseña Actual</label>
+                            <input type="password" id="modal-current-password" class="input-field-new"
+                                placeholder="••••••••••" autocomplete="current-password" />
+                        </div>
+
+                        <div class="form-row-new">
+                            <label class="label-new">Nueva Contraseña</label>
+                            <input type="password" id="modal-new-password" class="input-field-new"
+                                placeholder="Mínimo 8 caracteres con caracteres especiales"
+                                autocomplete="new-password" />
+                        </div>
+
+                        <div class="form-row-new">
+                            <label class="label-new">Confirmar Nueva Contraseña</label>
+                            <input type="password" id="modal-confirm-password" class="input-field-new"
+                                placeholder="Repetir nueva contraseña" autocomplete="new-password" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="button-group-new">
+                    <button class="button-cancel-new" id="cancel-btn" type="button">Cancelar</button>
+                    <button class="button-save-new" id="save-btn" type="button">Guardar Cambios</button>
+                </div>
             </div>
         </div>
     </div>
+
+    <script type="module" src="../components/userPage.ts"></script>
 </body>
+
+</html>
