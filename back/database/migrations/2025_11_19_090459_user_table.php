@@ -5,47 +5,37 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            
+
             $table->uuid('id')->primary()->default(DB::raw('UUID()'));
 
-            // Datos básicos
+            // Datos personales
             $table->string('name');
+            $table->string('real_name')->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->text('bio')->nullable();
 
-            // Si 'images.id' es UUID, usa uuid también aquí
             $table->uuid('avatar_image_id')->nullable();
 
-            // Último login
             $table->timestamp('last_login_at')->nullable();
-
-            // Token "remember me"
             $table->rememberToken();
 
-            // created_at / updated_at
             $table->timestamps();
         });
 
-        // Si tu tabla images usa UUID en id, añade la foreign:
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreign('avatar_image_id')
-                ->references('id')
-                ->on('images')
-                ->onDelete('set null');
-        });
+        // Foreign key del avatar
+        // Schema::table('users', function (Blueprint $table) {
+        //     $table->foreign('avatar_image_id')
+        //         ->references('id')
+        //         ->on('images')
+        //         ->onDelete('set null');
+        // });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
