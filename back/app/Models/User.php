@@ -21,7 +21,11 @@ class User extends Authenticatable{
      */
     protected $primaryKey = 'id';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     public $incrementing = true; 
+=======
+    public $incrementing = true; // UUID
+>>>>>>> Stashed changes
 =======
     public $incrementing = true; // UUID
 >>>>>>> Stashed changes
