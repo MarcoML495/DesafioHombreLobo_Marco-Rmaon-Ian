@@ -20,15 +20,9 @@ class User extends Authenticatable{
      * Clave primaria.
      */
     protected $primaryKey = 'id';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
     public $incrementing = true; 
-=======
-    public $incrementing = true; // UUID
->>>>>>> Stashed changes
-=======
-    public $incrementing = true; // UUID
->>>>>>> Stashed changes
+
     protected $keyType = 'string';
 
     /**
