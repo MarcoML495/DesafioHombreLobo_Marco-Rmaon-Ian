@@ -75,10 +75,9 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: var(--bg-dark);
-    color: var(--color-primary);
-    padding: 0;
+    background-color: var(--bg-darkest, #0f0f0f); 
+    min-height: 100vh;
+    position: relative; 
 }
 
 input {
@@ -113,6 +112,137 @@ a:hover {
 li {
     padding-left: var(--spacing-sm);
     padding-right: var(--spacing-sm);
+}
+
+
+/* ==========================================
+   ESTILOS DE LA BARRA DE NAVEGACIÓN
+   ========================================== */
+
+.main-navbar {
+    background-color: var(--bg-dark); 
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-lg); 
+    border-bottom: 1px solid var(--border-dark);
+    box-shadow: 0 4px 6px -1px var(--shadow-dark);
+    z-index: 1000;
+}
+
+.navbar-logo img {
+    height: 80px; 
+    width: auto;
+    transition: var(--transition-fast);
+}
+
+.navbar-logo a:hover img {
+    transform: scale(1.05);
+}
+
+
+.navbar-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+
+.navbar-links li {
+    margin-left: var(--spacing-xl); 
+}
+
+
+.nav-link {
+    color: var(--text-light); 
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: var(--spacing-sm) 0;
+    transition: var(--transition-fast);
+    text-shadow: 1px 1px 1px var(--bg-darkest);
+}
+
+
+.nav-link:hover {
+    color: var(--color-primary-light); 
+    border-bottom: 2px solid var(--color-gold);
+    text-shadow: 0 0 5px var(--color-primary), 0 0 10px var(--color-primary); 
+}
+
+.nav-link.active {
+    color: var(--color-gold);
+    border-bottom: 3px solid var(--color-gold);
+}
+
+/* ==========================================
+   ESTILOS DEL PIE DE PÁGINA (Footer)
+   ========================================== */
+
+.main-footer {
+    background-color: var(--bg-dark); 
+    color: var(--text-light); 
+    padding: var(--spacing-xxl) var(--spacing-lg); 
+    margin-top: var(--spacing-xxl);
+    border-top: 2px solid var(--color-primary-dark); 
+    box-shadow: 0 -4px 6px -1px var(--shadow-dark); 
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    max-width: 1200px; 
+    margin: 0 auto;
+    flex-wrap: wrap; 
+}
+
+.footer-section {
+    flex: 1; 
+    min-width: 200px; 
+    padding: var(--spacing-md);
+}
+
+.footer-section h3, .footer-section h4 {
+    color: var(--color-gold); 
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-primary-dark); 
+    padding-bottom: var(--spacing-sm);
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links a, .social-link {
+    color: var(--text-light);
+    text-decoration: none;
+    line-height: 1.8; 
+    display: block;
+    transition: var(--transition-fast);
+}
+
+
+.footer-links a:hover, .social-link:hover {
+    color: var(--color-primary-light); 
+    transform: translateX(5px);
+}
+
+.social-icons a {
+    margin-bottom: var(--spacing-sm);
+}
+
+    
+.footer-brand p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    line-height: 1.5;
 }
 
 /* ==========================================
@@ -288,8 +418,12 @@ li {
     flex-wrap: wrap;
     justify-content: center;
     padding-top: var(--spacing-lg);
+    
 }
 
+#role-list{
+    color: var(--color-primary);    
+}
 div.rol {
     width: 300px;
     text-align: center;
@@ -305,6 +439,12 @@ img.carta-rol {
     margin: auto;
     width: 250px;
     padding: 25px;
+}
+
+#intro p {
+    color: var(--color-primary); 
+    font-size: 1.05rem;
+    line-height: 1.6;
 }
 
 .rol p {

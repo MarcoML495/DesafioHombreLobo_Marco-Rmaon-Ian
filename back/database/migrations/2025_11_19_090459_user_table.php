@@ -9,8 +9,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-
-            $table->uuid('id')->primary()->default(DB::raw('UUID()'));
+            $table->id('id')->primary();
 
             // Datos personales
             $table->string('name');

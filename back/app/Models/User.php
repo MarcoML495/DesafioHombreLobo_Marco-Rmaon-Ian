@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class User extends Authenticatable{
     use HasFactory, Notifiable, HasApiTokens;
@@ -19,7 +20,9 @@ class User extends Authenticatable{
      * Clave primaria.
      */
     protected $primaryKey = 'id';
-    public $incrementing = false; // UUID
+
+    public $incrementing = true; 
+
     protected $keyType = 'string';
 
     /**
