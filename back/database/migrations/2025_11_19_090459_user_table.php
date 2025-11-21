@@ -10,7 +10,11 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
 
+<<<<<<< Updated upstream
             $table->id('id')->primary();
+=======
+            $table->id();
+>>>>>>> Stashed changes
 
             // Datos personales
             $table->string('name');
