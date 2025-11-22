@@ -17,6 +17,7 @@ class Game extends Model
     //Campos que se pueden asignar masivamente.
     protected $fillable = [
         'id',
+        'name',
         'join_code',
         'created_by_user_id',
         'status',
