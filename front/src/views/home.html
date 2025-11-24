@@ -9,13 +9,18 @@
 </head>
 
 <body>
-    <div class="header">
-        <ul>
-            <li><a href="#intro">Intro</a></li>
-            <li><a href="#roles">Roles</a></li>
-            <li><a href="registrar.html">Registrarse</a></li>
-        </ul>
+     <nav class="main-navbar">
+    <div class="navbar-logo">
+      <a href="home.html">
+        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+      </a>
     </div>
+    <ul class="navbar-links">
+      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+      <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+    </ul>
+  </nav>
+
 
     <div class="login-container">
         <div class="logo-large">
@@ -41,10 +46,8 @@
                 <p>Cada noche, los Hombres Lobo elegirán a un aldeano que matar, y dependiendo del tipo de personas
                     que habitan la aldea, podrian ocurrir muchos mas sucesos que cambiarán el curso del juego.</p><br>
             </span><br>
-
-
         </div>
-        <h1>Lista de roles</h1>
+        <h1 id="role-list">Lista de roles</h1>
     </div>
     <div class="lista-roles" id="roles">
         <div class="rol lobo">
@@ -124,6 +127,33 @@
             <p>Al morir: Puede elegir otro jugador para que herede el rol.</p><br>
         </div>
     </div>
+     <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section footer-brand">
+        <h3>Los Lobos de Castronegro</h3>
+        <p>&copy; 2025 Todos los derechos reservados.</p>
+        <p>Hecho con 💜 por la manada.</p>
+      </div>
+      
+      <div class="footer-section footer-links">
+        <h4>Enlaces Rápidos</h4>
+        <ul>
+          <li><a href="home.html">Inicio</a></li>
+          <li><a href="rules.html">Reglas del Juego</a></li>
+          <li><a href="privacy.html">Política de Privacidad</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section footer-social">
+        <h4>Síguenos</h4>
+        <div class="social-icons">
+          <a href="#" class="social-link">🐺 Twitter</a>
+          <a href="#" class="social-link">🌕 Discord</a>
+          <a href="#" class="social-link">🔥 Instagram</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 <script type="module" src="/src/main.ts"></script>
 </html>

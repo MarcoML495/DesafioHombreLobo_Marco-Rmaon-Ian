@@ -1,12 +1,25 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menú Principal - Los Lobos de Castronegro</title>
 </head>
+
 <body>
+    <nav class="main-navbar">
+        <div class="navbar-logo">
+            <a href="home.html">
+                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+            </a>
+        </div>
+        <ul class="navbar-links">
+            <li><a href="home.html" class="nav-link">Inicio</a></li>
+            <li><a href="registrar.html" class="nav-link">Registrarse</a></li>
+        </ul>
+    </nav>
     <!-- Pantalla Principal del Menú -->
     <div class="screen">
         <div class="menu-header">
@@ -26,7 +39,7 @@
                 <div class="card-icon">➕</div>
                 <div class="card-title">Crear Lobby</div>
                 <p class="card-description">
-                    Inicia una nueva partida y configura las reglas del juego. 
+                    Inicia una nueva partida y configura las reglas del juego.
                     Invita a otros jugadores a unirse.
                 </p>
             </div>
@@ -35,13 +48,49 @@
                 <div class="card-icon">🚪</div>
                 <div class="card-title">Unirse a Lobby</div>
                 <p class="card-description">
-                    Explora las partidas disponibles y únete a una sala existente 
+                    Explora las partidas disponibles y únete a una sala existente
                     para comenzar a jugar.
                 </p>
             </div>
         </div>
     </div>
 
+    <div id="lobby-modal" class="modal">
+        <div class="lobby-container">
+            <div class="lobby-form">
+                <div class="form-section">
+                    <div class="section-title">Información Básica</div>
+                    <div class="form-row">
+                        <label for="lobby-name">Nombre del Lobby</label>
+                        <input type="text" id="lobby-name" placeholder="Nueva partida">
+                    </div>
+                    <div class="form-row">
+                        <label for="lobby-max">Maximo de jugadores</label>
+                        <input type="number" id="lobby-max" value="30" min="15" max="30">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <div class="section-title">Privacidad</div>
+                    <div class="form-row"><label>Tipo de Lobby</label>
+                        <input type="radio" id="publico" name="lobby-type" value="Publico" checked>
+                        <label class="radio" for="publico">Publico</label><br>
+                        <input type="radio" id="privado" name="lobby-type" value="Privado">
+                        <label class="radio" for="privado">Privado</label>
+                    </div>
+                    <div class="form-row">
+                        <label for="lobby-code">Código de acceso (solo partidas privadas)</label>
+                        <input type="text" id="lobby-code" placeholder="ABCDEF" maxlength="10" disabled>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <div class="button-secondary" id="btn-cancelar">Cancelar</div>
+                    <div class="button-primary" id="crear-lobby">Crear Lobby</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="../components/menuprincipal.ts"></script>
 </body>
+
 </html>
