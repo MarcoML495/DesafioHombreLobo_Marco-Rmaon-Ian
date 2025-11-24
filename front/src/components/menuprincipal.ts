@@ -1,4 +1,5 @@
 import '../style.css';
+import "../main.ts";
 const lobbymodal = document.getElementById("lobby-modal");
 
 const nameInput = document.getElementById("lobby-name") as HTMLInputElement | null;

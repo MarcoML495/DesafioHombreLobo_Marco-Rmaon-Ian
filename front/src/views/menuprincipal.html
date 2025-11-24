@@ -10,16 +10,18 @@
 
 <body>
     <nav class="main-navbar">
-        <div class="navbar-logo">
-            <a href="home.html">
-                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
-            </a>
-        </div>
-        <ul class="navbar-links">
-            <li><a href="home.html" class="nav-link">Inicio</a></li>
-            <li><a href="registrar.html" class="nav-link">Registrarse</a></li>
-        </ul>
-    </nav>
+    <div class="navbar-logo">
+        <a href="home.html">
+            <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+        </a>
+    </div>
+    <ul class="navbar-links" id="navbar-guest-links">
+        <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+        <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+    </ul>
+    <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+    </ul>
+</nav>
     <!-- Pantalla Principal del Menú -->
     <div class="screen">
         <div class="menu-header">

@@ -13,15 +13,19 @@
   
   <nav class="main-navbar">
     <div class="navbar-logo">
-      <a href="home.html">
-        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
-      </a>
+        <a href="home.html">
+            <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+        </a>
     </div>
-    <ul class="navbar-links">
-      <li><a href="home.html" class="nav-link">Inicio</a></li>
-      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+
+    <ul class="navbar-links" id="navbar-guest-links">
+        <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+        <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
     </ul>
-  </nav>
+
+    <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+    </ul>
+</nav>
 
 
   <div class="login-container">
