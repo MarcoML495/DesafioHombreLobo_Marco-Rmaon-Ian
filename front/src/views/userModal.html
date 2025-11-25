@@ -17,9 +17,10 @@
 
         <div class="profile-content">
             <!-- Avatar Grande Circular -->
+            <!-- Avatar Grande Circular -->
             <div class="avatar-container-new">
-                <div class="avatar-new">
-                    <svg width="150" height="150" viewBox="0 0 150 150" fill="none">
+                <div class="avatar-new" id="avatar-display">
+                    <svg id="default-avatar" width="150" height="150" viewBox="0 0 150 150" fill="none">
                         <circle cx="75" cy="75" r="73" fill="#5A5A5A" stroke="#D4A017" stroke-width="4" />
                         <path
                             d="M75 45C65.335 45 57.5 52.835 57.5 62.5C57.5 72.165 65.335 80 75 80C84.665 80 92.5 72.165 92.5 62.5C92.5 52.835 84.665 45 75 45Z"
@@ -31,8 +32,12 @@
                             d="M106.25 118.75C106.25 98.039 89.461 81.25 68.75 81.25H81.25C98.509 81.25 112.5 95.241 112.5 112.5V118.75H106.25Z"
                             fill="#87CEEB" />
                     </svg>
+                    <img id="custom-avatar" src="" alt="Avatar"
+                        style="display: none; width: 150px; height: 150px; border-radius: 50%; object-fit: cover; position: absolute; top: 0; left: 0;">
                 </div>
-                <div class="camera-icon-new" title="Cambiar avatar (próximamente)">
+                <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                    style="display: none;">
+                <div class="camera-icon-new" id="camera-btn" title="Cambiar avatar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#1A1A1A">
                         <path
                             d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />

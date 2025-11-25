@@ -7,6 +7,7 @@ interface UserProfile {
   email: string;
   bio?: string;
   avatar_image_id?: string;
+  avatar_url?: string;
 }
 
 const API_URL = "http://localhost:8000/api";
@@ -14,6 +15,10 @@ const API_URL = "http://localhost:8000/api";
 // Elementos del DOM
 const closeModalBtn = document.getElementById("close-modal-btn") as HTMLElement;
 const cancelBtn = document.getElementById("cancel-btn") as HTMLButtonElement;
+const cameraBtn = document.getElementById("camera-btn") as HTMLElement;
+const avatarInput = document.getElementById("avatar-input") as HTMLInputElement;
+const defaultAvatar = document.getElementById('default-avatar') as unknown as SVGElement;
+const customAvatar = document.getElementById('custom-avatar') as HTMLImageElement;
 const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
 const togglePasswordBtn = document.getElementById(
   "toggle-password-btn"
@@ -272,7 +277,71 @@ function togglePasswordFields() {
     }
   }
 }
+function displayAvatar(url: string | null) {
+  if (url) {
+    customAvatar.src = url;
+    customAvatar.style.display = "block";
+    defaultAvatar.style.display = "none";
+  } else {
+    customAvatar.style.display = "none";
+    defaultAvatar.style.display = "block";
+  }
+}
 
+function openAvatarSelector() {
+  avatarInput.click();
+}
+
+async function handleAvatarChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  if (
+    ![
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/gif",
+      "image/webp",
+    ].includes(file.type)
+  ) {
+    alert("Solo se permiten imágenes JPEG, PNG, GIF o WebP");
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("La imagen no debe superar 2MB");
+    return;
+  }
+
+  const token = getAuthToken();
+  if (!token) return;
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  try {
+    const response = await fetch(`${API_URL}/user/avatar`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      displayAvatar(data.data.url);
+      alert("¡Avatar actualizado!");
+    } else {
+      throw new Error(data.message || "Error al subir");
+    }
+  } catch (error) {
+    alert("Error al subir avatar");
+    console.error(error);
+  }
+}
 /**
  * Carga el perfil del usuario desde la API
  */
@@ -307,6 +376,9 @@ async function loadUserProfile() {
       // Rellenar el formulario
       if (realNameField) realNameField.value = originalRealName;
       if (usernameField) usernameField.value = originalUsername;
+      if (user.avatar_url) {
+        displayAvatar(user.avatar_url);
+      }
       if (emailField) emailField.value = originalEmail;
       if (bioField) bioField.value = originalBio;
       if (usernameDisplay) usernameDisplay.textContent = `@${originalUsername}`;
@@ -594,6 +666,14 @@ function init() {
   // Event listener para toggle de contraseña
   if (togglePasswordBtn) {
     togglePasswordBtn.addEventListener("click", togglePasswordFields);
+  }
+
+  // Event listeners para avatar
+  if (cameraBtn) {
+    cameraBtn.addEventListener("click", openAvatarSelector);
+  }
+  if (avatarInput) {
+    avatarInput.addEventListener("change", handleAvatarChange);
   }
 
   console.log("Modal de usuario inicializado correctamente");

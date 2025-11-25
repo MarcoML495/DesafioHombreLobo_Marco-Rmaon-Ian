@@ -8,7 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class User extends Authenticatable{
+class User extends Authenticatable
+{
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
@@ -21,7 +22,7 @@ class User extends Authenticatable{
      */
     protected $primaryKey = 'id';
 
-    public $incrementing = true; 
+    public $incrementing = true;
 
     protected $keyType = 'string';
 
@@ -38,7 +39,7 @@ class User extends Authenticatable{
         'avatar_image_id',
         'created_at',
         'last_login_at',
-];
+    ];
 
     /**
      * Campos ocultos al serializar.
@@ -61,10 +62,10 @@ class User extends Authenticatable{
      */
 
     // 1:1 con estadísticas del usuario
-    public function stats()
-    {
-        return $this->hasOne(UserStats::class, 'user_id');
-    }
+    // public function stats()
+    // {
+    //     return $this->hasOne(UserStats::class, 'user_id');
+    // }
 
     // 1:N con las partidas creadas
     public function createdGames()
@@ -73,17 +74,32 @@ class User extends Authenticatable{
     }
 
     // 1:N con las participaciones en partidas
-    public function gamePlayers()
-    {
-        return $this->hasMany(GamePlayer::class, 'user_id');
-    }
+    // public function gamePlayers()
+    // {
+    //     return $this->hasMany(GamePlayer::class, 'user_id');
+    // }
 
     // Imagen de avatar
     public function avatar()
     {
-        return $this->belongsTo(Image::class, 'avatar_image_id');
+        return $this->belongsTo(Images::class, 'avatar_image_id');
     }
 
+    public function avatarImage()
+    {
+        return $this->avatar();
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return $this->avatar ? $this->avatar->url : null;
+    }
+
+    public function hasCustomAvatar(): bool
+    {
+        return !is_null($this->avatar_image_id);
+    }
+    
     /**
      * MÉTODOS AUXILIARES
      */
@@ -145,5 +161,4 @@ class User extends Authenticatable{
             ? substr($this->bio, 0, $length) . '...'
             : $this->bio;
     }
-
 }

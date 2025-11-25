@@ -27,6 +27,8 @@ class UserController extends Controller
                 ], 401);
             }
 
+            $user->load('avatar');
+
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -34,6 +36,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'bio' => $user->bio ?? '',
                 'avatar_image_id' => $user->avatar_image_id,
+                'avatar_url' => $user->avatar ? $user->avatar->url : null,
                 'created_at' => $user->created_at,
                 'last_login_at' => $user->last_login_at
             ];
@@ -202,43 +205,47 @@ class UserController extends Controller
     }
 
     /**
-     * Actualizar el avatar del usuario (para futuro)
+     * Actualizar el avatar del usuario
      * POST /api/user/avatar
      */
     public function updateAvatar(Request $request)
     {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'No autenticado'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+        ], [
+            'image.required' => 'Falta el archivo',
+            'image.mimes' => 'Tipo no soportado',
+            'image.max' => 'Máximo 2MB'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
         try {
-            $user = $request->user();
+            $file = $request->file('image');
+            $filename = uniqid('avatar_') . '.' . $file->getClientOriginalExtension();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Usuario no autenticado'
-                ], 401);
-            }
+            $path = \Illuminate\Support\Facades\Storage::disk('cloudinary')
+                ->putFileAs('laravel/avatars', $file, $filename);
+            $url = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($path);
 
-            $rules = [
-                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-            ];
-
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+            $image = \App\Models\Images::create(['url' => $url]);
+            $user->avatar_image_id = $image->id;
+            $user->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Avatar actualizado correctamente'
+                'message' => 'Avatar actualizado',
+                'data' => ['id' => $image->id, 'url' => $url]
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el avatar: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }

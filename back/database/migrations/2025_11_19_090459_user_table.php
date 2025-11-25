@@ -17,9 +17,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('password');
             $table->text('bio')->nullable();
-
             $table->uuid('avatar_image_id')->nullable();
-
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
 
