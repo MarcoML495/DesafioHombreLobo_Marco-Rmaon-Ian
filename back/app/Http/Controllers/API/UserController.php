@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Str;  
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -241,4 +243,57 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function enviar(Request $request){
+    $request->validate([
+        'email' => 'required|email'
+    ]);
+
+    $email = $request->email;
+
+    // Buscar usuario
+    $usuario = User::where('email', $email)->first();
+
+    if (!$usuario) {
+        return response()->json([
+            "enviado" => false,
+            "mensaje" => "El correo no existe en la base de datos."
+        ], 404);
+    }
+
+    // Generar contraseña aleatoria de 8 caracteres con símbolos
+    $nuevaPass = Str::random(6) . "@" . rand(10, 99);
+
+    // Guardar en BBDD (hasheada)
+    $usuario->password = Hash::make($nuevaPass);
+    $usuario->save();
+
+    // Datos para la vista
+    $datos = [
+        'nombreUsuario' => $usuario->name,
+        'email' => $usuario->email,
+        'pass' => $nuevaPass
+    ];
+
+    try {
+        Mail::send('correo_recuperar', $datos, function ($message) use ($email) {
+            $message->to($email)
+                    ->subject('Recuperación de contraseña')
+                    ->from('iaancastellanos1234@gmail.com', 'Los Lobos de Castronegro');
+        });
+
+        return response()->json([
+            "enviado" => true,
+            "mensaje" => "Correo enviado correctamente"
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            "enviado" => false,
+            "mensaje" => "Error al enviar el correo",
+            "error" => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

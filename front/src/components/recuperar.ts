@@ -1,0 +1,37 @@
+import '../style.css'
+const btn = document.getElementById("btn-recuperar") as HTMLButtonElement;
+const emailInput = document.getElementById("email") as HTMLInputElement;
+const result = document.getElementById("resultado") as HTMLParagraphElement;
+
+btn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+
+    if (!email) {
+        result.textContent = "Introduce un correo válido.";
+        result.style.color = "red";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/envia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+
+        if (data.enviado) {
+            result.textContent = "Se ha enviado una nueva contraseña a tu correo.";
+            result.style.color = "green";
+        } else {
+            result.textContent = "No se pudo enviar el correo: " + data.mensaje;
+            result.style.color = "red";
+        }
+    } catch (err) {
+        result.textContent = "Error al conectar con el servidor.";
+        result.style.color = "red";
+    }
+});

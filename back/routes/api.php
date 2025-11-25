@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\GameController;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 /*
 Route::get('/nologin', function () {
@@ -14,6 +16,7 @@ Route::get('/nologin', function () {
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('envia', [UserController::class,'enviar']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Perfil de usuario
