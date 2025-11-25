@@ -2,24 +2,26 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Los lobos de castronegro</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Los lobos de castronegro</title>
 </head>
 
 <body>
-     <nav class="main-navbar">
-    <div class="navbar-logo">
-      <a href="home.html">
-        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
-      </a>
-    </div>
-    <ul class="navbar-links">
-      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
-      <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
-    </ul>
-  </nav>
+    <nav class="main-navbar">
+        <div class="navbar-logo">
+            <a href="home.html">
+                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+            </a>
+        </div>
+        <ul class="navbar-links" id="navbar-guest-links">
+            <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+            <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+        </ul>
+        <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+        </ul>
+    </nav>
 
 
     <div class="login-container">
@@ -61,7 +63,8 @@
         <div class="rol aldea">
             <h1>🧑‍🌾 Aldeano</h1>
             <img src="../../rol_aldeano.png" alt="Aldeano" class="carta-rol">
-            <p>Ninguna habilidad especial. El bando de los aldeanos gana cuando todos los Hombres Lobo son eliminados.</p>
+            <p>Ninguna habilidad especial. El bando de los aldeanos gana cuando todos los Hombres Lobo son eliminados.
+            </p>
         </div>
 
         <div class="rol aldea">
@@ -127,33 +130,34 @@
             <p>Al morir: Puede elegir otro jugador para que herede el rol.</p><br>
         </div>
     </div>
-     <footer class="main-footer">
-    <div class="footer-content">
-      <div class="footer-section footer-brand">
-        <h3>Los Lobos de Castronegro</h3>
-        <p>&copy; 2025 Todos los derechos reservados.</p>
-        <p>Hecho con 💜 por la manada.</p>
-      </div>
-      
-      <div class="footer-section footer-links">
-        <h4>Enlaces Rápidos</h4>
-        <ul>
-          <li><a href="home.html">Inicio</a></li>
-          <li><a href="rules.html">Reglas del Juego</a></li>
-          <li><a href="privacy.html">Política de Privacidad</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-section footer-social">
-        <h4>Síguenos</h4>
-        <div class="social-icons">
-          <a href="#" class="social-link">🐺 Twitter</a>
-          <a href="#" class="social-link">🌕 Discord</a>
-          <a href="#" class="social-link">🔥 Instagram</a>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section footer-brand">
+                <h3>Los Lobos de Castronegro</h3>
+                <p>&copy; 2025 Todos los derechos reservados.</p>
+                <p>Hecho con 💜 por la manada.</p>
+            </div>
+
+            <div class="footer-section footer-links">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="home.html">Inicio</a></li>
+                    <li><a href="rules.html">Reglas del Juego</a></li>
+                    <li><a href="privacy.html">Política de Privacidad</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section footer-social">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#" class="social-link">🐺 Twitter</a>
+                    <a href="#" class="social-link">🌕 Discord</a>
+                    <a href="#" class="social-link">🔥 Instagram</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </footer>
+    </footer>
 </body>
 <script type="module" src="/src/main.ts"></script>
+
 </html>
