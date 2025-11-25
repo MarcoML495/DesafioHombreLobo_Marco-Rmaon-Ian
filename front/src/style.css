@@ -358,21 +358,6 @@ li {
     margin-bottom: 60px;
 }
 
-.wolf-illustration {
-    position: absolute;
-    right: 50px;
-    bottom: 50px;
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(45deg, rgba(212, 160, 23, 0.2), rgba(244, 196, 48, 0.2));
-    border-radius: var(--radius-circle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 60px;
-    color: var(--color-primary);
-}
-
 .login-form {
     width: 400px;
     z-index: 10;
@@ -385,6 +370,96 @@ li {
     background: var(--bg-card);
     padding: var(--spacing-md);
     border-radius: var(--radius-sm);
+}
+/* ==========================================
+   ESTILOS ESPECÍFICOS PARA RECUPERAR CONTRASEÑA
+   ========================================== */
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; 
+    padding: var(--spacing-lg);
+    background-color: var(--bg-darkest);
+}
+
+.login-container h1 {
+    color: var(--color-gold);
+    margin-bottom: var(--spacing-xl);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--spacing-sm);
+    font-size: 1.8rem;
+}
+
+
+.login-form {
+    background-color: var(--bg-card); 
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 30px var(--shadow-dark); 
+    width: 100%;
+    max-width: 400px; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid var(--border-primary); 
+}
+
+
+.login-form label {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-light); 
+}
+
+
+.login-form input {
+    width: 100%;
+    background: var(--bg-medium); 
+    color: var(--text-white);
+    border: 1px solid var(--border-dark);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-lg); 
+    transition: border-color var(--transition-fast);
+}
+
+.login-form input:focus {
+    border-color: var(--color-primary-light);
+    outline: none;
+    box-shadow: 0 0 5px var(--shadow-primary);
+}
+
+
+#btn-recuperar {
+    background-color: var(--color-primary);
+    color: var(--text-dark); 
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    width: 100%;
+    margin-top: var(--spacing-md);
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+#btn-recuperar:hover {
+    background-color: var(--color-primary-light); 
+    box-shadow: 0 4px 10px var(--shadow-primary-hover);
+}
+
+
+#resultado {
+    width: 100%;
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-weight: 600;
 }
 
 /* ==========================================
