@@ -135,7 +135,7 @@ function validateForm(): boolean {
 
 
 async function sendToApi(sentData: any): Promise<void> {
-    const API_URL = 'http://localhost:8000/api/game/insert'; 
+    const API_URL = 'http://localhost/api/game/insert'; 
 
     try {
         const response = await fetch(API_URL, {
