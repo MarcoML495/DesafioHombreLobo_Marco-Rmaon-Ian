@@ -55,7 +55,7 @@ function validateForm(): boolean {
 
 
 async function sendToApi(userData: any): Promise<void> {
-    const API_URL = 'http://localhost:8000/api/register'; 
+    const API_URL = 'http://localhost/api/register'; 
 
     try {
         const response = await fetch(API_URL, {
