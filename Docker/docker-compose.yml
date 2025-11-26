@@ -9,8 +9,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ../back:/var/www/html
-    env_file:
-      - ../back/.env      # leerá lo que pusiste arriba
+
     depends_on:
       - mysql
     networks:
