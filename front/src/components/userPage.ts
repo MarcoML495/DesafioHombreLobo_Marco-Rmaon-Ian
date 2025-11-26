@@ -9,7 +9,7 @@ interface UserProfile {
   avatar_image_id?: string;
 }
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://localhost/api";
 
 // Elementos del DOM
 const closeModalBtn = document.getElementById("close-modal-btn") as HTMLElement;

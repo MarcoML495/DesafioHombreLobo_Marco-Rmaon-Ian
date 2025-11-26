@@ -43,7 +43,7 @@ function validateForm(): boolean {
 
 
 async function sendLoginToApi(userData: any): Promise<void> {
-    const API_URL = 'http://localhost:8000/api/login'; 
+    const API_URL = 'http://localhost/api/login'; 
 
     try {
         console.log("LOGIN")
