@@ -7,63 +7,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Los lobos de castronegro</title>
-  </head>
+</head>
 
 <body>
-  
+
   <nav class="main-navbar">
     <div class="navbar-logo">
-        <a href="home.html">
-            <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
-        </a>
+      <a href="home.html">
+        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+      </a>
     </div>
 
     <ul class="navbar-links" id="navbar-guest-links">
-        <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
-        <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+      <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
     </ul>
 
     <ul class="navbar-links" id="navbar-user-links" style="display: none;">
     </ul>
-</nav>
+  </nav>
 
 
   <div class="login-container">
     <h1 class="main-title">UNIRSE A LA MANADA</h1>
     <p class="subtitle-login">Crear Cuenta</p>
 
-    <div class="login-form">
+    <form class="login-form" id="registerForm" method="POST" action="/api/register">
+
       <div class="form-row">
         <label for="name">Nombre de Usuario</label>
-        <input type="text" placeholder="Name">
+        <input type="text" id="name" name="name" placeholder="Name" required>
       </div>
 
       <div class="form-row">
         <label for="email">Correo Electrónico</label>
-        <input type="email" placeholder="Email">
+        <input type="email" id="email" name="email" placeholder="Email" required>
       </div>
 
       <div class="form-row">
         <label for="password">Contraseña</label>
-        <input type="password" placeholder="************" required>
+        <input type="password" id="password" name="password" placeholder="************" required>
       </div>
 
       <div class="form-row">
         <label for="confirm-password">Confirmar Contraseña</label>
-        <input type="password" placeholder="************">
+        <input type="password" id="confirm-password" name="password_confirmation" placeholder="************" required>
+      </div>
+
+      <div class="form-row">
+        <input type="checkbox" id="check-privacy" name="check-privacy" value="Privacy">
+        <label for="check-privacy" class="check">Acepto la <a href="privacy.html">Política de Privacidad</a></label>
       </div>
 
       <div style="margin-top: 30px;">
-        <div class="button-primary button-register">Registrarse</div>
+        <button type="submit" class="button-primary button-register">Registrarse</button>
       </div>
 
-      <div class="register-link">¿Ya tienes cuenta?
+      <div class="register-link">
+        ¿Ya tienes cuenta?
         <span><a href="login.html">Inicia sesión</a></span>
       </div>
 
-    </div>
+    </form>
   </div>
-
   <footer class="main-footer">
     <div class="footer-content">
       <div class="footer-section footer-brand">
@@ -71,7 +77,7 @@
         <p>&copy; 2025 Todos los derechos reservados.</p>
         <p>Hecho con 💜 por la manada.</p>
       </div>
-      
+
       <div class="footer-section footer-links">
         <h4>Enlaces Rápidos</h4>
         <ul>
@@ -80,7 +86,7 @@
           <li><a href="privacy.html">Política de Privacidad</a></li>
         </ul>
       </div>
-      
+
       <div class="footer-section footer-social">
         <h4>Síguenos</h4>
         <div class="social-icons">

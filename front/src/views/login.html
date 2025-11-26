@@ -9,57 +9,61 @@
 </head>
 
 <body>
-   <nav class="main-navbar">
+  <nav class="main-navbar">
 
-        <div class="navbar-logo">
-            <a href="home.html">
-                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
-            </a>
-        </div>
+    <div class="navbar-logo">
+      <a href="home.html">
+        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+      </a>
+    </div>
 
-        <ul class="navbar-links" id="navbar-guest-links">
-            <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
-            <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
-        </ul>
+    <ul class="navbar-links" id="navbar-guest-links">
+      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+      <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+    </ul>
 
-        <ul class="navbar-links" id="navbar-user-links" style="display: none;">
-        </ul>
-    </nav>
+    <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+    </ul>
+  </nav>
 
   </div>
   <div class="login-container">
     <h1 class="main-title">LOS LOBOS DE CASTRONEGRO</h1>
     <p class="subtitle-login">Iniciar Sesión</p>
 
-    <div class="login-form">
-      <div class="form-row"><label for="name">Nombre/Correo</label>
-        <input type="text" placeholder="Name">
+    <form class="login-form" id="loginForm" method="POST" action="/api/login">
 
-        <div class="form-row"><label for="password">Contraseña</label>
-          <input type="password" placeholder="************" required>
-        </div>
-
-        <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
-
-        <div style="margin-top: 30px;">
-          <div class="button-primary button-login">Iniciar sesion</div>
-        </div>
-
-        <div class="register-link">¿No tienes cuenta?
-          <span><a href="registrar.html">Registrate</a></span>
-        </div>
-
+      <div class="form-row">
+        <label for="name">Nombre/Correo</label>
+        <input type="text" id="name" name="name" placeholder="Name" required>
       </div>
-    </div>
+
+      <div class="form-row">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="************" required>
+      </div>
+
+      <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
+
+      <div style="margin-top: 30px;">
+        <button type="submit" class="button-primary button-login">Iniciar sesión</button>
+      </div>
+
+      <div class="register-link">
+        ¿No tienes cuenta?
+        <span><a href="registrar.html">Regístrate</a></span>
+      </div>
+
+    </form>
   </div>
-   <footer class="main-footer">
+  <footer class="main-footer">
     <div class="footer-content">
       <div class="footer-section footer-brand">
         <h3>Los Lobos de Castronegro</h3>
         <p>&copy; 2025 Todos los derechos reservados.</p>
         <p>Hecho con 💜 por la manada.</p>
       </div>
-      
+
       <div class="footer-section footer-links">
         <h4>Enlaces Rápidos</h4>
         <ul>
@@ -67,7 +71,7 @@
           <li><a href="privacy.html">Política de Privacidad</a></li>
         </ul>
       </div>
-      
+
       <div class="footer-section footer-social">
         <h4>Síguenos</h4>
         <div class="social-icons">
@@ -78,8 +82,8 @@
       </div>
     </div>
   </footer>
-    
-    <script type="module" src="../main.ts"></script>
+
+  <script type="module" src="../main.ts"></script>
 
 </body>
 

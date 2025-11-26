@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Los lobos de castronegro</title>
+</head>
+
+<body>
+    <nav class="main-navbar">
+        <div class="navbar-logo">
+            <a href="home.html">
+                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+            </a>
+        </div>
+        <ul class="navbar-links" id="navbar-guest-links">
+            <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+            <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+        </ul>
+        <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+        </ul>
+    </nav>
+
+
+    <div class="login-container home">
+        <h1 class="main-title">REGLAS DEL JUEGO</h1>
+
+        <div class="login-form home" id="intro">
+            <span>
+                <p>"Los Lobos de Castronegro" es un juego de deduccion social que enfrentará a aldeanos y Hombres Lobo,
+                    que deben matar a todos los miembros del equipo contrario.</p><br>
+                <p>Al principio del juego, los jugadores recibiran su rol y se dividirán en multiples bandos.</p><br>
+                <ul>
+                    <li><span class="listhead">Bando de los Hombres Lobo</span>
+                        <ul>
+                            <li>Consiste de los jugadores con el rol "Hombre Lobo". Por la noche, eligen un jugador al
+                                que
+                                matar.
+                                Por el dia, fingen ser aldeanos para evitar el linchamiento. Ganan cuando su numero
+                                excede a
+                                los aldeanos.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Bando de los Aldeanos</span>
+                        <ul>
+                            <li>Consiste del resto de jugadores. Por la noche, uno de ellos será devorado por los
+                                Hombres
+                                Lobo.
+                                Por el dia, realizarán una votacion para intentar linchar a los Hombres Lobo. Ganan
+                                cuando
+                                todos los Hombres Lobo son eliminados.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Bando de los Enamorados</span>
+                        <ul>
+                            <li>Si el rol "Cupido" está en juego y enamora a un Aldeano y un Hombre Lobo, tendrán una
+                                condicion de victoria distinta,
+                                tendrán que ser los unicos supervivientes para ganar la partida.
+                            </li>
+                        </ul>
+                    </li>
+                </ul><br>
+                <p>
+                    Antes de continuar con las reglas, es importante que uno se familiarize con los multiples roles que
+                    aparecen en el juego.
+                </p>
+            </span>
+        </div>
+        <h1 id="role-list">Lista de roles</h1>
+    </div>
+    <div class="lista-roles" id="roles">
+        <div class="rol lobo">
+            <h1>🐺 Hombre Lobo</h1>
+            <img src="../../rol_lobo.png" alt="Hombre Lobo" class="carta-rol">
+            <p>Cada noche: Los Hombres Lobo eligen un aldeano que matar. Ganan cuando su numero excede al de los
+                aldeanos.
+            </p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Aldeano</h1>
+            <img src="../../rol_aldeano.png" alt="Aldeano" class="carta-rol">
+            <p>Ninguna habilidad especial. El bando de los aldeanos gana cuando todos los Hombres Lobo son eliminados.
+            </p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Vidente</h1>
+            <img src="../../rol_vidente.png" alt="Vidente" class="carta-rol">
+            <p>Cada noche: Puede seleccionar un jugador y ver su rol.</p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Cazador</h1>
+            <img src="../../rol_cazador.png" alt="Cazador" class="carta-rol">
+            <p>Al morir: Mata a otro jugador de su eleccion.</p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Cupido</h1>
+            <img src="../../rol_cupido.png" alt="Cupido" class="carta-rol">
+            <p>En la primera noche: Selecciona dos jugadores para que se enamoren, tambien pudiendo elegirse a si mismo.
+                Si un enamorado muere, su pareja tambien morirá.
+            </p><br>
+            <p>
+                CASO ESPECIAL: Si la pareja consiste de un Hombre Lobo y un aldeano, tendrán que eliminar al resto de
+                jugadores
+                para ganar.
+            </p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Bruja</h1>
+            <img src="../../rol_bruja.png" alt="Bruja" class="carta-rol">
+            <p>Cada noche: Puede usar dos pociones, una para resucitar a la victima de los Hombres Lobo, y otra para
+                matar a
+                un jugador de su eleccion.
+                Cada pocion solo se puede usar una vez por partida.
+            </p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Niña</h1>
+            <img src="../../rol_niña.png" alt="Niña" class="carta-rol">
+            <p>Cada noche: Puede abrir el chat del bando de los Hombres Lobo. Sin embargo, cada vez que lo haga, tiene
+                una
+                probabilidad
+                de ser descubierta, apareciendo como conectada.
+            </p>
+        </div>
+
+        <div class="rol aldea">
+            <h1>🧑‍🌾 Ladrón</h1>
+            <img src="../../rol_ladron.png" alt="Ladrón" class="carta-rol">
+            <p>En la primera noche: Puede seleccionar un jugador para intercambiar roles. Durante el resto de la
+                partida,
+                actuará como un Aldeano Común.</p>
+        </div>
+
+        <div class="rol neutro">
+            <h1>Alcalde</h1>
+            <img src="../../rol_alcalde.png" alt="Alcalde" class="carta-rol">
+            <p>En vez de ser repartido al principio del juego, este rol se decide entre los jugadores por voto
+                popular.</p>
+            <br>
+            <p>Al votar: Sus votos valdrán el doble.</p><br>
+            <p>Al morir: Puede elegir otro jugador para que herede el rol.</p><br>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-form home" id="reglas-cont">
+            <span>
+                <p>Ahora que conoces los roles, podemos empezar con el transcurso del juego.</p><br><br>
+                <p><span class="listhead">-- TURNO PRELIMINAR --</span></p><br>
+                <ul>
+                    <li><span class="listhead">Turno del ladrón</span>
+                        <ul>
+                            <li>El ladrón decide si quiere usar su habilidad de intercambiar roles o no.
+                                Si la usa, quien reciba el rol de ladrón no podra usar su habilidad. Durante el resto de
+                                la partida, el ladrón actuara como un aldeano comun.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Turno de Cupido</span>
+                        <ul>
+                            <li>Cupido debe usar su habilidad de enamorar dos jugadores, de entre los cuales uno puede
+                                ser él mismo.
+                                Despues de esto, los enamorados serán notificados de quien es su pareja.
+                            </li>
+                        </ul>
+                    </li>
+                </ul><br>
+                <p><span class="listhead">-- NOCHE --</span></p><br>
+                <ul>
+                    <li><span class="listhead">Turno de la vidente</span>
+                        <ul>
+                            <li>La vidente usa su habilidad para averiguar el rol del jugador que elija.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Turno de los Hombres Lobo (+ Niña)</span>
+                        <ul>
+                            <li>Los jugadores en el bando de los Hombres Lobo deciden que jugador devorarán esta noche.
+                                Para facilitar esto, se les proporcionará un chat privado ajeno al resto de jugadores.
+                                Si la Niña se atreve, puede abrir este chat y espiar en las discusiones, pero cuando lo
+                                hace,
+                                se arriesga a que la descubran. Si los Hombres Lobo la descubren, será muy probable que
+                                la Niña sea su siguiente victima.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Turno de la bruja</span>
+                        <ul>
+                            <li>La bruja averiguará quien es la victima de los Hombres Lobo y decidirá si quiere usar su
+                                pocion curativa o su pocion venenosa.
+                                Puede no usar ninguna pocion, usar una, o incluso usar las dos. Si la bruja es la
+                                victima, puede curarse a si misma.
+                                Si no tiene pociones, este turno se salta.
+                            </li>
+                        </ul>
+                    </li>
+                </ul><br>
+                <p><span class="listhead">-- DIA --</span></p><br>
+                <ul>
+                    <li><span class="listhead">Revelación de muertes</span>
+                        <ul>
+                            <li>Se revela que jugadores han sido eliminados durante la noche. Estos jugadores revelarán
+                                su rol y activarán cualquier efecto que se activa al morir.
+                                Los eliminados pierden acceso a todos los chats.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Votación de alcalde</span>
+                        <ul>
+                            <li>Si no hay alcalde, se realizará una votacion para determinar quien recibe el cargo, el
+                                ganador no podrá rechazar el cargo.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><span class="listhead">Votación de linchamiento</span>
+                        <ul>
+                            <li>Los jugadores supervivientes entrarán en debate para buscar sospechosos, y votarán para
+                                eliminar a otro jugador.
+                                En caso de empate, el voto del alcalde decide. Si aun hay empate, nadie es eliminado.
+                                El jugador linchado revela su rol, activa su efecto al morir (si lo hay), y pierde
+                                acceso a los chats.
+                            </li>
+                        </ul>
+                    </li>
+                </ul><br>
+                <p>
+                    Despues de esto, el ciclo de dia y noche se repite hasta que uno de los bandos se haga con la
+                    victoria.
+                </p>
+            </span>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section footer-brand">
+                <h3>Los Lobos de Castronegro</h3>
+                <p>&copy; 2025 Todos los derechos reservados.</p>
+                <p>Hecho con 💜 por la manada.</p>
+            </div>
+
+            <div class="footer-section footer-links">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="home.html">Inicio</a></li>
+                    <li><a href="rules.html">Reglas del Juego</a></li>
+                    <li><a href="privacy.html">Política de Privacidad</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section footer-social">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#" class="social-link">🐺 Twitter</a>
+                    <a href="#" class="social-link">🌕 Discord</a>
+                    <a href="#" class="social-link">🔥 Instagram</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+<script type="module" src="/src/main.ts"></script>
+
+</html>
