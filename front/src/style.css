@@ -409,6 +409,11 @@ li {
     border: 1px solid var(--border-primary); 
 }
 
+.login-form.home {
+    box-shadow: 0;
+    max-width: 800px;
+    margin-bottom: 20px;
+}
 
 .login-form label {
     margin-bottom: var(--spacing-xs);
@@ -517,7 +522,7 @@ img.carta-rol {
     padding: 25px;
 }
 
-#intro p {
+#intro p, #reglas-cont p, ul {
     color: var(--color-primary); 
     font-size: 1.05rem;
     line-height: 1.6;
@@ -537,6 +542,11 @@ img.carta-rol {
 
 .rol.neutro h1 {
     color: var(--color-neutro);
+}
+
+span.listhead {
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 /* ==========================================
