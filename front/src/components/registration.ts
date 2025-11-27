@@ -10,12 +10,15 @@ const passwordInput = document.querySelector(
 const confirmPasswordInput = document.querySelector(
   "div.form-row:nth-child(4) input"
 ) as HTMLInputElement | null;
+const checkPrivacy = document.getElementById(
+  "check-privacy"
+) as HTMLInputElement | null;
 const registerButton = document.querySelector(
   ".button-register"
 ) as HTMLElement | null;
 
 function validateForm(): boolean {
-  if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
+  if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput || !checkPrivacy) {
     console.error("Error: No se encontraron todos los campos del formulario.");
     return false;
   }
@@ -24,6 +27,7 @@ function validateForm(): boolean {
   const email = emailInput.value.trim();
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
+  const privacyAccepted = checkPrivacy.checked;
 
   let isValid = true;
   let errors: string[] = [];
@@ -55,6 +59,11 @@ function validateForm(): boolean {
     errors.push("Las contraseñas no coinciden.");
     isValid = false;
   }
+
+  if (!privacyAccepted) {
+        errors.push("Debes aceptar la politica de privacidad.");
+        isValid = false;
+    }
 
   if (!isValid) {
     alert("Errores de validación:\n" + errors.join("\n"));
