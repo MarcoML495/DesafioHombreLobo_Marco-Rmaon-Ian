@@ -36,6 +36,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'bio' => $user->bio ?? '',
                 'avatar_image_id' => $user->avatar_image_id,
+                'role' => $user->role,
                 'created_at' => $user->created_at,
                 'last_login_at' => $user->last_login_at
             ];
