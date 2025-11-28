@@ -16,7 +16,7 @@ Route::get('/nologin', function () {
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-Route::post('envia', [UserController::class,'enviar']);
+Route::post('envia', [UserController::class, 'enviar']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Perfil de usuario
@@ -30,4 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/avatar', [UserController::class, 'updateAvatar']);
 
     Route::post('/game/insert', [GameController::class, 'insertGame']);
+
+    Route::get('/lobbies', [GameController::class, 'getLobbies']);
+    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
 });
