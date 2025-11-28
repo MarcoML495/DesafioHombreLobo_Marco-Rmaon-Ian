@@ -17,7 +17,7 @@ Route::get('/nologin', function () {
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-Route::post('envia', [UserController::class,'enviar']);
+Route::post('envia', [UserController::class, 'enviar']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Perfil de usuario
@@ -32,12 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/game/insert', [GameController::class, 'insertGame']);
 
-    Route::prefix('admin')->group(function () {
-        Route::get('/users', [AdminUserController::class, 'index']); // Listar todos los usuarios
-        Route::post('/users', [AdminUserController::class, 'store']); // Crear un nuevo usuario
-        Route::get('/users/{id}', [AdminUserController::class, 'show']); // Obtener un usuario por ID
-        Route::put('/users/{id}', [AdminUserController::class, 'update']); // Actualizar un usuario
-        Route::delete('/users/{id}', [AdminUserController::class, 'destroy']); // Eliminar un usuario
-    });
-    
+    Route::get('/lobbies', [GameController::class, 'getLobbies']);
+    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
 });

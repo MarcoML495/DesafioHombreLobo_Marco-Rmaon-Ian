@@ -93,6 +93,75 @@
     </div>
 
     <script type="module" src="../components/menuprincipal.ts"></script>
+    <!-- Modal de Lobbies -->
+    <div class="modal-overlay" id="lobby-list-modal" style="display: none;">
+        <div class="modal-content lobby-modal">
+            <div class="profile-header-new">
+                <div class="back-button-new" id="close-lobby-modal">← Volver</div>
+                <div style="color: #D4A017; font-size: 20px; font-weight: bold;">Lobbies Disponibles</div>
+                <div style="width: 100px;"></div>
+            </div>
+
+            <!-- Contenedor de Lobbies -->
+            <div class="lobby-container">
+                <div class="lobby-header">
+                    <div class="lobby-title">Selecciona una Partida</div>
+                    <div class="lobby-subtitle">Haz clic en un lobby para unirte</div>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-spinner" id="lobby-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando lobbies...</p>
+                </div>
+
+                <!-- Lista de Lobbies -->
+                <div class="lobby-list" id="lobby-list">
+                    <!-- Los lobbies se cargarán aquí -->
+                </div>
+
+                <!-- Mensaje cuando no hay lobbies -->
+                <div class="no-lobbies-message" id="no-lobbies" style="display: none;">
+                    <p>📭 No hay lobbies disponibles</p>
+                    <p style="font-size: 14px; color: #888;">Crea una nueva partida para empezar</p>
+                </div>
+
+                <!-- Botón Actualizar -->
+                <div style="margin-top: 30px; text-align: center;">
+                    <button class="button-secondary" id="refresh-lobbies-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                            <path
+                                d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                        </svg>
+                        Actualizar Lista
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Código de Acceso -->
+    <div class="modal-overlay" id="code-input-modal" style="display: none;">
+        <div class="modal-content code-modal">
+            <div class="modal-header">
+                <h2>🔑 Código de Acceso</h2>
+                <button class="close-modal" id="close-code-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Esta partida es privada. Introduce el código de acceso:</p>
+                <div class="form-row-new">
+                    <label class="label-new">Código</label>
+                    <input type="text" id="join-code-input" class="input-field-new" placeholder="Ej: ABC123"
+                        maxlength="12" style="text-transform: uppercase;" />
+                </div>
+                <div class="error-message" id="code-error" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="button-cancel-new" id="cancel-code-btn">Cancelar</button>
+                <button class="button-save-new" id="submit-code-btn">Unirse</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
