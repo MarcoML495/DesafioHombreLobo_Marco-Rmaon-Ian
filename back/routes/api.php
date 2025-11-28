@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\GameController;
+use App\Http\Controllers\API\AdminUserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 

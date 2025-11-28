@@ -38,6 +38,7 @@ class User extends Authenticatable{
         'avatar_image_id',
         'created_at',
         'last_login_at',
+        'role',
 ];
 
     /**
@@ -55,6 +56,10 @@ class User extends Authenticatable{
         'created_at' => 'datetime',
         'last_login_at' => 'datetime',
     ];
+
+    public function isAdmin(): bool{
+        return $this->role === 'admin';
+    }
 
     /**
      * RELACIONES

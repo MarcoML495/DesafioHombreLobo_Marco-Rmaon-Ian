@@ -2,6 +2,7 @@ import './style.css';
 import { initRegistration } from './components/registration'; 
 import { initLogin } from './components/login'; 
 import { initNavbar } from './components/navbar';
+import { initAdminUsuarios } from './components/adminusuarios';
 
 
 function main() {
@@ -9,6 +10,7 @@ function main() {
     initRegistration();
     initLogin();
     initNavbar();
+    initAdminUsuarios();
 }
 
 
