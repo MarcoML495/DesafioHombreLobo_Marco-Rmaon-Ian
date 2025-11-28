@@ -5,36 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller{
-    /**
-     * Método de verificación de administrador.
-     */
-    private function checkAdmin(Request $request)
-    {
-        $user = $request->user();
-        if (!$user || !$user->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Acceso denegado. Se requiere rol de administrador.'
-            ], 403);
-        }
-        return null;
-    }
-
-    /**
-     * Listar todos los usuarios.
-     * GET /api/admin/users
-     */
     public function index(Request $request)
     {
-        if ($response = $this->checkAdmin($request)) {
-            return $response;
-        }
-
         try {
             $users = User::select('id', 'name', 'email', 'role', 'real_name', 'created_at', 'last_login_at')
                          ->orderBy('created_at', 'desc')
@@ -53,29 +30,21 @@ class AdminUserController extends Controller{
         }
     }
 
-    /**
-     * Crear un nuevo usuario.
-     * POST /api/admin/users
-     */
     public function store(Request $request)
     {
-        if ($response = $this->checkAdmin($request)) {
-            return $response;
-        }
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:20|min:3',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8',
-            'role' => ['required', 'string', Rule::in(['user', 'admin'])],
-            'real_name' => 'nullable|string|max:255',
-            'bio' => 'nullable|string|max:500'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required|in:admin,user'
+        ], [
+            'email.unique' => '¡Ese correo ya está registrado!'
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'message' => $validator->errors()->first()
             ], 422);
         }
 
@@ -102,16 +71,8 @@ class AdminUserController extends Controller{
         }
     }
 
-    /**
-     * Obtener un usuario por ID.
-     * GET /api/admin/users/{id}
-     */
     public function show(Request $request, $id)
     {
-        if ($response = $this->checkAdmin($request)) {
-            return $response;
-        }
-
         $user = User::find($id);
 
         if (!$user) {
@@ -128,16 +89,8 @@ class AdminUserController extends Controller{
         ]);
     }
 
-    /**
-     * Actualizar un usuario por ID.
-     * PUT /api/admin/users/{id}
-     */
     public function update(Request $request, $id)
     {
-        if ($response = $this->checkAdmin($request)) {
-            return $response;
-        }
-
         $user = User::find($id);
 
         if (!$user) {
@@ -147,7 +100,6 @@ class AdminUserController extends Controller{
             ], 404);
         }
 
-        // Validación
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:20|min:3',
             'email' => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -172,7 +124,6 @@ class AdminUserController extends Controller{
                 $user->email = $request->email;
             }
             if ($request->has('password')) {
-                // Asegúrate de hashear la nueva contraseña si se proporciona
                 $user->password = Hash::make($request->password);
             }
             if ($request->has('role')) {
@@ -200,16 +151,8 @@ class AdminUserController extends Controller{
         }
     }
 
-    /**
-     * Eliminar un usuario por ID.
-     * DELETE /api/admin/users/{id}
-     */
     public function destroy(Request $request, $id)
     {
-        if ($response = $this->checkAdmin($request)) {
-            return $response;
-        }
-
         $user = User::find($id);
 
         if (!$user) {
