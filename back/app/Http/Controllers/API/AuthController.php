@@ -54,9 +54,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
-
         $input = $request->all();
         $rules = [
             'name' => 'required|string',
@@ -73,14 +72,20 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        // Bloque de inicio de sesión por EMAIL
         if (str_contains($request->name, '@') && str_contains($request->name, '.')) {
             if (Auth::attempt(['email' => $request->name, 'password' => $request->password])) {
                 $auth = Auth::user();
-                // return $auth;
-                //$tokenResult = $auth->createToken('LaravelSanctumAuth');
-                $tokenResult = $auth->createToken('LaravelSanctumAuth', ['usuario']); // Asignar abilities al token
+                
+                // LÓGICA DE ABILITIES DINÁMICA
+                $abilities = ['usuario'];
+                if ($auth->role === 'admin') {
+                    $abilities[] = 'admin'; 
+                }
+                
+                $tokenResult = $auth->createToken('LaravelSanctumAuth', $abilities); // CAMBIO: Uso de abilities dinámicas
 
-                // Actualizar expiración
+                // Actualizar expiración (mantengo tu código comentado/existente)
                 // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
                 // $tokenResult->accessToken->expires_at = now()->addHours($hours);
                 $tokenResult->accessToken->save();
@@ -89,20 +94,28 @@ class AuthController extends Controller
                     'id'         => $auth->id,
                     'name'       => $auth->name,
                     'token'      => $tokenResult->plainTextToken,
-                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null :  $tokenResult->accessToken->expires_at->toDateTimeString()
+                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null : $tokenResult->accessToken->expires_at->toDateTimeString()
                 ];
                 return response()->json(["success" => true, "data" => $success, "message" => "User logged-in!"]);
             } else {
                 return response()->json(["success" => false, "message" => "Unauthorised"], 404);
             }
-        } else {
+        } 
+        
+        // Bloque de inicio de sesión por NOMBRE DE USUARIO
+        else {
             if (Auth::attempt(['name' => $request->name, 'password' => $request->password])) {
                 $auth = Auth::user();
-                // return $auth;
-                //$tokenResult = $auth->createToken('LaravelSanctumAuth');
-                $tokenResult = $auth->createToken('LaravelSanctumAuth', ['usuario']); // Asignar abilities al token
+                
+                // LÓGICA DE ABILITIES DINÁMICA
+                $abilities = ['usuario'];
+                if ($auth->role === 'admin') {
+                    $abilities[] = 'admin';
+                }
+                
+                $tokenResult = $auth->createToken('LaravelSanctumAuth', $abilities); // CAMBIO: Uso de abilities dinámicas
 
-                // Actualizar expiración
+                // Actualizar expiración (mantengo tu código comentado/existente)
                 // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
                 // $tokenResult->accessToken->expires_at = now()->addHours($hours);
                 $tokenResult->accessToken->save();
@@ -111,7 +124,7 @@ class AuthController extends Controller
                     'id'         => $auth->id,
                     'name'       => $auth->name,
                     'token'      => $tokenResult->plainTextToken,
-                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null :  $tokenResult->accessToken->expires_at->toDateTimeString()
+                    'expires_at' => $tokenResult->accessToken->expires_at == null ? null : $tokenResult->accessToken->expires_at->toDateTimeString()
                 ];
                 return response()->json(["success" => true, "data" => $success, "message" => "User logged-in!"]);
             } else {
