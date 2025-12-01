@@ -1,6 +1,9 @@
 /* ==========================================
    ADMINISTRACIÓN DE USUARIOS
    ========================================== */
+body {
+  background: var(--bg-dark);
+}
 
 .table-container {
   background: var(--bg-card);
