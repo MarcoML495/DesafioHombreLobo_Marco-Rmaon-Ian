@@ -1,4 +1,12 @@
-import '../style.css'
+import '../styles/variables.css';
+import '../styles/global.css';
+import '../styles/navbar.css';
+import '../styles/modals.css';
+import '../styles/lobby.css';
+import "../main.ts";
+import "../styles/login.css";
+import '../styles/animated-background.css';
+
 const btn = document.getElementById("btn-recuperar") as HTMLButtonElement;
 const emailInput = document.getElementById("email") as HTMLInputElement;
 const result = document.getElementById("resultado") as HTMLParagraphElement;

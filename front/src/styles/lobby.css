@@ -1,0 +1,416 @@
+/* ============================================
+   LOBBY Y MENÚ PRINCIPAL
+   ============================================ */
+
+/* Screen Container */
+.screen {
+  min-height: 100vh;
+  padding: var(--spacing-xxl);
+  /* NO background aquí - lo controla cada página */
+}
+
+/* Menu Header */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xxl);
+  border: 2px solid var(--border-primary);
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.logo-icon {
+  font-size: 48px;
+}
+
+.title-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-primary);
+  letter-spacing: 2px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.user-menu:hover {
+  background: var(--shadow-primary);
+}
+
+.user-avatar-small {
+  font-size: 32px;
+}
+
+.user-name {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+/* Cards Container */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-xxl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.menu-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xxl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.menu-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px var(--shadow-primary);
+  background: var(--bg-card-hover);
+  border-color: var(--color-gold);
+}
+
+.card-icon {
+  font-size: 72px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.card-description {
+  color: var(--text-light);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Contenedor de Lobbies */
+.lobby-container {
+  max-width: 800px;
+  padding: 50px 0px;
+  inset: 0px;
+  margin: auto auto;
+}
+
+.lobby-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(212, 160, 23, 0.3);
+}
+
+.lobby-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #d4a017;
+  margin-bottom: 8px;
+}
+
+.lobby-subtitle {
+  font-size: 16px;
+  color: #888;
+}
+
+/* Lista de Lobbies */
+.lobby-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.lobby-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.lobby-item:hover {
+  background: rgba(212, 160, 23, 0.1);
+  border-color: #d4a017;
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(212, 160, 23, 0.2);
+}
+
+.lobby-info {
+  flex: 1;
+}
+
+.lobby-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+.lobby-details {
+  font-size: 14px;
+  color: #888;
+}
+
+.lobby-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Badges de Estado */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.open {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.status-badge.full {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.status-badge.public {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.status-badge.code {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
+.players-count {
+  font-size: 14px;
+  color: #d4a017;
+  font-weight: 600;
+  min-width: 100px;
+}
+
+/* Botón Unirse */
+.join-button {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #d4a017 0%, #f4c430 100%);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(212, 160, 23, 0.3);
+}
+
+.join-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(212, 160, 23, 0.5);
+  background: linear-gradient(135deg, #f4c430 0%, #d4a017 100%);
+}
+
+.join-button:active {
+  transform: translateY(0);
+}
+
+.join-button.code-required {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+}
+
+.join-button.code-required:hover {
+  background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+}
+
+/* Mensaje Sin Lobbies */
+.no-lobbies-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.no-lobbies-message p:first-child {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Formulario Crear Lobby */
+.lobby-form {
+  background: #2b1810;
+  border: 2px solid #d4a017;
+  border-radius: 12px;
+  padding: 40px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  color: #d4a017;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.form-row {
+  margin-bottom: var(--spacing-lg);
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.button-group > * {
+  flex: 1;
+}
+
+/* Botones */
+.button-primary {
+  background: var(--color-primary-light);
+  color: var(--text-dark);
+  padding: 12px 32px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 16px;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px var(--shadow-primary);
+}
+
+.button-primary:active {
+  transform: translateY(0);
+}
+
+.button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-secondary {
+  padding: 12px 30px;
+  background: transparent;
+  border: 2px solid #d4a017;
+  color: #d4a017;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-secondary:hover {
+  background: rgba(212, 160, 23, 0.1);
+  border-color: #f4c430;
+  color: #f4c430;
+  transform: translateY(-2px);
+}
+
+.button-secondary:active {
+  transform: translateY(0);
+}
+
+/* Header auxiliar */
+.profile-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+
+.back-button-new {
+  color: #d4a017;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.back-button-new:hover {
+  color: #f4c430;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .screen {
+    padding: var(--spacing-lg);
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .menu-card {
+    padding: var(--spacing-lg);
+    min-height: auto;
+  }
+
+  .lobby-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .lobby-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .join-button {
+    width: 100%;
+  }
+
+  .button-primary,
+  .button-secondary {
+    width: 100%;
+    min-width: auto;
+  }
+}
