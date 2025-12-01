@@ -2,13 +2,14 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recuperar Contraseña</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../../logo.png" />
+  <title>Recuperar Contraseña</title>
 </head>
 
 <body>
-     <nav class="main-navbar">
+  <nav class="main-navbar">
 
     <div class="navbar-logo">
       <a href="home.html">
@@ -25,21 +26,59 @@
     </ul>
   </nav>
 
+  <div class="login-container">
+    <h1 class="main-title">LOS LOBOS DE CASTRONEGRO</h1>
+    <p class="subtitle-login">Recuperar contraseña</p>
 
-    <div class="login-container">
-        <h1>Recuperar contraseña</h1>
+    <form class="login-form">
 
-        <div class="login-form">
-            <label for="email">Introduce tu correo</label>
-            <input id="email" type="email" placeholder="correo@example.com" required>
+      <div class="form-row">
+        <label for="email">Introduce tu correo</label>
+        <input id="email" type="email" placeholder="correo@example.com" required>
+      </div>
 
-            <button id="btn-recuperar">Enviar contraseña nueva</button>
+      <div style="margin-top: 30px;">
+        <button id="btn-recuperar" type="button" class="button-primary button-login">
+          Enviar contraseña nueva
+        </button>
+      </div>
 
-            <p id="resultado"></p>
-        </div>
+      <p id="resultado" style="margin-top: 20px;"></p>
+
+      <div class="register-link">
+        ¿Recordaste tu contraseña?
+        <span><a href="login.html">Iniciar sesión</a></span>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Fondo Animado -->
+  <div class="animated-background">
+    <div class="background-flames"></div>
+    <div class="background-wolf">
+      <img src="/lobofondo.png" alt="Lobo">
+    </div>
+    <div class="background-villager">
+      <img src="/aldeanofondo.png" alt="Aldeano">
     </div>
 
-    <script type="module" src="../components/recuperar.ts"></script>
+    <div class="background-overlay"></div>
+    <div class="background-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+
+  <script type="module" src="../components/recuperar.ts"></script>
 </body>
 
 </html>

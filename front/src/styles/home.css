@@ -1,0 +1,87 @@
+/* ==========================================
+   HOME PAGE - ROLES Y REGLAS
+   ========================================== */
+
+/* Header viejo (mantener por compatibilidad) */
+.header {
+  margin: 0;
+  padding: 0;
+  position: sticky;
+  width: 100%;
+  background-color: #333333;
+  top: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 99;
+}
+
+.header ul {
+  list-style-type: none;
+  padding: var(--spacing-lg);
+  display: inline-flex;
+}
+
+/* Lista de roles */
+.lista-roles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: var(--spacing-lg);
+}
+
+#role-list {
+  color: var(--color-primary-dark);
+  text-shadow: 0 0 10px var(--text-light);
+}
+
+div.rol {
+  width: 300px;
+  text-align: center;
+  padding: var(--spacing-md);
+  margin: var(--spacing-md);
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+}
+
+img.carta-rol {
+  display: block;
+  margin: auto;
+  width: 250px;
+  padding: 25px;
+}
+
+#intro p,
+#reglas-cont p,
+ul {
+  color: var(--color-primary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.rol p {
+  color: var(--text-light);
+}
+
+.rol.lobo h1 {
+  color: var(--color-lobo);
+}
+
+.rol.aldea h1 {
+  color: var(--color-aldea);
+}
+
+.rol.neutro h1 {
+  color: var(--color-neutro);
+}
+
+span.listhead {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.login-container.home {
+  min-height: auto;
+  padding-top: var(--spacing-xxl);
+}

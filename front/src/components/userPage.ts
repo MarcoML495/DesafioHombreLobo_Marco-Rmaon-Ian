@@ -1,4 +1,3 @@
-import "../style.css";
 
 interface UserProfile {
   id: string;

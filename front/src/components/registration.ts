@@ -1,3 +1,6 @@
+
+import '../styles/login.css';
+
 const nameInput = document.querySelector(
   'input[placeholder="Name"]'
 ) as HTMLInputElement | null;

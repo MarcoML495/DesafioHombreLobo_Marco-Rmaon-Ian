@@ -1,5 +1,4 @@
 // lobbyList.ts
-import '../style.css';
 
 // Configuración
 const API_URL = 'http://localhost/api';
