@@ -1,10 +1,10 @@
-import("../styles/variables.css");
-import("../styles/global.css");
-import("../styles/navbar.css");
-import("../styles/modals.css");
-import("../styles/lobby.css");
-import("../styles/animated-background.css");
-import("../main.ts");
+import "../styles/variables.css";
+import "../styles/global.css";
+import "../styles/navbar.css";
+import "../styles/modals.css";
+import "../styles/lobby.css";
+import "../styles/animated-background.css";
+import "../main.ts";
 
 const lobbymodal = document.getElementById("lobby-modal");
 
@@ -112,7 +112,7 @@ function formCrearLobby() {
         codeInput.disabled = true;
       }
     });
-    
+
     radioPrivate.addEventListener("input", () => {
       console.log("PRIVADO");
       if (codeInput) {
@@ -185,7 +185,6 @@ async function sendToApi(sentData: any): Promise<void> {
 
       // Redirigir al creador a la sala de espera
       window.location.href = `./gameLobby.html?game=${gameId}`;
-
     } else {
       const errorMessage =
         data.message ||
