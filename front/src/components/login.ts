@@ -66,7 +66,7 @@ async function sendLoginToApi(userData: any): Promise<void> {
 
         if (response.ok) {
             console.log("Usuario logeado correctamente:", data.data.name);
-            alert(`¡Bienvenido, ${data.data.name || 'nuevo usuario'}!`);
+            // alert(`¡Bienvenido, ${data.data.name || 'nuevo usuario'}!`);
             sessionStorage.setItem("name", data.data.name);
             sessionStorage.setItem("password", userData.password);
             sessionStorage.setItem("token", data.data.token);
