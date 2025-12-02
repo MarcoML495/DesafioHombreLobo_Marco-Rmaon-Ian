@@ -112,7 +112,7 @@ function formCrearLobby() {
         codeInput.disabled = true;
       }
     });
-
+    
     radioPrivate.addEventListener("input", () => {
       console.log("PRIVADO");
       if (codeInput) {
@@ -183,16 +183,9 @@ async function sendToApi(sentData: any): Promise<void> {
 
       const gameId = data.data.id;
 
-      if (data.data.join_code) {
-        alert(
-          `¡Has creado la partida "${data.data.name}" con código ${data.data.join_code}!`
-        );
-      } else {
-        alert(`¡Has creado la partida pública "${data.data.name}"!`);
-      }
-
       // Redirigir al creador a la sala de espera
       window.location.href = `./gameLobby.html?game=${gameId}`;
+
     } else {
       const errorMessage =
         data.message ||
@@ -530,7 +523,7 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      alert(`¡Te has unido a "${data.data.game_name}"!`);
+      // alert(`¡Te has unido a "${data.data.game_name}"!`);
       closeCodeModalFn();
       closeLobbyModal();
 

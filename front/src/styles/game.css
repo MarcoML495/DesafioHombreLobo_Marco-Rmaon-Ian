@@ -1,0 +1,219 @@
+/* ==========================================
+   PARTIDA
+   ========================================== */
+body {
+  background-color: var(--bg-dark);
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 20px;
+}
+
+.game-area {
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-primary);
+  margin-bottom: 10px;
+}
+
+.game-title {
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.back-button {
+  padding: 10px 20px;
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.timer {
+  background: var(--color-primary-light);
+  color: var(--bg-dark);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 3px;
+  flex: 1;
+  margin-bottom: 3px;
+}
+
+.player-card {
+  background: var(--bg-dark);
+  border: 2px solid var(--bg-lighter);
+  border-radius: 8px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.player-card.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px var(--shadow-primary-hover);
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-lighter);
+  border: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--color-primary);
+}
+
+.player-name {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.player-role {
+  color: var(--text-light);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.game-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 10px;
+  background: var(--color-primary);
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action-button.danger {
+  background: var(--color-red);
+  color: var(--text-white);
+}
+
+.action-button.success {
+  background: var(--color-green);
+  color: var(--text-white);
+}
+
+.chat-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: bold;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--color-primary);
+  margin-bottom: 15px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.message {
+  background: var(--bg-dark);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.message.own {
+  background: var(--color-primary);
+  color: var(--bg-dark);
+  margin-left: 20px;
+}
+
+.message.other {
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  margin-right: 20px;
+}
+
+.message-author {
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.message-text {
+  font-size: 14px;
+}
+
+.message-time {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+.chat-input-container {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.send-button {
+  background: var(--color-primary);
+  color: var(--bg-dark);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
