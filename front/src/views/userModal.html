@@ -10,6 +10,19 @@
 </head>
 
 <body class="profile-page">
+    <nav class="main-navbar">
+        <div class="navbar-logo">
+            <a href="home.html">
+                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+            </a>
+        </div>
+        <ul class="navbar-links" id="navbar-guest-links">
+            <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+            <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+        </ul>
+        <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+        </ul>
+    </nav>
     <!-- Pantalla de Perfil -->
     <div class="profile-screen">
         <div class="profile-header-new">
@@ -19,6 +32,7 @@
         <div class="profile-content">
             <!-- Avatar Grande Circular -->
             <div class="avatar-container-new">
+
                 <div class="avatar-new">
                     <svg width="150" height="150" viewBox="0 0 150 150" fill="none">
                         <circle cx="75" cy="75" r="73" fill="#5A5A5A" stroke="#D4A017" stroke-width="4" />
@@ -156,6 +170,24 @@
         </div>
     </div>
 
+    <!-- Fondo Animado -->
+    <div class="animated-background">
+        <div class="background-flames"></div>
+        <div class="background-overlay"></div>
+        <div class="background-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+    
     <script type="module" src="../components/userPage.ts"></script>
 </body>
 

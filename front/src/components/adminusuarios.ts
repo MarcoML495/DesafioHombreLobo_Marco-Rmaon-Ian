@@ -1,12 +1,14 @@
-// import '../styles/variables.css';
-// import '../styles/global.css';
-// import '../styles/navbar.css';
-// import '../styles/modals.css';
-// import '../styles/lobby.css';
-// // import "../main.ts";
-// import '../styles/footer.css';
-// import '../styles/animated-background.css';
+
+import '../styles/variables.css';
+import '../styles/global.css';
+import '../styles/navbar.css';
+import '../styles/modals.css';
+import '../styles/lobby.css';
+import "../main.ts";
+import '../styles/footer.css';
+import '../styles/animated-background.css';
 import '../styles/admin.css';
+
 
 import { fetchUsersAdmin, createUserAdmin, updateUserAdmin, deleteUserAdmin } from './index';
 import { updateNavbarForLoginStatus } from './navbar'; 
