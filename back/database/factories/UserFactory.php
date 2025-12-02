@@ -16,7 +16,7 @@ class UserFactory extends Factory
             'name' => fake()->unique()->userName(), 
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('1234abc.-'),
-            'role' => 'player', 
+            'role' => 'user', 
         ];
     }
    
