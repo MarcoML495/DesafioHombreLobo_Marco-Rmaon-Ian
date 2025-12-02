@@ -23,6 +23,7 @@ class GamePlayer extends Model
         'game_id',
         'user_id',
         'status',
+        'is_active',
         'role',
         'joined_at',
         'left_at',
@@ -32,6 +33,7 @@ class GamePlayer extends Model
      * Casts de atributos.
      */
     protected $casts = [
+        'is_active' => 'boolean',
         'joined_at' => 'datetime',
         'left_at' => 'datetime',
     ];
@@ -65,7 +67,7 @@ class GamePlayer extends Model
      */
     public function isActive(): bool
     {
-        return in_array($this->status, ['waiting', 'ready', 'playing']);
+        return $this->is_active && in_array($this->status, ['waiting', 'ready', 'playing']);
     }
 
     /**
@@ -73,7 +75,7 @@ class GamePlayer extends Model
      */
     public function isPlaying(): bool
     {
-        return $this->status === 'playing';
+        return $this->is_active && $this->status === 'playing';
     }
 
     /**
@@ -82,5 +84,36 @@ class GamePlayer extends Model
     public function isDead(): bool
     {
         return $this->status === 'dead';
+    }
+
+    /**
+     * Desactivar esta entrada (el jugador abandona)
+     */
+    public function deactivate(): void
+    {
+        $this->update([
+            'is_active' => false,
+            'left_at' => now(),
+        ]);
+    }
+
+    /**
+     * SCOPES
+     */
+
+    /**
+     * Scope para jugadores activos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope para jugadores en espera
+     */
+    public function scopeWaiting($query)
+    {
+        return $query->where('status', 'waiting')->where('is_active', true);
     }
 }

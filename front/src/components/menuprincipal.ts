@@ -1,10 +1,10 @@
-import '../styles/variables.css';
-import '../styles/global.css';
-import '../styles/navbar.css';
-import '../styles/modals.css';
-import '../styles/lobby.css';
-import "../main.ts";
-import '../styles/animated-background.css';
+import("../styles/variables.css");
+import("../styles/global.css");
+import("../styles/navbar.css");
+import("../styles/modals.css");
+import("../styles/lobby.css");
+import("../styles/animated-background.css");
+import("../main.ts");
 
 const lobbymodal = document.getElementById("lobby-modal");
 
@@ -160,7 +160,7 @@ function validateForm(): boolean {
 }
 
 async function sendToApi(sentData: any): Promise<void> {
-  const API_URL = "http://localhost/api/game/insert";
+  const API_URL = "http://localhost/api/games";
 
   try {
     const response = await fetch(API_URL, {
@@ -178,15 +178,21 @@ async function sendToApi(sentData: any): Promise<void> {
     const data = await response.json();
     console.log("Respuesta completa del servidor:", data);
 
-    if (response.ok) {
+    if (response.ok && data.success) {
       console.log(`Partida creada correctamente: ${data.data.id}`);
+
+      const gameId = data.data.id;
+
       if (data.data.join_code) {
         alert(
-          `¡Has creado la partida "${data.data.name}" con codigo ${data.data.join_code}!`
+          `¡Has creado la partida "${data.data.name}" con código ${data.data.join_code}!`
         );
       } else {
-        alert(`¡Has creado la partida publica "${data.data.name}"!`);
+        alert(`¡Has creado la partida pública "${data.data.name}"!`);
       }
+
+      // Redirigir al creador a la sala de espera
+      window.location.href = `./gameLobby.html?game=${gameId}`;
     } else {
       const errorMessage =
         data.message ||
@@ -194,11 +200,9 @@ async function sendToApi(sentData: any): Promise<void> {
       console.error("Error en la insercion:", data);
       alert(`Error al insertar: ${errorMessage}`);
     }
-    location.reload();
   } catch (error) {
     console.error("Error de conexión con el servidor:", error);
     alert("Error: No se pudo conectar con el servidor de Laravel.");
-    location.reload();
   }
 }
 
@@ -284,13 +288,13 @@ function handleUnirseALobby() {
     unirseCard.style.cursor = "pointer";
 
     unirseCard.addEventListener("click", (event) => {
-      event.preventDefault(); // ← AGREGAR
-      event.stopPropagation(); // ← AGREGAR
+      event.preventDefault();
+      event.stopPropagation();
       console.log("Unirse a Lobby clickeado");
-      console.log("Buscando modal..."); // ← AGREGAR
+      console.log("Buscando modal...");
 
       const modal = document.getElementById("lobby-list-modal");
-      console.log("Modal encontrado:", modal); // ← AGREGAR
+      console.log("Modal encontrado:", modal);
 
       openLobbyModal();
     });
@@ -298,25 +302,23 @@ function handleUnirseALobby() {
 }
 
 /**
- * Abrir modal de lobbies
+ * Abrir modal de lista de lobbies
  */
-function openLobbyModal() {
-  const lobbyModal = document.getElementById("lobby-list-modal") as HTMLElement;
-
-  if (lobbyModal) {
-    lobbyModal.style.display = "flex";
-    loadLobbies(); // Cargar lobbies
+function openLobbyModal(): void {
+  const modal = document.getElementById("lobby-list-modal") as HTMLElement;
+  if (modal) {
+    modal.style.display = "flex";
+    loadLobbies();
   }
 }
 
 /**
- * Cerrar modal de lobbies
+ * Cerrar modal de lista de lobbies
  */
-function closeLobbyModal() {
-  const lobbyModal = document.getElementById("lobby-list-modal") as HTMLElement;
-
-  if (lobbyModal) {
-    lobbyModal.style.display = "none";
+function closeLobbyModal(): void {
+  const modal = document.getElementById("lobby-list-modal") as HTMLElement;
+  if (modal) {
+    modal.style.display = "none";
   }
 }
 
@@ -335,6 +337,7 @@ async function loadLobbies(): Promise<void> {
   const noLobbiesMsg = document.getElementById("no-lobbies") as HTMLElement;
 
   try {
+    // Mostrar loading
     if (lobbyLoading) lobbyLoading.style.display = "block";
     if (lobbyList) lobbyList.style.display = "none";
     if (noLobbiesMsg) noLobbiesMsg.style.display = "none";
@@ -530,8 +533,9 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
       alert(`¡Te has unido a "${data.data.game_name}"!`);
       closeCodeModalFn();
       closeLobbyModal();
-      // TODO: Redirigir a sala de espera
-      // window.location.href = `./gameLobby.html?game=${lobbyId}`;
+
+      // Redirigir a la sala de espera
+      window.location.href = `./gameLobby.html?game=${lobbyId}`;
     } else {
       if (code) {
         const codeError = document.getElementById("code-error") as HTMLElement;

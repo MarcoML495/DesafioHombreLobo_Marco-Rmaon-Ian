@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class GameController extends Controller
 {
@@ -57,14 +58,42 @@ class GameController extends Controller
         $game->max_players = $req->get('maxPlayers');
 
         try {
-            $game->save();
+            DB::transaction(function () use ($game, $user) {
+                $game->save();
 
-            // Agregar al creador como primer jugador
-            GamePlayer::create([
-                'game_id' => $game->id,
-                'user_id' => $user->id,
-                'status' => 'waiting',
-            ]);
+                // NUEVO: Desactivar partidas anteriores del usuario (excepto esta que estamos creando)
+                GamePlayer::where('user_id', $user->id)
+                    ->where('game_id', '!=', $game->id)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'left_at' => now(),
+                    ]);
+
+                // Verificar si ya existe un registro del creador en esta partida
+                $existingPlayer = GamePlayer::where('game_id', $game->id)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                if ($existingPlayer) {
+                    // Reactivar el registro existente
+                    $existingPlayer->update([
+                        'is_active' => true,
+                        'status' => 'waiting',
+                        'joined_at' => now(),
+                        'left_at' => null,
+                    ]);
+                } else {
+                    // Agregar al creador como primer jugador (ACTIVO)
+                    GamePlayer::create([
+                        'game_id' => $game->id,
+                        'user_id' => $user->id,
+                        'status' => 'waiting',
+                        'is_active' => true,
+                        'joined_at' => now(),
+                    ]);
+                }
+            });
 
             $gameData = [
                 'id' => $game->id,
@@ -106,10 +135,11 @@ class GameController extends Controller
                 ], 401);
             }
 
-            // Obtener lobbies en estado 'lobby' con información del creador y jugadores
+            // Obtener lobbies en estado 'lobby' con información del creador y jugadores ACTIVOS
             $lobbies = Game::where('status', 'lobby')
                 ->with(['creator:id,name', 'players' => function($query) {
-                    $query->whereIn('status', ['waiting', 'ready', 'playing']);
+                    $query->where('is_active', true)
+                          ->whereIn('status', ['waiting', 'ready', 'playing']);
                 }])
                 ->get()
                 ->map(function ($game) {
@@ -146,6 +176,8 @@ class GameController extends Controller
     /**
      * Unirse a un lobby
      * POST /api/lobbies/{gameId}/join
+     *
+     * IMPORTANTE: Solo permite estar en UNA partida activa a la vez
      */
     public function joinLobby(Request $request, $gameId)
     {
@@ -209,20 +241,55 @@ class GameController extends Controller
                 }
             }
 
-            // Verificar que el usuario no esté ya en la partida
-            if ($game->hasPlayer($user->id)) {
+            // NUEVO: Verificar que el usuario no esté ya en esta partida ACTIVA
+            $alreadyInGame = GamePlayer::where('game_id', $gameId)
+                ->where('user_id', $user->id)
+                ->where('is_active', true)
+                ->exists();
+
+            if ($alreadyInGame) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ya estás en esta partida'
                 ], 400);
             }
 
-            // Unir al jugador
-            $gamePlayer = GamePlayer::create([
-                'game_id' => $game->id,
-                'user_id' => $user->id,
-                'status' => 'waiting',
-            ]);
+            // NUEVO: Desactivar todas las partidas activas del usuario y unirse a la nueva
+            DB::transaction(function () use ($user, $game) {
+                // Desactivar cualquier partida activa previa (excepto esta)
+                GamePlayer::where('user_id', $user->id)
+                    ->where('game_id', '!=', $game->id)
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'status' => 'disconnected',
+                        'left_at' => now(),
+                    ]);
+
+                // Verificar si ya existe un registro para este usuario en esta partida
+                $existingPlayer = GamePlayer::where('game_id', $game->id)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                if ($existingPlayer) {
+                    // Reactivar el registro existente
+                    $existingPlayer->update([
+                        'is_active' => true,
+                        'status' => 'waiting',
+                        'joined_at' => now(),
+                        'left_at' => null,
+                    ]);
+                } else {
+                    // Crear nuevo registro
+                    GamePlayer::create([
+                        'game_id' => $game->id,
+                        'user_id' => $user->id,
+                        'status' => 'waiting',
+                        'is_active' => true,
+                        'joined_at' => now(),
+                    ]);
+                }
+            });
 
             return response()->json([
                 'success' => true,
@@ -268,9 +335,10 @@ class GameController extends Controller
                 ], 404);
             }
 
-            // Buscar al jugador en la partida
+            // Buscar al jugador en la partida ACTIVA
             $gamePlayer = GamePlayer::where('game_id', $gameId)
                 ->where('user_id', $user->id)
+                ->where('is_active', true)
                 ->whereIn('status', ['waiting', 'ready'])
                 ->first();
 
@@ -281,7 +349,8 @@ class GameController extends Controller
                 ], 404);
             }
 
-            // Actualizar estado
+            // Desactivar y actualizar estado
+            $gamePlayer->is_active = false;
             $gamePlayer->status = 'disconnected';
             $gamePlayer->left_at = now();
             $gamePlayer->save();
@@ -295,6 +364,137 @@ class GameController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al salir: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener la partida activa del usuario
+     * GET /api/my-active-game
+     */
+    public function getActiveGame(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
+            $gamePlayer = GamePlayer::with(['game'])
+                ->where('user_id', $user->id)
+                ->where('is_active', true)
+                ->whereIn('status', ['waiting', 'ready', 'playing'])
+                ->first();
+
+            if (!$gamePlayer) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null,
+                    'message' => 'No estás en ninguna partida activa.'
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'game_id' => $gamePlayer->game->id,
+                    'game_name' => $gamePlayer->game->name,
+                    'status' => $gamePlayer->status,
+                    'role' => $gamePlayer->role,
+                    'current_players' => $gamePlayer->game->currentPlayersCount(),
+                    'max_players' => $gamePlayer->game->max_players,
+                    'game_status' => $gamePlayer->game->status,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener partida activa: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener jugadores en la sala de espera
+     * GET /api/lobbies/{gameId}/players
+     */
+    public function getLobbyPlayers(Request $request, $gameId)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
+            $game = Game::find($gameId);
+
+            if (!$game) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Partida no encontrada'
+                ], 404);
+            }
+
+            // Verificar que el usuario esté en la partida ACTIVA
+            $isInGame = GamePlayer::where('game_id', $gameId)
+                ->where('user_id', $user->id)
+                ->where('is_active', true)
+                ->exists();
+
+            if (!$isInGame) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No estás en esta partida.'
+                ], 403);
+            }
+
+            // Obtener todos los jugadores ACTIVOS
+            $players = GamePlayer::with(['user:id,name'])
+                ->where('game_id', $gameId)
+                ->where('is_active', true)
+                ->whereIn('status', ['waiting', 'ready', 'playing'])
+                ->orderBy('joined_at', 'asc')
+                ->get()
+                ->map(function ($player) use ($game) {
+                    return [
+                        'id' => $player->user->id,
+                        'name' => $player->user->name,
+                        'avatar' => null, // Avatar no disponible por ahora
+                        'status' => $player->status,
+                        'is_creator' => $player->user_id === $game->created_by_user_id,
+                        'joined_at' => $player->joined_at->diffForHumans(),
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'game' => [
+                        'id' => $game->id,
+                        'name' => $game->name,
+                        'current_players' => $players->count(),
+                        'max_players' => $game->max_players,
+                        'min_players' => $game->min_players,
+                        'can_start' => $players->count() >= $game->min_players,
+                        'status' => $game->status,
+                    ],
+                    'players' => $players,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener jugadores: ' . $e->getMessage()
             ], 500);
         }
     }
