@@ -1,4 +1,12 @@
 
+import '../styles/navbar.css';
+import '../styles/modals.css';
+import "../main.ts";
+import '../styles/footer.css';
+import '../styles/animated-background.css';
+import '../styles/admin.css';
+import '../styles/profile.css';
+
 interface UserProfile {
   id: string;
   name: string;

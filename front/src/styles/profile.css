@@ -9,7 +9,6 @@ body.profile-page {
 
 .profile-screen {
   min-height: 100vh;
-  background: var(--bg-darkest);
   padding: 0;
 }
 
