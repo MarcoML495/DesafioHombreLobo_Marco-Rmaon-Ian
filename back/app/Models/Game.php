@@ -6,21 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    /**
-     * Nombre de la tabla.
-     */
-    protected $table = 'games';
-
-    /**
-     * Clave primaria.
-     */
-    protected $primaryKey = 'id';
-    public $incrementing = true;
-    protected $keyType = 'int';
-
-    /**
-     * Campos que se pueden asignar masivamente.
-     */
     protected $fillable = [
         'name',
         'join_code',
@@ -28,18 +13,6 @@ class Game extends Model
         'status',
         'min_players',
         'max_players',
-        'started_at',
-        'ended_at'
-    ];
-
-    /**
-     * Casts automáticos de tipos.
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'started_at' => 'datetime',
-        'ended_at' => 'datetime',
     ];
 
     /**
@@ -47,7 +20,7 @@ class Game extends Model
      */
 
     /**
-     * Relación N:1 con el creador (User)
+     * Relación con el creador del juego
      */
     public function creator()
     {
@@ -55,7 +28,7 @@ class Game extends Model
     }
 
     /**
-     * Relación 1:N con GamePlayer (jugadores en esta partida)
+     * Relación con los jugadores
      */
     public function players()
     {
@@ -63,12 +36,13 @@ class Game extends Model
     }
 
     /**
-     * Relación N:M con User a través de GamePlayer
+     * Relación con jugadores ACTIVOS
      */
-    public function users()
+    public function activePlayers()
     {
-        return $this->belongsToMany(User::class, 'game_players', 'game_id', 'user_id')
-                    ->withPivot('status', 'role', 'joined_at', 'left_at');
+        return $this->hasMany(GamePlayer::class, 'game_id')
+                    ->where('is_active', true)
+                    ->whereIn('status', ['waiting', 'ready', 'playing']);
     }
 
     /**
@@ -76,33 +50,15 @@ class Game extends Model
      */
 
     /**
-     * Obtener el conteo actual de jugadores activos
-     */
-    public function currentPlayersCount(): int
-    {
-        return $this->players()
-                    ->whereIn('status', ['waiting', 'ready', 'playing'])
-                    ->count();
-    }
-
-    /**
-     * Verificar si la partida está llena
-     */
-    public function isFull(): bool
-    {
-        return $this->currentPlayersCount() >= $this->max_players;
-    }
-
-    /**
-     * Verificar si es una partida pública
+     * Verificar si el juego es público
      */
     public function isPublic(): bool
     {
-        return is_null($this->join_code) || $this->join_code === '';
+        return $this->join_code === null || $this->join_code === '';
     }
 
     /**
-     * Verificar si está en estado de lobby (aceptando jugadores)
+     * Verificar si el juego está en lobby
      */
     public function isLobby(): bool
     {
@@ -110,7 +66,7 @@ class Game extends Model
     }
 
     /**
-     * Verificar si está en progreso
+     * Verificar si el juego está en progreso
      */
     public function isInProgress(): bool
     {
@@ -118,7 +74,7 @@ class Game extends Model
     }
 
     /**
-     * Verificar si terminó
+     * Verificar si el juego terminó
      */
     public function isFinished(): bool
     {
@@ -126,21 +82,57 @@ class Game extends Model
     }
 
     /**
-     * Verificar si un usuario ya está en esta partida
+     * Obtener cantidad de jugadores ACTIVOS
+     */
+    public function currentPlayersCount(): int
+    {
+        return $this->players()
+                    ->where('is_active', true)
+                    ->whereIn('status', ['waiting', 'ready', 'playing'])
+                    ->count();
+    }
+
+    /**
+     * Verificar si el juego está lleno
+     */
+    public function isFull(): bool
+    {
+        return $this->currentPlayersCount() >= $this->max_players;
+    }
+
+    /**
+     * Verificar si se puede unir
+     */
+    public function canJoin(): bool
+    {
+        return $this->isLobby() && !$this->isFull();
+    }
+
+    /**
+     * Verificar si tiene el número mínimo de jugadores para iniciar
+     */
+    public function hasMinimumPlayers(): bool
+    {
+        return $this->currentPlayersCount() >= $this->min_players;
+    }
+
+    /**
+     * Verificar si un usuario está en el juego (ACTIVO)
      */
     public function hasPlayer(int $userId): bool
     {
         return $this->players()
                     ->where('user_id', $userId)
+                    ->where('is_active', true)
                     ->whereIn('status', ['waiting', 'ready', 'playing'])
                     ->exists();
     }
 
     /**
-     * Verificar si la partida puede aceptar más jugadores
+     * Verificar si un usuario es el creador
      */
-    public function canJoin(): bool
+    public function isCreator(int $userId): bool
     {
-        return $this->isLobby() && !$this->isFull();
+        return $this->created_by_user_id === $userId;
     }
 }

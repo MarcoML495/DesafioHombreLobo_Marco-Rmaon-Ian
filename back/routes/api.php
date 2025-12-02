@@ -42,4 +42,28 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{id}', [AdminUserController::class, 'update']); // Actualizar un usuario
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']); // Eliminar un usuario
     });
+
+    // Listar lobbies disponibles
+    Route::get('/lobbies', [GameController::class, 'getLobbies']);
+
+    // Crear nueva partida
+    Route::post('/games', [GameController::class, 'insertGame']);
+
+    // Unirse a una partida
+    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+
+    // Abandonar una partida
+    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
+
+    // Obtener partida activa del usuario
+    Route::get('/my-active-game', [GameController::class, 'getActiveGame']);
+
+    // Obtener jugadores en la sala de espera
+    Route::get('/lobbies/{gameId}/players', [GameController::class, 'getLobbyPlayers']);
+
+    // Buscar juego por ID
+    Route::get('/games/{id}', [GameController::class, 'findGame']);
+
+    // Obtener todos los juegos (quizás quieras restringir esto solo a admins)
+    Route::get('/games', [GameController::class, 'getGames']);
 });
