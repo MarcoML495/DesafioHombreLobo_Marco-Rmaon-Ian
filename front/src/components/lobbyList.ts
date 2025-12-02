@@ -221,7 +221,7 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            alert(`¡Te has unido a "${data.data.game_name}"!`);
+            // alert(`¡Te has unido a "${data.data.game_name}"!`);
             closeCodeModalFn();
             
             // Redirigir a la página del lobby/sala de espera

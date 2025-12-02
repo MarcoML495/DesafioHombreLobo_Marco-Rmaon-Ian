@@ -93,9 +93,7 @@ async function sendToApi(userData: any): Promise<void> {
 
     if (response.ok && data.success) {
       console.log("Usuario registrado correctamente:", data.data.name);
-      alert(
-        `¡Bienvenido, ${data.data.name}! Tu cuenta se ha creado correctamente.`
-      );
+      // alert(`¡Bienvenido, ${data.data.name}! Tu cuenta se ha creado correctamente.`);
 
       sessionStorage.setItem("name", data.data.name);
       sessionStorage.setItem("password", userData.password);

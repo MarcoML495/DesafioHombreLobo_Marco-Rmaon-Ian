@@ -180,13 +180,11 @@ async function sendToApi(sentData: any): Promise<void> {
 
     if (response.ok) {
       console.log(`Partida creada correctamente: ${data.data.id}`);
-      if (data.data.join_code) {
-        alert(
-          `¡Has creado la partida "${data.data.name}" con codigo ${data.data.join_code}!`
-        );
-      } else {
-        alert(`¡Has creado la partida publica "${data.data.name}"!`);
-      }
+      // if (data.data.join_code) {
+      //   alert(`¡Has creado la partida "${data.data.name}" con codigo ${data.data.join_code}!`);
+      // } else {
+      //   alert(`¡Has creado la partida publica "${data.data.name}"!`);
+      // }
     } else {
       const errorMessage =
         data.message ||
@@ -527,7 +525,7 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      alert(`¡Te has unido a "${data.data.game_name}"!`);
+      // alert(`¡Te has unido a "${data.data.game_name}"!`);
       closeCodeModalFn();
       closeLobbyModal();
       // TODO: Redirigir a sala de espera

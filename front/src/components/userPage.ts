@@ -526,7 +526,7 @@ async function saveProfile() {
       }
     }
 
-    alert("¡Perfil actualizado correctamente!");
+    // alert("¡Perfil actualizado correctamente!");
 
     // Limpiar estados
     realNameEditing = false;
