@@ -10,7 +10,25 @@ import '../styles/login.css';
 import '../styles/home.css';
 
 // URL BASE
-const BASE_API_URL = 'http://localhost/api'; 
+const BASE_API_URL = 'http://localhost/api';
+
+//URL HOME
+const HOME_VIEW_PATH = "/src/views/home.html";
+
+//Si detecta que estas en index te redirige a home
+const redirectToHome = () => {
+  const inIndex = window.location.href == "http://localhost:5173/" || window.location.href.includes("index.html")
+  if (!inIndex) return;
+  window.location.href = HOME_VIEW_PATH;
+};
+
+//Se ejecuta al cargar la pagina
+if (document.readyState === "complete") {
+  redirectToHome();
+} else {
+  window.addEventListener("load", redirectToHome, { once: true });
+}
+
 
 
 interface UserAdminData {
