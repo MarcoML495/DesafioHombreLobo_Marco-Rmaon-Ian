@@ -8,7 +8,9 @@ import '../styles/navbar.css';
 import '../styles/lobby.css';
 import '../styles/gameLobby.css';
 import '../styles/animated-background.css';
+import '../styles/notifications.css';
 
+import { notifySuccess, notifyError, notifyWarning, notifyInfo, showConfirm } from './notifications';
 import { updateNavbarForLoginStatus } from './navbar';
 
 
@@ -43,6 +45,8 @@ interface GameLobbyData {
         max_players: number;
         min_players: number;
         can_start: boolean;
+        is_public: boolean;
+        join_code: string | null;
     };
     players: Player[];
 }
@@ -132,8 +136,10 @@ function getAuthToken(): string | null {
 function checkAuthentication(): boolean {
     const token = getAuthToken();
     if (!token) {
-        alert('Debes iniciar sesión');
-        window.location.href = '../views/login.html';
+        notifyError('Debes iniciar sesión para acceder a la sala de espera', 'Autenticación requerida');
+        setTimeout(() => {
+            window.location.href = '../views/login.html';
+        }, 2000);
         return false;
     }
     return true;
@@ -193,6 +199,26 @@ function displayLobbyData(data: GameLobbyData): void {
     document.getElementById('player-count')!.textContent = `${game.current_players}/${game.max_players}`;
     
     
+    // Actualizar header
+    document.getElementById('game-name')!.textContent = game.name;
+    document.getElementById('game-info')!.textContent = 
+        `${game.current_players}/${game.max_players} jugadores`;
+    document.getElementById('player-count')!.textContent = 
+        `${game.current_players}/${game.max_players}`;
+    document.getElementById('min-players')!.textContent = game.min_players.toString();
+
+    // Mostrar código de acceso si es partida privada
+    const joinCodeDisplay = document.getElementById('join-code-display');
+    const joinCodeValue = document.getElementById('join-code-value');
+    
+    if (!game.is_public && game.join_code) {
+        if (joinCodeDisplay) joinCodeDisplay.style.display = 'flex';
+        if (joinCodeValue) joinCodeValue.textContent = game.join_code;
+    } else {
+        if (joinCodeDisplay) joinCodeDisplay.style.display = 'none';
+    }
+
+    // Ocultar loading
     const loading = document.getElementById('players-loading');
     if (loading) loading.style.display = 'none';
 
@@ -253,6 +279,19 @@ async function sendChatMessage(e: Event) {
     const message = input.value.trim();
 
     if (!message || !gameId) return;
+/**
+ * Abandonar partida
+ */
+async function leaveGame(): Promise<void> {
+    const confirmed = await showConfirm({
+        title: '¿Abandonar partida?',
+        message: 'Si abandonas ahora, perderás tu lugar en la sala de espera.',
+        confirmText: 'Sí, abandonar',
+        cancelText: 'Quedarme',
+        type: 'warning'
+    });
+
+    if (!confirmed) return;
 
     const token = getAuthToken();
     
@@ -269,10 +308,20 @@ async function sendChatMessage(e: Event) {
             },
             body: JSON.stringify({ message })
         });
-        
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            notifySuccess('Has abandonado la partida correctamente', '¡Hasta pronto!');
+            setTimeout(() => {
+                window.location.href = '../views/menuprincipal.html';
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Error al abandonar');
+        }
     } catch (error) {
-        console.error('Error enviando mensaje:', error);
-        alert('Error al enviar mensaje');
+        console.error('Error al abandonar:', error);
+        notifyError('No se pudo abandonar la partida. Intenta de nuevo.', 'Error');
     }
 }
 
@@ -307,16 +356,11 @@ async function init(): Promise<void> {
 
     gameId = getGameIdFromUrl();
     if (!gameId) {
-        alert('Partida no válida');
-        window.location.href = '../views/menuprincipal.html';
+        notifyError('No se especificó ninguna partida', 'Error');
+        setTimeout(() => {
+            window.location.href = '../views/menuprincipal.html';
+        }, 2000);
         return;
-    }
-
-    const token = getAuthToken();
-    if (token) {
-        await fetchUserProfile(token); // Obtener ID primero
-        setupEcho(token);              // Configurar Websockets
-        subscribeToLobby(gameId);      // Escuchar canal
     }
 
     updateNavbarForLoginStatus();
@@ -341,6 +385,26 @@ async function leaveGame(): Promise<void> {
         await fetch(`${API_URL}/lobbies/${gameId}/leave`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
+    const startBtn = document.getElementById('start-game-btn');
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            notifyInfo('Esta funcionalidad estará disponible próximamente', '🚧 En desarrollo');
+        });
+    }
+
+    // Botón copiar código
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    if (copyCodeBtn) {
+        copyCodeBtn.addEventListener('click', () => {
+            const codeValue = document.getElementById('join-code-value');
+            if (codeValue) {
+                const code = codeValue.textContent || '';
+                navigator.clipboard.writeText(code).then(() => {
+                    notifySuccess('Código copiado al portapapeles', '📋 Copiado');
+                }).catch(() => {
+                    notifyError('No se pudo copiar el código', 'Error');
+                });
+            }
         });
         window.location.href = '../views/menuprincipal.html';
     } catch (e) {

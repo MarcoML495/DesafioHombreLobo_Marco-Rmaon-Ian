@@ -151,6 +151,7 @@ class GameController extends Controller
                         'creator_name' => $game->creator ? $game->creator->name : 'Desconocido',
                         'is_public' => $game->isPublic(),
                         'requires_code' => !$game->isPublic(),
+                        'join_code' => !$game->isPublic() ? $game->join_code : null,
                         'status' => $game->status,
                         'current_players' => $game->currentPlayersCount(),
                         'max_players' => $game->max_players,
@@ -250,10 +251,17 @@ class GameController extends Controller
                 ->exists();
 
             if ($alreadyInGame) {
+                // Ya está en la partida, permitir reingreso
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Ya estás en esta partida'
-                ], 400);
+                    'success' => true,
+                    'message' => 'Ya estás en esta partida. Redirigiendo...',
+                    'data' => [
+                        'game_id' => $game->id,
+                        'game_name' => $game->name,
+                        'current_players' => $game->currentPlayersCount(),
+                        'max_players' => $game->max_players
+                    ]
+                ]);
             }
 
             // NUEVO: Desactivar todas las partidas activas del usuario y unirse a la nueva
@@ -490,6 +498,8 @@ class GameController extends Controller
                         'min_players' => $game->min_players,
                         'can_start' => $players->count() >= $game->min_players,
                         'status' => $game->status,
+                        'is_public' => $game->isPublic(),
+                        'join_code' => !$game->isPublic() ? $game->join_code : null,
                     ],
                     'players' => $players,
                 ],

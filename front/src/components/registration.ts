@@ -1,24 +1,57 @@
-
 import '../styles/login.css';
+import '../styles/notifications.css';
 
-const nameInput = document.querySelector(
-  'input[placeholder="Name"]'
-) as HTMLInputElement | null;
-const emailInput = document.querySelector(
-  'input[placeholder="Email"]'
-) as HTMLInputElement | null;
-const passwordInput = document.querySelector(
-  'input[placeholder="************"]'
-) as HTMLInputElement | null;
-const confirmPasswordInput = document.querySelector(
-  "div.form-row:nth-child(4) input"
-) as HTMLInputElement | null;
-const checkPrivacy = document.getElementById(
-  "check-privacy"
-) as HTMLInputElement | null;
-const registerButton = document.querySelector(
-  ".button-register"
-) as HTMLElement | null;
+import { notifySuccess, notifyError, notifyWarning } from './notifications';
+
+const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
+const emailInput = document.querySelector('input[placeholder="Email"]') as HTMLInputElement | null;
+const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
+const confirmPasswordInput = document.querySelector("div.form-row:nth-child(4) input") as HTMLInputElement | null;
+const checkPrivacy = document.getElementById("check-privacy") as HTMLInputElement | null;
+const registerButton = document.querySelector(".button-register") as HTMLElement | null;
+
+function setupPasswordToggles() {
+  const passwordFields = [passwordInput, confirmPasswordInput].filter(Boolean) as HTMLInputElement[];
+  
+  passwordFields.forEach((field) => {
+    const wrapper = field.parentElement;
+    if (!wrapper) return;
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'password-toggle-btn';
+    toggleBtn.setAttribute('aria-label', 'Mostrar contraseña');
+    
+    toggleBtn.innerHTML = `
+        <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
+            <circle cx="12" cy="12" r="3" stroke-width="2"/>
+        </svg>
+    `;
+    
+    if (window.getComputedStyle(wrapper).position === 'static') {
+      wrapper.style.position = 'relative';
+    }
+    
+    wrapper.appendChild(toggleBtn);
+
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = field.type === 'password';
+      field.type = isPassword ? 'text' : 'password';
+      toggleBtn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      
+      toggleBtn.innerHTML = isPassword 
+          ? `<svg class="eye-icon eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke-width="2"/>
+              <line x1="1" y1="1" x2="23" y2="23" stroke-width="2"/>
+             </svg>`
+          : `<svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke-width="2"/>
+             </svg>`;
+    });
+  });
+}
 
 function validateForm(): boolean {
   if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput || !checkPrivacy) {
@@ -32,47 +65,39 @@ function validateForm(): boolean {
   const confirmPassword = confirmPasswordInput.value;
   const privacyAccepted = checkPrivacy.checked;
 
-  let isValid = true;
   let errors: string[] = [];
 
   if (name.length < 3) {
-    errors.push("El nombre de usuario debe tener al menos 3 caracteres.");
-    isValid = false;
+    errors.push("• El nombre de usuario debe tener al menos 3 caracteres");
   }
 
   if (!email.includes("@") || !email.includes(".")) {
-    errors.push("Por favor, introduce un correo electrónico válido.");
-    isValid = false;
+    errors.push("• Por favor, introduce un correo electrónico válido");
   }
 
   if (password.length < 8) {
-    errors.push("La contraseña debe tener al menos 8 caracteres.");
-    isValid = false;
+    errors.push("• La contraseña debe tener al menos 8 caracteres");
   }
 
   const specialCharRegex = /[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]/;
   if (!specialCharRegex.test(password)) {
-    errors.push(
-      "La contraseña debe contener al menos un carácter especial (por ejemplo: !@#$%)."
-    );
-    isValid = false;
+    errors.push("• La contraseña debe contener al menos un carácter especial");
   }
 
   if (password !== confirmPassword) {
-    errors.push("Las contraseñas no coinciden.");
-    isValid = false;
+    errors.push("• Las contraseñas no coinciden");
   }
 
   if (!privacyAccepted) {
-        errors.push("Debes aceptar la politica de privacidad.");
-        isValid = false;
-    }
-
-  if (!isValid) {
-    alert("Errores de validación:\n" + errors.join("\n"));
+    errors.push("• Debes aceptar la política de privacidad");
   }
 
-  return isValid;
+  if (errors.length > 0) {
+    notifyWarning(errors.join('<br>'), '⚠️ Corrige los siguientes errores');
+    return false;
+  }
+
+  return true;
 }
 
 async function sendToApi(userData: any): Promise<void> {
@@ -93,27 +118,42 @@ async function sendToApi(userData: any): Promise<void> {
 
     if (response.ok && data.success) {
       console.log("Usuario registrado correctamente:", data.data.name);
-      // alert(`¡Bienvenido, ${data.data.name}! Tu cuenta se ha creado correctamente.`);
+      
+      notifySuccess(
+        'Tu cuenta ha sido creada correctamente. Redirigiendo...',
+        `¡Bienvenido, ${data.data.name}!`
+      );
 
       sessionStorage.setItem("name", data.data.name);
       sessionStorage.setItem("password", userData.password);
       sessionStorage.setItem("token", data.data.token);
 
-      window.location.href = "../views/menuprincipal.html";
+      setTimeout(() => {
+        window.location.href = "../views/menuprincipal.html";
+      }, 2000);
     } else {
-      const errorMessage =
-        data.message ||
-        (data.errors ? JSON.stringify(data.errors) : "Error desconocido.");
+      const errorMessage = data.message || 'Error al crear la cuenta';
       console.error("Error en el registro:", data);
-      alert(`Error al registrarse: ${errorMessage}`);
+      
+      if (data.errors) {
+        const errorList = Object.values(data.errors).flat();
+        notifyError(errorList.join('<br>'), 'Error al registrarse');
+      } else {
+        notifyError(errorMessage, 'Error al registrarse');
+      }
     }
   } catch (error) {
     console.error("Error de conexión con el servidor:", error);
-    alert("Error: No se pudo conectar con el servidor de Laravel.");
+    notifyError(
+      'No se pudo conectar con el servidor. Verifica tu conexión.',
+      'Error de conexión'
+    );
   }
 }
 
 export function initRegistration() {
+  setupPasswordToggles();
+  
   if (registerButton) {
     registerButton.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -128,9 +168,7 @@ export function initRegistration() {
         console.log(userData);
         await sendToApi(userData);
       } else {
-        console.log(
-          "Intento de registro fallido debido a errores de validación."
-        );
+        console.log("Intento de registro fallido debido a errores de validación.");
       }
     });
   } else {
