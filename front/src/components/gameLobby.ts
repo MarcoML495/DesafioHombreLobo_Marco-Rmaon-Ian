@@ -5,7 +5,9 @@ import '../styles/navbar.css';
 import '../styles/lobby.css';
 import '../styles/gameLobby.css';
 import '../styles/animated-background.css';
+import '../styles/notifications.css';
 
+import { notifySuccess, notifyError, notifyWarning, notifyInfo, showConfirm } from './notifications';
 import { updateNavbarForLoginStatus } from './navbar';
 
 const API_URL = 'http://localhost/api';
@@ -57,8 +59,10 @@ function getAuthToken(): string | null {
 function checkAuthentication(): boolean {
     const token = getAuthToken();
     if (!token) {
-        alert('Debes iniciar sesión');
-        window.location.href = '../views/login.html';
+        notifyError('Debes iniciar sesión para acceder a la sala de espera', 'Autenticación requerida');
+        setTimeout(() => {
+            window.location.href = '../views/login.html';
+        }, 2000);
         return false;
     }
     return true;
@@ -89,8 +93,10 @@ async function loadLobbyData(): Promise<void> {
         }
     } catch (error) {
         console.error('Error al cargar sala:', error);
-        alert('Error al cargar la sala. Intenta de nuevo.');
-        window.location.href = '../views/menuprincipal.html';
+        notifyError('No se pudo cargar la información de la sala', 'Error de conexión');
+        setTimeout(() => {
+            window.location.href = '../views/menuprincipal.html';
+        }, 3000);
     }
 }
 
@@ -177,7 +183,15 @@ function createPlayerCard(player: Player): HTMLElement {
  * Abandonar partida
  */
 async function leaveGame(): Promise<void> {
-    if (!confirm('¿Seguro que quieres abandonar esta partida?')) return;
+    const confirmed = await showConfirm({
+        title: '¿Abandonar partida?',
+        message: 'Si abandonas ahora, perderás tu lugar en la sala de espera.',
+        confirmText: 'Sí, abandonar',
+        cancelText: 'Quedarme',
+        type: 'warning'
+    });
+
+    if (!confirmed) return;
 
     const token = getAuthToken();
     if (!token || !gameId) return;
@@ -194,14 +208,16 @@ async function leaveGame(): Promise<void> {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            alert('Has abandonado la partida');
-            window.location.href = '../views/menuprincipal.html';
+            notifySuccess('Has abandonado la partida correctamente', '¡Hasta pronto!');
+            setTimeout(() => {
+                window.location.href = '../views/menuprincipal.html';
+            }, 1500);
         } else {
             throw new Error(data.message || 'Error al abandonar');
         }
     } catch (error) {
         console.error('Error al abandonar:', error);
-        alert('Error al abandonar la partida');
+        notifyError('No se pudo abandonar la partida. Intenta de nuevo.', 'Error');
     }
 }
 
@@ -236,15 +252,13 @@ async function init(): Promise<void> {
     // Obtener ID de partida
     gameId = getGameIdFromUrl();
     if (!gameId) {
-        alert('No se especificó una partida');
-        window.location.href = '../views/menuprincipal.html';
+        notifyError('No se especificó ninguna partida', 'Error');
+        setTimeout(() => {
+            window.location.href = '../views/menuprincipal.html';
+        }, 2000);
         return;
     }
 
-    // Obtener ID del usuario actual (desde sessionStorage o API)
-    const userName = sessionStorage.getItem('name');
-    // NOTA: Necesitarás obtener el ID real del usuario, por ahora usamos el nombre
-    
     updateNavbarForLoginStatus();
     
     // Cargar datos iniciales
@@ -262,7 +276,7 @@ async function init(): Promise<void> {
     const startBtn = document.getElementById('start-game-btn');
     if (startBtn) {
         startBtn.addEventListener('click', () => {
-            alert('Funcionalidad de iniciar partida próximamente');
+            notifyInfo('Esta funcionalidad estará disponible próximamente', '🚧 En desarrollo');
         });
     }
 

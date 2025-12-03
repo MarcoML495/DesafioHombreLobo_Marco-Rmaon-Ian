@@ -1,24 +1,14 @@
-
 import '../styles/login.css';
+import '../styles/notifications.css';
 
-const nameInput = document.querySelector(
-  'input[placeholder="Name"]'
-) as HTMLInputElement | null;
-const emailInput = document.querySelector(
-  'input[placeholder="Email"]'
-) as HTMLInputElement | null;
-const passwordInput = document.querySelector(
-  'input[placeholder="************"]'
-) as HTMLInputElement | null;
-const confirmPasswordInput = document.querySelector(
-  "div.form-row:nth-child(4) input"
-) as HTMLInputElement | null;
-const checkPrivacy = document.getElementById(
-  "check-privacy"
-) as HTMLInputElement | null;
-const registerButton = document.querySelector(
-  ".button-register"
-) as HTMLElement | null;
+import { notifySuccess, notifyError, notifyWarning } from './notifications';
+
+const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
+const emailInput = document.querySelector('input[placeholder="Email"]') as HTMLInputElement | null;
+const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
+const confirmPasswordInput = document.querySelector("div.form-row:nth-child(4) input") as HTMLInputElement | null;
+const checkPrivacy = document.getElementById("check-privacy") as HTMLInputElement | null;
+const registerButton = document.querySelector(".button-register") as HTMLElement | null;
 
 function validateForm(): boolean {
   if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput || !checkPrivacy) {
@@ -32,47 +22,39 @@ function validateForm(): boolean {
   const confirmPassword = confirmPasswordInput.value;
   const privacyAccepted = checkPrivacy.checked;
 
-  let isValid = true;
   let errors: string[] = [];
 
   if (name.length < 3) {
-    errors.push("El nombre de usuario debe tener al menos 3 caracteres.");
-    isValid = false;
+    errors.push("• El nombre de usuario debe tener al menos 3 caracteres");
   }
 
   if (!email.includes("@") || !email.includes(".")) {
-    errors.push("Por favor, introduce un correo electrónico válido.");
-    isValid = false;
+    errors.push("• Por favor, introduce un correo electrónico válido");
   }
 
   if (password.length < 8) {
-    errors.push("La contraseña debe tener al menos 8 caracteres.");
-    isValid = false;
+    errors.push("• La contraseña debe tener al menos 8 caracteres");
   }
 
   const specialCharRegex = /[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]/;
   if (!specialCharRegex.test(password)) {
-    errors.push(
-      "La contraseña debe contener al menos un carácter especial (por ejemplo: !@#$%)."
-    );
-    isValid = false;
+    errors.push("• La contraseña debe contener al menos un carácter especial");
   }
 
   if (password !== confirmPassword) {
-    errors.push("Las contraseñas no coinciden.");
-    isValid = false;
+    errors.push("• Las contraseñas no coinciden");
   }
 
   if (!privacyAccepted) {
-        errors.push("Debes aceptar la politica de privacidad.");
-        isValid = false;
-    }
-
-  if (!isValid) {
-    alert("Errores de validación:\n" + errors.join("\n"));
+    errors.push("• Debes aceptar la política de privacidad");
   }
 
-  return isValid;
+  if (errors.length > 0) {
+    notifyWarning(errors.join('<br>'), 'Corrige los siguientes errores');
+    return false;
+  }
+
+  return true;
 }
 
 async function sendToApi(userData: any): Promise<void> {
@@ -93,23 +75,36 @@ async function sendToApi(userData: any): Promise<void> {
 
     if (response.ok && data.success) {
       console.log("Usuario registrado correctamente:", data.data.name);
-      // alert(`¡Bienvenido, ${data.data.name}! Tu cuenta se ha creado correctamente.`);
+      
+      notifySuccess(
+        'Tu cuenta ha sido creada correctamente. Redirigiendo...',
+        `¡Bienvenido, ${data.data.name}!`
+      );
 
       sessionStorage.setItem("name", data.data.name);
       sessionStorage.setItem("password", userData.password);
       sessionStorage.setItem("token", data.data.token);
 
-      window.location.href = "../views/menuprincipal.html";
+      setTimeout(() => {
+        window.location.href = "../views/menuprincipal.html";
+      }, 2000);
     } else {
-      const errorMessage =
-        data.message ||
-        (data.errors ? JSON.stringify(data.errors) : "Error desconocido.");
+      const errorMessage = data.message || 'Error al crear la cuenta';
       console.error("Error en el registro:", data);
-      alert(`Error al registrarse: ${errorMessage}`);
+      
+      if (data.errors) {
+        const errorList = Object.values(data.errors).flat();
+        notifyError(errorList.join('<br>'), 'Error al registrarse');
+      } else {
+        notifyError(errorMessage, 'Error al registrarse');
+      }
     }
   } catch (error) {
     console.error("Error de conexión con el servidor:", error);
-    alert("Error: No se pudo conectar con el servidor de Laravel.");
+    notifyError(
+      'No se pudo conectar con el servidor. Verifica tu conexión.',
+      'Error de conexión'
+    );
   }
 }
 
@@ -128,9 +123,7 @@ export function initRegistration() {
         console.log(userData);
         await sendToApi(userData);
       } else {
-        console.log(
-          "Intento de registro fallido debido a errores de validación."
-        );
+        console.log("Intento de registro fallido debido a errores de validación.");
       }
     });
   } else {

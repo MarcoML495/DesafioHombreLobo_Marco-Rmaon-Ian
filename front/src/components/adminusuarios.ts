@@ -1,4 +1,3 @@
-
 import '../styles/variables.css';
 import '../styles/global.css';
 import '../styles/navbar.css';
@@ -8,32 +7,29 @@ import "../main.ts";
 import '../styles/footer.css';
 import '../styles/animated-background.css';
 import '../styles/admin.css';
+import '../styles/notifications.css';
 
-
+import { notifySuccess, notifyError, notifyWarning, showConfirm } from './notifications';
 import { fetchUsersAdmin, createUserAdmin, updateUserAdmin, deleteUserAdmin } from './index';
 import { updateNavbarForLoginStatus } from './navbar'; 
 
 export function initAdminUsuarios() {
     console.log("Inicializando módulo de administración...");
 
-    // Para evitar doble insert
     const userForm = document.getElementById('user-form') as HTMLFormElement;
     if (!userForm || userForm.getAttribute('data-initialized') === 'true') {
         return; 
     }
     userForm.setAttribute('data-initialized', 'true');
 
-    //  ELEMENTOS DEL DOM 
     const tableBody = document.getElementById('users-table-body') as HTMLTableSectionElement;
     const btnAddUser = document.getElementById('btn-add-user') as HTMLButtonElement;
     const searchInput = document.getElementById('search-input') as HTMLInputElement; 
     
-    // Modal elements
     const modal = document.getElementById('user-modal') as HTMLDivElement;
     const btnCancelModal = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
     const modalTitle = document.getElementById('modal-title') as HTMLElement;
 
-    // Inputs Formulario
     const inputId = document.getElementById('user-id') as HTMLInputElement;
     const inputName = document.getElementById('user-name') as HTMLInputElement;
     const inputEmail = document.getElementById('user-email') as HTMLInputElement;
@@ -42,15 +38,11 @@ export function initAdminUsuarios() {
 
     if (!tableBody) return;
 
-   
     const token = sessionStorage.getItem('token') || '';
     let allUsers: any[] = []; 
 
-
     updateNavbarForLoginStatus();
     loadUsers();
-
-  
 
     async function loadUsers() {
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Cargando pergaminos...</td></tr>';
@@ -61,15 +53,16 @@ export function initAdminUsuarios() {
                 allUsers = response.data; 
                 renderTable(allUsers);    
             } else {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-error);"></td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-error);">Error al cargar usuarios</td></tr>`;
+                notifyError('No se pudieron cargar los usuarios', 'Error');
             }
         } catch (error) {
             console.error(error);
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--color-error);">Los cuervos no pudieron traer los mensajes (Error de conexión)</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--color-error);">Los cuervos no pudieron traer los mensajes</td></tr>';
+            notifyError('Error de conexión con el servidor', 'Error');
         }
     }
 
-    
     function handleSearch() {
         const searchTerm = searchInput.value.toLowerCase();
         
@@ -85,7 +78,7 @@ export function initAdminUsuarios() {
         tableBody.innerHTML = ''; 
         
         if (users.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No se encontraron aldeanos con ese nombre.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No se encontraron aldeanos.</td></tr>';
             return;
         }
     
@@ -109,7 +102,6 @@ export function initAdminUsuarios() {
             tableBody.appendChild(row);
         });
     
-        
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const userId = (e.target as HTMLElement).getAttribute('data-id');
@@ -151,19 +143,27 @@ export function initAdminUsuarios() {
     }
 
     async function handleDelete(id: number) {
-        if (!confirm("¿Exiliar a este habitante permanentemente?")) return;
+        const confirmed = await showConfirm({
+            title: '¿Exiliar a este habitante?',
+            message: 'Esta acción eliminará permanentemente al usuario del sistema.',
+            confirmText: 'Sí, exiliar',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+
+        if (!confirmed) return;
+
         const result = await deleteUserAdmin(token, id);
         if (result.success) {
+            notifySuccess('Usuario eliminado correctamente', '✅ Exiliado');
             loadUsers(); 
             searchInput.value = ''; 
         } else {
-            alert("Error al eliminar: " + result.message);
+            notifyError(result.message || 'No se pudo eliminar el usuario', 'Error al eliminar');
         }
     }
 
-
     searchInput?.addEventListener('input', handleSearch);
-
     btnAddUser?.addEventListener('click', () => openModal());
     btnCancelModal?.addEventListener('click', closeModal);
 
@@ -188,20 +188,29 @@ export function initAdminUsuarios() {
             if (id) {
                 result = await updateUserAdmin(token, Number(id), userData);
             } else {
-                if (!userData.password) return alert("¡Se necesita una contraseña para el nuevo recluta!");
+                if (!userData.password) {
+                    notifyWarning('Se necesita una contraseña para el nuevo recluta', 'Campo requerido');
+                    return;
+                }
                 result = await createUserAdmin(token, userData);
             }
     
             if (result.success) {
                 closeModal();
                 loadUsers(); 
-                searchInput.value = ''; 
+                searchInput.value = '';
+                
+                if (id) {
+                    notifySuccess('Usuario actualizado correctamente', '✅ Actualizado');
+                } else {
+                    notifySuccess('Nuevo usuario creado correctamente', '✅ Usuario reclutado');
+                }
             } else {
-                alert("Error: " + (result.message || "Fallo en la operación"));
+                notifyError(result.message || 'Fallo en la operación', 'Error');
             }
         } catch (error) {
             console.error(error);
-            alert("Error de conexión");
+            notifyError('Error de conexión con el servidor', 'Error');
         }
     });
 }

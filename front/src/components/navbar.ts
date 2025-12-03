@@ -1,13 +1,30 @@
-import { fetchProfile } from './index'; // Función fetchProfile que devuelve el rol
+import '../styles/notifications.css';
+import { notifySuccess, showConfirm } from './notifications';
+import { fetchProfile } from './index';
 
-export function handleLogout(event: Event) {
+export async function handleLogout(event: Event) {
     event.preventDefault();
+    
+    const confirmed = await showConfirm({
+        title: '¿Cerrar sesión?',
+        message: 'Tendrás que volver a iniciar sesión para jugar.',
+        confirmText: 'Sí, cerrar sesión',
+        cancelText: 'Cancelar',
+        type: 'warning'
+    });
+
+    if (!confirmed) return;
+
     sessionStorage.removeItem("name");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("password");
-    window.location.href = "home.html";
+    
+    notifySuccess('Sesión cerrada correctamente', '¡Hasta pronto!');
+    
+    setTimeout(() => {
+        window.location.href = "home.html";
+    }, 1000);
 }
-
 
 export async function updateNavbarForLoginStatus() {
     const guestLinks = document.getElementById('navbar-guest-links');
@@ -27,7 +44,6 @@ export async function updateNavbarForLoginStatus() {
 
         if (userToken) {
             try {
-
                 const profileResponse = await fetchProfile(userToken);
 
                 console.log("--- DEBUG NAVBAR ---");
@@ -43,7 +59,9 @@ export async function updateNavbarForLoginStatus() {
                     }
                 } else {
                     console.warn("Token inválido o expirado. Cerrando sesión automáticamente.");
-                    handleLogout(new Event('click'));
+                    // No mostrar notificación aquí para evitar spam
+                    sessionStorage.clear();
+                    window.location.href = "home.html";
                     return;
                 }
             } catch (error) {
@@ -54,7 +72,8 @@ export async function updateNavbarForLoginStatus() {
         userLinks.innerHTML = `
             <li><a href="home.html" class="nav-link">Inicio</a></li>
             <li><a href="../views/menuprincipal.html" class="nav-link">Jugar</a></li>
-            ${adminLinkHtml} <li><a href="#" id="logout-button" class="nav-link">Cerrar Sesión</a></li>
+            ${adminLinkHtml}
+            <li><a href="#" id="logout-button" class="nav-link">Cerrar Sesión</a></li>
         `;
 
         const logoutButton = document.getElementById('logout-button');
