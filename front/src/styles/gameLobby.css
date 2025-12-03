@@ -5,15 +5,43 @@
 .lobby-room-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: var(--spacing-lg) 0;
   margin-bottom: var(--spacing-xl);
   border-bottom: 2px solid var(--border-primary);
 }
 
+.back-button-new {
+  background: transparent;
+  border: 2px solid var(--border-primary);
+  color: var(--text-light);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  height: 44px;
+}
+
+.back-button-new:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-error);
+  color: var(--color-error);
+  transform: translateX(-3px);
+}
+
+.back-button-new:active {
+  transform: translateX(-3px) scale(0.98);
+}
+
 .lobby-room-title {
   text-align: center;
   flex: 1;
+  padding: 0 var(--spacing-md);
 }
 
 .lobby-room-title h1 {
@@ -34,7 +62,6 @@
   margin-bottom: var(--spacing-xxl);
 }
 
-/* Sección de jugadores */
 .players-section {
   background: var(--bg-card);
   border: 2px solid var(--border-primary);
@@ -91,7 +118,11 @@
 
 .player-card.creator {
   border-color: var(--color-gold);
-  background: linear-gradient(135deg, var(--bg-light) 0%, rgba(212, 160, 23, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-light) 0%,
+    rgba(212, 160, 23, 0.1) 100%
+  );
 }
 
 .player-avatar {
@@ -152,7 +183,6 @@
   margin: var(--spacing-xs) 0;
 }
 
-/* Sección de chat */
 .chat-section {
   background: var(--bg-card);
   border: 2px solid var(--border-primary);
@@ -180,7 +210,6 @@
   margin: var(--spacing-sm) 0;
 }
 
-/* Acciones de la sala */
 .lobby-room-actions {
   text-align: center;
   padding: var(--spacing-xl);
@@ -206,7 +235,75 @@
   font-size: 14px;
 }
 
-/* Responsive */
+/* ==========================================
+   BADGE DE CÓDIGO DE ACCESO
+   ========================================== */
+
+.join-code-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 160, 23, 0.15) 0%,
+    rgba(212, 160, 23, 0.05) 100%
+  );
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  height: 44px;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.code-label {
+  font-size: 13px;
+  color: var(--text-gray);
+  font-weight: 500;
+}
+
+.code-value {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-primary);
+  letter-spacing: 1.5px;
+  font-family: "Courier New", monospace;
+  user-select: all;
+}
+
+.code-copy-btn {
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1;
+}
+
+.code-copy-btn:hover {
+  background: var(--color-primary-dark);
+  transform: scale(1.05);
+}
+
+.code-copy-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(212, 160, 23, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(212, 160, 23, 0.5);
+  }
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
 @media (max-width: 1024px) {
   .lobby-room-container {
     grid-template-columns: 1fr;
@@ -223,6 +320,10 @@
     gap: var(--spacing-md);
   }
 
+  .back-button-new {
+    align-self: flex-start;
+  }
+
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: var(--spacing-md);
@@ -236,5 +337,10 @@
   .lobby-room-actions .button-primary {
     width: 100%;
     min-width: auto;
+  }
+
+  .join-code-badge {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

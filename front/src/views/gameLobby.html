@@ -17,7 +17,14 @@
                 <h1 id="game-name">Cargando...</h1>
                 <p id="game-info">0/0 jugadores</p>
             </div>
-            <div></div>
+            <!-- Código de acceso (solo para partidas privadas) -->
+            <div id="join-code-display" class="join-code-badge" style="display: none;">
+                <span class="code-label">🔑</span>
+                <span class="code-value" id="join-code-value">----</span>
+                <button class="code-copy-btn" id="copy-code-btn" title="Copiar código">
+                    📋
+                </button>
+            </div>
         </div>
 
         <!-- Contenedor principal -->
@@ -71,7 +78,6 @@
     <!-- Fondo Animado -->
     <div class="animated-background">
         <div class="background-flames"></div>
-
         <div class="background-overlay"></div>
         <div class="background-particles">
             <div class="particle"></div>
