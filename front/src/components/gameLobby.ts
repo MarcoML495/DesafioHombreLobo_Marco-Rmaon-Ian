@@ -1,3 +1,6 @@
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
 // Imports CSS
 import '../styles/variables.css';
 import '../styles/global.css';
@@ -10,7 +13,20 @@ import '../styles/notifications.css';
 import { notifySuccess, notifyError, notifyWarning, notifyInfo, showConfirm } from './notifications';
 import { updateNavbarForLoginStatus } from './navbar';
 
+
+declare global {
+    interface Window {
+        Pusher: any;
+        Echo: any;
+    }
+}
+window.Pusher = Pusher;
+
 const API_URL = 'http://localhost/api';
+
+const REVERB_HOST = 'localhost';
+const REVERB_PORT = 8080;
+const REVERB_KEY = 'werewolf_lobby_key'; 
 
 interface Player {
     id: number;
@@ -35,9 +51,74 @@ interface GameLobbyData {
     players: Player[];
 }
 
+interface ChatMessage {
+    user: { id: number, name: string };
+    message: string;
+    timestamp: string;
+}
+
 let gameId: number | null = null;
-let pollingInterval: number | null = null;
 let currentUserId: number | null = null;
+let echo: any = null;
+
+/**
+ * Configurar Laravel Echo con Reverb
+ */
+function setupEcho(token: string) {
+    if (echo) return;
+
+    window.Echo = new Echo({
+        broadcaster: 'reverb',
+        key: REVERB_KEY,
+        wsHost: REVERB_HOST,
+        wsPort: REVERB_PORT,
+        wssPort: REVERB_PORT,
+        forceTLS: false, // Pon true si usas HTTPS
+        enabledTransports: ['ws', 'wss'],
+        authEndpoint: `${API_URL}/broadcasting/auth`,
+        auth: {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+            },
+        },
+    });
+
+    console.log('Echo configurado para Reverb');
+}
+
+/**
+ * Suscribirse al canal del lobby
+ */
+function subscribeToLobby(gId: number) {
+    if (!window.Echo) return;
+
+    console.log(`Suscribiéndose al canal lobby.${gId}...`);
+
+    const channel = window.Echo.join(`lobby.${gId}`);
+
+    
+    channel.listen('.lobby.updated', (e: any) => {
+        console.log('Evento de actualización recibido:', e);
+        loadLobbyData(); 
+    });
+
+    
+    channel.listen('.message.sent', (e: ChatMessage) => {
+        appendChatMessage(e);
+    });
+
+    
+    channel.here((users: any[]) => {
+        console.log('Usuarios en el canal:', users);
+    })
+    .joining((user: any) => {
+        console.log('Usuario entrando al socket:', user.name);
+    })
+    .leaving((user: any) => {
+        console.log('Usuario saliendo del socket:', user.name);
+    });
+}
 
 /**
  * Obtener el ID de la partida desde la URL
@@ -48,16 +129,10 @@ function getGameIdFromUrl(): number | null {
     return id ? parseInt(id) : null;
 }
 
-/**
- * Obtener token de autenticación
- */
 function getAuthToken(): string | null {
     return sessionStorage.getItem('token');
 }
 
-/**
- * Verificar autenticación
- */
 function checkAuthentication(): boolean {
     const token = getAuthToken();
     if (!token) {
@@ -71,7 +146,7 @@ function checkAuthentication(): boolean {
 }
 
 /**
- * Cargar datos de la sala
+ * Cargar datos de la sala (API REST)
  */
 async function loadLobbyData(): Promise<void> {
     const token = getAuthToken();
@@ -90,24 +165,40 @@ async function loadLobbyData(): Promise<void> {
 
         if (response.ok && data.success) {
             displayLobbyData(data.data);
-        } else {
-            throw new Error(data.message || 'Error al cargar la sala');
+            
+            
+            if (!currentUserId) {
+                fetchUserProfile(token);
+            }
         }
     } catch (error) {
         console.error('Error al cargar sala:', error);
-        notifyError('No se pudo cargar la información de la sala', 'Error de conexión');
-        setTimeout(() => {
-            window.location.href = '../views/menuprincipal.html';
-        }, 3000);
     }
 }
 
-/**
- * Mostrar datos de la sala
- */
+async function fetchUserProfile(token: string) {
+    try {
+        const res = await fetch(`${API_URL}/user`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.id) {
+            currentUserId = data.id;
+        }
+    } catch (e) { console.error(e); }
+}
+
 function displayLobbyData(data: GameLobbyData): void {
     const { game, players } = data;
 
+    
+    const nameEl = document.getElementById('game-name');
+    if(nameEl) nameEl.textContent = game.name;
+    
+    document.getElementById('game-info')!.textContent = `${game.current_players}/${game.max_players} jugadores`;
+    document.getElementById('player-count')!.textContent = `${game.current_players}/${game.max_players}`;
+    
+    
     // Actualizar header
     document.getElementById('game-name')!.textContent = game.name;
     document.getElementById('game-info')!.textContent = 
@@ -131,67 +222,63 @@ function displayLobbyData(data: GameLobbyData): void {
     const loading = document.getElementById('players-loading');
     if (loading) loading.style.display = 'none';
 
-    // Mostrar jugadores
+    
     const playersGrid = document.getElementById('players-grid');
     if (playersGrid) {
         playersGrid.innerHTML = '';
-        
         players.forEach(player => {
-            const card = createPlayerCard(player);
-            playersGrid.appendChild(card);
+            playersGrid.appendChild(createPlayerCard(player));
         });
     }
 
-    // Determinar si el usuario actual es el creador
+    
     const creator = players.find(p => p.is_creator);
     const isCreator = creator && currentUserId === creator.id;
 
-    // Mostrar botón de inicio solo si es creador
     const startContainer = document.getElementById('start-game-container');
     const startBtn = document.getElementById('start-game-btn') as HTMLButtonElement;
     const startMsg = document.getElementById('start-game-msg');
 
     if (isCreator && startContainer && startBtn && startMsg) {
         startContainer.style.display = 'block';
-        
         if (game.can_start) {
             startBtn.disabled = false;
             startMsg.textContent = '¡Listos para comenzar!';
-            startMsg.style.color = 'var(--color-success)';
+            startMsg.style.color = '#4ade80';
         } else {
             startBtn.disabled = true;
-            startMsg.textContent = `Se necesitan al menos ${game.min_players} jugadores para iniciar`;
-            startMsg.style.color = 'var(--text-gray)';
+            startMsg.textContent = `Faltan jugadores (Mínimo ${game.min_players})`;
+            startMsg.style.color = '#9ca3af';
         }
     }
 }
 
-/**
- * Crear tarjeta de jugador
- */
 function createPlayerCard(player: Player): HTMLElement {
     const card = document.createElement('div');
     card.className = `player-card${player.is_creator ? ' creator' : ''}`;
 
-    const avatarHtml = player.avatar 
-        ? `<img src="${player.avatar}" alt="${player.name}">`
-        : `<svg viewBox="0 0 150 150" fill="none">
+    // Avatar por defecto
+    const avatarHtml = `<svg viewBox="0 0 150 150" fill="none" style="width:100%;height:100%">
             <circle cx="75" cy="75" r="73" fill="#5A5A5A" stroke="#D4A017" stroke-width="4"/>
             <path d="M75 45C65.335 45 57.5 52.835 57.5 62.5C57.5 72.165 65.335 80 75 80C84.665 80 92.5 72.165 92.5 62.5C92.5 52.835 84.665 45 75 45Z" fill="#87CEEB"/>
-            <path d="M43.75 118.75C43.75 98.039 60.539 81.25 81.25 81.25H68.75C51.491 81.25 37.5 95.241 37.5 112.5V118.75H43.75Z" fill="#87CEEB"/>
-            <path d="M106.25 118.75C106.25 98.039 89.461 81.25 68.75 81.25H81.25C98.509 81.25 112.5 95.241 112.5 112.5V118.75H106.25Z" fill="#87CEEB"/>
         </svg>`;
 
     card.innerHTML = `
         <div class="player-avatar">${avatarHtml}</div>
         <div class="player-name">${player.name}</div>
         ${player.is_creator ? '<span class="player-badge">👑 Creador</span>' : ''}
-        <div class="player-status">Se unió ${player.joined_at}</div>
     `;
-
     return card;
 }
 
+// --- LÓGICA DEL CHAT ---
+
+async function sendChatMessage(e: Event) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input') as HTMLInputElement;
+    const message = input.value.trim();
+
+    if (!message || !gameId) return;
 /**
  * Abandonar partida
  */
@@ -207,15 +294,19 @@ async function leaveGame(): Promise<void> {
     if (!confirmed) return;
 
     const token = getAuthToken();
-    if (!token || !gameId) return;
+    
+    
+    input.value = '';
 
     try {
-        const response = await fetch(`${API_URL}/lobbies/${gameId}/leave`, {
+        await fetch(`${API_URL}/lobbies/${gameId}/chat`, {
             method: 'POST',
             headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ message })
         });
 
         const data = await response.json();
@@ -234,35 +325,35 @@ async function leaveGame(): Promise<void> {
     }
 }
 
-/**
- * Iniciar polling para actualizar jugadores
- */
-function startPolling(): void {
-    // Actualizar cada 3 segundos
-    pollingInterval = window.setInterval(() => {
-        loadLobbyData();
-    }, 3000);
+function appendChatMessage(data: ChatMessage) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    const isMine = currentUserId === data.user.id;
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-message ${isMine ? 'mine' : ''}`;
+    
+    msgDiv.innerHTML = `
+        <div class="chat-author">${isMine ? 'Tú' : data.user.name} <span style="font-weight:normal;font-size:0.7em;opacity:0.7">${data.timestamp}</span></div>
+        <div class="chat-text">${escapeHtml(data.message)}</div>
+    `;
+
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight; 
 }
 
-/**
- * Detener polling
- */
-function stopPolling(): void {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-    }
+function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-/**
- * Inicializar
- */
+// --- INICIALIZACIÓN ---
+
 async function init(): Promise<void> {
-    console.log('Inicializando sala de espera...');
-
     if (!checkAuthentication()) return;
 
-    // Obtener ID de partida
     gameId = getGameIdFromUrl();
     if (!gameId) {
         notifyError('No se especificó ninguna partida', 'Error');
@@ -273,19 +364,27 @@ async function init(): Promise<void> {
     }
 
     updateNavbarForLoginStatus();
-    
-    // Cargar datos iniciales
-    await loadLobbyData();
-    
-    // Iniciar polling
-    startPolling();
+    loadLobbyData(); 
 
-    // Event listeners
-    const leaveBtn = document.getElementById('leave-game-btn');
-    if (leaveBtn) {
-        leaveBtn.addEventListener('click', leaveGame);
+    
+    document.getElementById('leave-game-btn')?.addEventListener('click', leaveGame);
+    document.getElementById('chat-form')?.addEventListener('submit', sendChatMessage);
+}
+
+
+async function leaveGame(): Promise<void> {
+    if (!confirm('¿Seguro que quieres salir?')) return;
+    const token = getAuthToken();
+    if (!token || !gameId) return;
+    
+    if (window.Echo) {
+        window.Echo.leave(`lobby.${gameId}`);
     }
 
+    try {
+        await fetch(`${API_URL}/lobbies/${gameId}/leave`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
     const startBtn = document.getElementById('start-game-btn');
     if (startBtn) {
         startBtn.addEventListener('click', () => {
@@ -307,17 +406,17 @@ async function init(): Promise<void> {
                 });
             }
         });
+        window.location.href = '../views/menuprincipal.html';
+    } catch (e) {
+        console.error(e);
+        window.location.href = '../views/menuprincipal.html';
     }
-
-    // Detener polling al salir
-    window.addEventListener('beforeunload', stopPolling);
 }
 
-// Ejecutar al cargar
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
 }
 
-export { loadLobbyData, leaveGame };
+export { loadLobbyData };

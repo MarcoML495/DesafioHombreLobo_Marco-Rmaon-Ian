@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
     libpng-dev \
-    && docker-php-ext-install pdo_mysql zip gd \
+    && docker-php-ext-install pdo_mysql zip gd pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Composer

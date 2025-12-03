@@ -8,6 +8,7 @@ use App\Http\Controllers\API\GameController;
 use App\Http\Controllers\API\AdminUserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 Route::get('/nologin', function () {
@@ -35,12 +36,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lobbies', [GameController::class, 'getLobbies']);
     Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
     Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
+    Route::post('/lobbies/{gameId}/chat', [GameController::class, 'sendMessage']);
+    Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
+    
     Route::prefix('admin')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']); // Listar todos los usuarios
         Route::post('/users', [AdminUserController::class, 'store']); // Crear un nuevo usuario
         Route::get('/users/{id}', [AdminUserController::class, 'show']); // Obtener un usuario por ID
         Route::put('/users/{id}', [AdminUserController::class, 'update']); // Actualizar un usuario
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']); // Eliminar un usuario
+        
     });
 
     // Listar lobbies disponibles

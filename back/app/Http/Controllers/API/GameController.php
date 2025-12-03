@@ -9,6 +9,8 @@ use App\Models\GamePlayer;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Events\LobbyMessage;
+use App\Events\LobbyUpdated;
 
 class GameController extends Controller
 {
@@ -264,6 +266,7 @@ class GameController extends Controller
 
             // NUEVO: Desactivar todas las partidas activas del usuario y unirse a la nueva
             DB::transaction(function () use ($user, $game) {
+                LobbyUpdated::dispatch($game->id, 'join');
                 // Desactivar cualquier partida activa previa (excepto esta)
                 GamePlayer::where('user_id', $user->id)
                     ->where('game_id', '!=', $game->id)
@@ -362,6 +365,7 @@ class GameController extends Controller
             $gamePlayer->status = 'disconnected';
             $gamePlayer->left_at = now();
             $gamePlayer->save();
+            LobbyUpdated::dispatch($gameId, 'leave');
 
             return response()->json([
                 'success' => true,
@@ -507,5 +511,33 @@ class GameController extends Controller
                 'message' => 'Error al obtener jugadores: ' . $e->getMessage()
             ], 500);
         }
+    }
+    public function sendMessage(Request $request, $gameId)
+    {
+        $user = $request->user();
+        
+        
+        $validator = Validator::make($request->all(), [
+            'message' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        
+        $isInGame = GamePlayer::where('game_id', $gameId)
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->exists();
+
+        if (!$isInGame) {
+            return response()->json(['success' => false, 'message' => 'No estás en esta partida'], 403);
+        }
+
+        
+        LobbyMessage::dispatch($gameId, $user, $request->input('message'));
+
+        return response()->json(['success' => true]);
     }
 }
