@@ -144,13 +144,62 @@
     width: 100%;
     max-width: 400px;
   }
-  
+
   .main-title {
     font-size: 36px;
   }
-  
+
   .logo-large img {
     width: 100%;
     max-width: 500px;
   }
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-30%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.password-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-30%) scale(0.95);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.eye-icon {
+  stroke: var(--text-gray);
+  transition: stroke 0.2s ease;
+}
+
+.password-toggle-btn:hover .eye-icon {
+  stroke: var(--text-light);
+}
+
+.eye-icon.eye-off {
+  stroke: var(--color-primary);
+}
+
+/* Adjust input padding for toggle button */
+input[type="password"],
+input[type="text"][placeholder*="*"] {
+  padding-right: 50px !important;
 }
