@@ -4,25 +4,18 @@ import "../styles/navbar.css";
 import "../styles/modals.css";
 import "../styles/lobby.css";
 import "../styles/animated-background.css";
+import "../styles/notifications.css";
 import "../main.ts";
+
+import { notifySuccess, notifyError, notifyWarning, notifyInfo, showConfirm } from './notifications';
 
 const lobbymodal = document.getElementById("lobby-modal");
 
-const nameInput = document.getElementById(
-  "lobby-name"
-) as HTMLInputElement | null;
-const maxPlayerInput = document.getElementById(
-  "lobby-max"
-) as HTMLInputElement | null;
-const radioPublic = document.getElementById(
-  "publico"
-) as HTMLInputElement | null;
-const radioPrivate = document.getElementById(
-  "privado"
-) as HTMLInputElement | null;
-const codeInput = document.getElementById(
-  "lobby-code"
-) as HTMLInputElement | null;
+const nameInput = document.getElementById("lobby-name") as HTMLInputElement | null;
+const maxPlayerInput = document.getElementById("lobby-max") as HTMLInputElement | null;
+const radioPublic = document.getElementById("publico") as HTMLInputElement | null;
+const radioPrivate = document.getElementById("privado") as HTMLInputElement | null;
+const codeInput = document.getElementById("lobby-code") as HTMLInputElement | null;
 const insertButton = document.getElementById("crear-lobby");
 
 /**
@@ -45,8 +38,10 @@ function checkAuthentication() {
   const name = sessionStorage.getItem("name");
 
   if (!token || !name) {
-    alert("Debes iniciar sesión para acceder al menú principal.");
-    window.location.href = "./login.html";
+    notifyError("Debes iniciar sesión para acceder al menú principal", "Autenticación requerida");
+    setTimeout(() => {
+      window.location.href = "./login.html";
+    }, 2000);
     return false;
   }
 
@@ -64,7 +59,6 @@ function handleUserMenuClick() {
 
     userMenu.addEventListener("click", () => {
       console.log("Abriendo modal de usuario...");
-      // Navegar al modal de usuario
       window.location.href = "./userModal.html";
     });
   }
@@ -74,9 +68,7 @@ function handleUserMenuClick() {
  * Maneja el clic en "Crear Lobby"
  */
 function handleCrearLobby() {
-  const crearLobbyCard = document.querySelector(
-    ".menu-card:first-child"
-  ) as HTMLElement;
+  const crearLobbyCard = document.querySelector(".menu-card:first-child") as HTMLElement;
   const btncancelar = document.getElementById("btn-cancelar");
 
   if (crearLobbyCard) {
@@ -91,7 +83,6 @@ function handleCrearLobby() {
     });
   }
 
-  //Hace que el boton de cancelar cierre el modal
   if (btncancelar) {
     btncancelar.addEventListener("click", () => {
       if (lobbymodal) {
@@ -125,13 +116,7 @@ function formCrearLobby() {
 }
 
 function validateForm(): boolean {
-  if (
-    !nameInput ||
-    !maxPlayerInput ||
-    !radioPublic ||
-    !radioPrivate ||
-    !codeInput
-  ) {
+  if (!nameInput || !maxPlayerInput || !radioPublic || !radioPrivate || !codeInput) {
     console.error("Error: No se encontraron todos los campos del formulario.");
     return false;
   }
@@ -139,24 +124,22 @@ function validateForm(): boolean {
   const name = nameInput?.value.trim();
   const maxPlayers = parseInt(maxPlayerInput.value);
 
-  let isValid = true;
   let errors: string[] = [];
 
   if (name.length < 3) {
-    errors.push("El nombre de usuario debe tener al menos 3 caracteres.");
-    isValid = false;
+    errors.push("• El nombre debe tener al menos 3 caracteres");
   }
 
   if (maxPlayers < 15 || maxPlayers > 30) {
-    errors.push("Numero maximo de jugadores invalido (debe ser entre 15 y 30)");
-    isValid = false;
+    errors.push("• Máximo de jugadores: 15-30");
   }
 
-  if (!isValid) {
-    alert("Errores de validación:\n" + errors.join("\n"));
+  if (errors.length > 0) {
+    notifyWarning(errors.join("<br>"), "⚠️ Corrige los siguientes errores");
+    return false;
   }
 
-  return isValid;
+  return true;
 }
 
 async function sendToApi(sentData: any): Promise<void> {
@@ -183,18 +166,32 @@ async function sendToApi(sentData: any): Promise<void> {
 
       const gameId = data.data.id;
 
-      // Redirigir al creador a la sala de espera
-      window.location.href = `./gameLobby.html?game=${gameId}`;
+      if (data.data.join_code) {
+        notifySuccess(
+          `Código de acceso: ${data.data.join_code}`,
+          `🎮 Partida "${data.data.name}" creada`
+        );
+      } else {
+        notifySuccess(
+          "Los jugadores pueden unirse libremente",
+          `🎮 Partida pública "${data.data.name}" creada`
+        );
+      }
+
+      setTimeout(() => {
+        window.location.href = `./gameLobby.html?game=${gameId}`;
+      }, 1500);
     } else {
-      const errorMessage =
-        data.message ||
-        (data.errors ? JSON.stringify(data.errors) : "Error desconocido.");
+      const errorMessage = data.message || "Error desconocido.";
       console.error("Error en la insercion:", data);
-      alert(`Error al insertar: ${errorMessage}`);
+      notifyError(errorMessage, "Error al crear partida");
     }
   } catch (error) {
     console.error("Error de conexión con el servidor:", error);
-    alert("Error: No se pudo conectar con el servidor de Laravel.");
+    notifyError(
+      "No se pudo conectar con el servidor. Verifica tu conexión.",
+      "Error de conexión"
+    );
   }
 }
 
@@ -214,9 +211,7 @@ function initInsertion() {
         console.log(gameData);
         await sendToApi(gameData);
       } else {
-        console.log(
-          "Intento de insercion de lobby fallido debido a errores de validación."
-        );
+        console.log("Intento de insercion de lobby fallido debido a errores de validación.");
       }
     });
   } else {
@@ -236,12 +231,23 @@ window.onclick = function (event) {
 };
 
 /**
- * Función para cerrar sesión (para uso futuro)
+ * Función para cerrar sesión
  */
-function logout() {
-  if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+async function logout() {
+  const confirmed = await showConfirm({
+    title: "¿Cerrar sesión?",
+    message: "Tendrás que volver a iniciar sesión para jugar.",
+    confirmText: "Sí, cerrar sesión",
+    cancelText: "Cancelar",
+    type: "warning",
+  });
+
+  if (confirmed) {
     sessionStorage.clear();
-    window.location.href = "./login.html";
+    notifySuccess("Sesión cerrada correctamente", "¡Hasta pronto!");
+    setTimeout(() => {
+      window.location.href = "./login.html";
+    }, 1000);
   }
 }
 
@@ -272,9 +278,7 @@ let selectedLobbyId: number | null = null;
  * Maneja el clic en "Unirse a Lobby"
  */
 function handleUnirseALobby() {
-  const unirseCard = document.querySelector(
-    ".menu-card:last-child"
-  ) as HTMLElement;
+  const unirseCard = document.querySelector(".menu-card:last-child") as HTMLElement;
 
   if (unirseCard) {
     unirseCard.style.cursor = "pointer";
@@ -320,7 +324,7 @@ function closeLobbyModal(): void {
 async function loadLobbies(): Promise<void> {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    alert("Debes iniciar sesión para ver los lobbies");
+    notifyError("Debes iniciar sesión para ver los lobbies", "Autenticación requerida");
     return;
   }
 
@@ -329,7 +333,6 @@ async function loadLobbies(): Promise<void> {
   const noLobbiesMsg = document.getElementById("no-lobbies") as HTMLElement;
 
   try {
-    // Mostrar loading
     if (lobbyLoading) lobbyLoading.style.display = "block";
     if (lobbyList) lobbyList.style.display = "none";
     if (noLobbiesMsg) noLobbiesMsg.style.display = "none";
@@ -351,7 +354,7 @@ async function loadLobbies(): Promise<void> {
     }
   } catch (error) {
     console.error("Error al cargar lobbies:", error);
-    alert("Error al cargar lobbies. Intenta de nuevo.");
+    notifyError("No se pudieron cargar las partidas disponibles", "Error de conexión");
     if (lobbyLoading) lobbyLoading.style.display = "none";
   }
 }
@@ -396,9 +399,7 @@ function createLobbyItem(lobby: Lobby): HTMLElement {
   item.innerHTML = `
         <div class="lobby-info">
             <div class="lobby-name">${emoji} ${lobby.name}</div>
-            <div class="lobby-details">Creado por: ${
-              lobby.creator_name
-            } • Modo: Clásico</div>
+            <div class="lobby-details">Creado por: ${lobby.creator_name} • Modo: Clásico</div>
         </div>
         <div class="lobby-status">
             ${
@@ -411,16 +412,12 @@ function createLobbyItem(lobby: Lobby): HTMLElement {
                 ? '<span class="status-badge public">PÚBLICO</span>'
                 : '<span class="status-badge code">CON CÓDIGO</span>'
             }
-            <span class="players-count">${lobby.current_players}/${
-    lobby.max_players
-  } jugadores</span>
+            <span class="players-count">${lobby.current_players}/${lobby.max_players} jugadores</span>
             ${
               lobby.can_join
                 ? `<button class="join-button ${
                     lobby.requires_code ? "code-required" : ""
-                  }" data-lobby-id="${lobby.id}" data-requires-code="${
-                    lobby.requires_code
-                  }">
+                  }" data-lobby-id="${lobby.id}" data-requires-code="${lobby.requires_code}">
                     ${lobby.requires_code ? "🔑 Ingresar" : "Unirse"}
                 </button>`
                 : ""
@@ -464,12 +461,8 @@ function handleJoinClick(lobbyId: number, requiresCode: boolean): void {
  * Abrir modal de código
  */
 function openCodeModal(): void {
-  const codeInputModal = document.getElementById(
-    "code-input-modal"
-  ) as HTMLElement;
-  const joinCodeInput = document.getElementById(
-    "join-code-input"
-  ) as HTMLInputElement;
+  const codeInputModal = document.getElementById("code-input-modal") as HTMLElement;
+  const joinCodeInput = document.getElementById("join-code-input") as HTMLInputElement;
   const codeError = document.getElementById("code-error") as HTMLElement;
 
   if (codeInputModal && joinCodeInput) {
@@ -484,9 +477,7 @@ function openCodeModal(): void {
  * Cerrar modal de código
  */
 function closeCodeModalFn(): void {
-  const codeInputModal = document.getElementById(
-    "code-input-modal"
-  ) as HTMLElement;
+  const codeInputModal = document.getElementById("code-input-modal") as HTMLElement;
   if (codeInputModal) {
     codeInputModal.style.display = "none";
   }
@@ -499,7 +490,7 @@ function closeCodeModalFn(): void {
 async function joinLobby(lobbyId: number, code?: string): Promise<void> {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    alert("Debes iniciar sesión");
+    notifyWarning("Debes iniciar sesión para unirte a una partida", "Sesión requerida");
     return;
   }
 
@@ -522,12 +513,14 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      // alert(`¡Te has unido a "${data.data.game_name}"!`);
+      notifySuccess("Redirigiendo a la sala de espera...", `✅ ¡Bienvenido a "${data.data.game_name}"!`);
+
       closeCodeModalFn();
       closeLobbyModal();
 
-      // Redirigir a la sala de espera
-      window.location.href = `./gameLobby.html?game=${lobbyId}`;
+      setTimeout(() => {
+        window.location.href = `./gameLobby.html?game=${lobbyId}`;
+      }, 1000);
     } else {
       if (code) {
         const codeError = document.getElementById("code-error") as HTMLElement;
@@ -536,12 +529,12 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
           codeError.style.display = "block";
         }
       } else {
-        alert(data.message || "Error al unirse");
+        notifyError(data.message || "No se pudo unir a la partida", "Error");
       }
     }
   } catch (error) {
     console.error("Error al unirse:", error);
-    alert("Error al unirse. Intenta de nuevo.");
+    notifyError("Error de conexión. Intenta de nuevo.", "Error");
   }
 }
 
@@ -549,25 +542,20 @@ async function joinLobby(lobbyId: number, code?: string): Promise<void> {
  * Inicializar event listeners del modal de lobbies
  */
 function initLobbyModalListeners() {
-  // Botón cerrar modal lobbies
   const closeLobbyBtn = document.getElementById("close-lobby-modal");
   if (closeLobbyBtn) {
     closeLobbyBtn.addEventListener("click", closeLobbyModal);
   }
 
-  // Botón actualizar
   const refreshBtn = document.getElementById("refresh-lobbies-btn");
   if (refreshBtn) {
     refreshBtn.addEventListener("click", loadLobbies);
   }
 
-  // Modal de código
   const closeCodeModal = document.getElementById("close-code-modal");
   const cancelCodeBtn = document.getElementById("cancel-code-btn");
   const submitCodeBtn = document.getElementById("submit-code-btn");
-  const joinCodeInput = document.getElementById(
-    "join-code-input"
-  ) as HTMLInputElement;
+  const joinCodeInput = document.getElementById("join-code-input") as HTMLInputElement;
 
   if (closeCodeModal) {
     closeCodeModal.addEventListener("click", closeCodeModalFn);
@@ -608,7 +596,6 @@ function initLobbyModalListeners() {
     });
   }
 
-  // Cerrar modal al hacer click fuera
   const lobbyModalOverlay = document.getElementById("lobby-list-modal");
   const codeModalOverlay = document.getElementById("code-input-modal");
 
@@ -639,33 +626,23 @@ function initLobbyModalListeners() {
 function init() {
   console.log("Inicializando menú principal...");
 
-  // Verificar autenticación
   if (!checkAuthentication()) {
     return;
   }
 
-  // Actualizar nombre del usuario
   updateUserName();
-
-  // Inicializar handler del menú de usuario
   handleUserMenuClick();
-
-  // Inicializar handlers de las cards
   handleCrearLobby();
   handleUnirseALobby();
-
-  // Inicializar listeners del modal de lobbies
   initLobbyModalListeners();
 
   console.log("Menú principal inicializado correctamente");
 }
 
-// Ejecutar cuando el DOM esté listo
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
 }
 
-// Exportar función de logout por si se necesita en otros módulos
 export { logout };

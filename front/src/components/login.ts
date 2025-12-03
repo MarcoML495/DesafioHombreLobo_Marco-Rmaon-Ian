@@ -3,12 +3,14 @@ import '../styles/global.css';
 import '../styles/navbar.css';
 import '../styles/modals.css';
 import '../styles/lobby.css';
-// import "../main.ts";
 import '../styles/animated-background.css';
+import '../styles/notifications.css';
+
+import { notifySuccess, notifyError, notifyWarning } from './notifications';
+
 const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInputElement | null;
 const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
 const loginButton = document.querySelector('.button-login') as HTMLElement | null;
-
 
 function validateForm(): boolean {
     if (!nameInput || !passwordInput) {
@@ -19,39 +21,30 @@ function validateForm(): boolean {
     const name = nameInput.value.trim();
     const password = passwordInput.value;
     
-    let isValid = true;
     let errors: string[] = [];
 
     if (name.length < 3) {
-        errors.push("El nombre de usuario debe tener al menos 3 caracteres.");
-        isValid = false;
-    }
-
-    
-    if (password.length < 8) {
-        errors.push("La contraseña debe tener al menos 8 caracteres.");
-        isValid = false;
+        errors.push("• El nombre de usuario debe tener al menos 3 caracteres");
     }
 
     const specialCharRegex = /[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]/;
     if (!specialCharRegex.test(password)) {
-        errors.push("La contraseña debe contener al menos un carácter especial (por ejemplo: !@#$%).");
-        isValid = false;
+        errors.push("• La contraseña debe contener al menos un carácter especial");
     }
 
-    if (!isValid) {
-        alert("Errores de validación:\n" + errors.join('\n'));
+    if (errors.length > 0) {
+        notifyWarning(errors.join('<br>'), 'Corrige los siguientes errores');
+        return false;
     }
 
-    return isValid;
+    return true;
 }
-
 
 async function sendLoginToApi(userData: any): Promise<void> {
     const API_URL = 'http://localhost/api/login'; 
 
     try {
-        console.log("LOGIN")
+        console.log("LOGIN");
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -64,22 +57,33 @@ async function sendLoginToApi(userData: any): Promise<void> {
         const data = await response.json();
         console.log("Respuesta completa del servidor:", data);
 
-        if (response.ok) {
+        if (response.ok && data.success) {
             console.log("Usuario logeado correctamente:", data.data.name);
-            // alert(`¡Bienvenido, ${data.data.name || 'nuevo usuario'}!`);
+            
+            notifySuccess(
+                'Redirigiendo al menú principal...',
+                `¡Bienvenido de nuevo, ${data.data.name}!`
+            );
+            
             sessionStorage.setItem("name", data.data.name);
             sessionStorage.setItem("password", userData.password);
             sessionStorage.setItem("token", data.data.token);
-            window.location.href = "../views/menuprincipal.html"
+            
+            setTimeout(() => {
+                window.location.href = "../views/menuprincipal.html";
+            }, 1500);
         } else { 
-            const errorMessage = data.message || (data.errors ? JSON.stringify(data.errors) : 'Error desconocido.');
-            console.error("Error en el registro:", data);
-            alert(`Error al registrarse: ${errorMessage}`);
+            const errorMessage = data.message || 'Credenciales incorrectas';
+            console.error("Error en el login:", data);
+            notifyError(errorMessage, 'Error al iniciar sesión');
         }
 
     } catch (error) {
         console.error("Error de conexión con el servidor:", error);
-        alert("Error: No se pudo conectar con el servidor de Laravel.");
+        notifyError(
+            'No se pudo conectar con el servidor. Verifica tu conexión.',
+            'Error de conexión'
+        );
     }
 }
 
@@ -101,6 +105,6 @@ export function initLogin() {
             }
         });
     } else {
-        console.warn("El botón de login no se encontró en el DOM")
+        console.warn("El botón de login no se encontró en el DOM");
     }
 }
