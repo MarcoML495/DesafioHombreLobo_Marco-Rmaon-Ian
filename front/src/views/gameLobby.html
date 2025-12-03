@@ -59,9 +59,16 @@
                 <div class="section-header">
                     <h2>💬 Chat de la Aldea</h2>
                 </div>
-                <div class="chat-placeholder">
-                    <p>🚧 El chat estará disponible próximamente</p>
-                    <p style="font-size: 14px; color: #888;">Usa este espacio para coordinar con otros jugadores</p>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="system-message">Bienvenido al chat de la aldea.</div>
+                    </div>
+
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Escribe un mensaje..." autocomplete="off"
+                            maxlength="255">
+                        <button type="submit" id="send-btn">➤</button>
+                    </form>
                 </div>
             </div>
 
