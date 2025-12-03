@@ -248,10 +248,17 @@ class GameController extends Controller
                 ->exists();
 
             if ($alreadyInGame) {
+                // Ya está en la partida, permitir reingreso
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Ya estás en esta partida'
-                ], 400);
+                    'success' => true,
+                    'message' => 'Ya estás en esta partida. Redirigiendo...',
+                    'data' => [
+                        'game_id' => $game->id,
+                        'game_name' => $game->name,
+                        'current_players' => $game->currentPlayersCount(),
+                        'max_players' => $game->max_players
+                    ]
+                ]);
             }
 
             // NUEVO: Desactivar todas las partidas activas del usuario y unirse a la nueva
