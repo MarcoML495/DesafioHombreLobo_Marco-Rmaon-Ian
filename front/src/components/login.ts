@@ -12,6 +12,47 @@ const nameInput = document.querySelector('input[placeholder="Name"]') as HTMLInp
 const passwordInput = document.querySelector('input[placeholder="************"]') as HTMLInputElement | null;
 const loginButton = document.querySelector('.button-login') as HTMLElement | null;
 
+function setupPasswordToggle() {
+    if (!passwordInput) return;
+
+    const wrapper = passwordInput.parentElement;
+    if (!wrapper) return;
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'password-toggle-btn';
+    toggleBtn.setAttribute('aria-label', 'Mostrar contraseña');
+    
+    toggleBtn.innerHTML = `
+        <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
+            <circle cx="12" cy="12" r="3" stroke-width="2"/>
+        </svg>
+    `;
+    
+    if (window.getComputedStyle(wrapper).position === 'static') {
+        wrapper.style.position = 'relative';
+    }
+    
+    wrapper.appendChild(toggleBtn);
+
+    toggleBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        toggleBtn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        
+        toggleBtn.innerHTML = isPassword 
+            ? `<svg class="eye-icon eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke-width="2"/>
+                <line x1="1" y1="1" x2="23" y2="23" stroke-width="2"/>
+               </svg>`
+            : `<svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3" stroke-width="2"/>
+               </svg>`;
+    });
+}
+
 function validateForm(): boolean {
     if (!nameInput || !passwordInput) {
         console.error("Error: No se encontraron todos los campos del formulario.");
@@ -27,13 +68,17 @@ function validateForm(): boolean {
         errors.push("• El nombre de usuario debe tener al menos 3 caracteres");
     }
 
+    if (password.length < 8) {
+        errors.push("• La contraseña debe tener al menos 8 caracteres");
+    }
+
     const specialCharRegex = /[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]/;
     if (!specialCharRegex.test(password)) {
         errors.push("• La contraseña debe contener al menos un carácter especial");
     }
 
     if (errors.length > 0) {
-        notifyWarning(errors.join('<br>'), 'Corrige los siguientes errores');
+        notifyWarning(errors.join('<br>'), '⚠️ Corrige los siguientes errores');
         return false;
     }
 
@@ -88,6 +133,8 @@ async function sendLoginToApi(userData: any): Promise<void> {
 }
 
 export function initLogin() {
+    setupPasswordToggle();
+    
     if (loginButton) {
         loginButton.addEventListener('click', async (event) => {
             event.preventDefault(); 
