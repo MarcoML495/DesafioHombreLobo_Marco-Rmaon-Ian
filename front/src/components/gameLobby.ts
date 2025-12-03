@@ -29,6 +29,8 @@ interface GameLobbyData {
         max_players: number;
         min_players: number;
         can_start: boolean;
+        is_public: boolean;
+        join_code: string | null;
     };
     players: Player[];
 }
@@ -113,6 +115,17 @@ function displayLobbyData(data: GameLobbyData): void {
     document.getElementById('player-count')!.textContent = 
         `${game.current_players}/${game.max_players}`;
     document.getElementById('min-players')!.textContent = game.min_players.toString();
+
+    // Mostrar código de acceso si es partida privada
+    const joinCodeDisplay = document.getElementById('join-code-display');
+    const joinCodeValue = document.getElementById('join-code-value');
+    
+    if (!game.is_public && game.join_code) {
+        if (joinCodeDisplay) joinCodeDisplay.style.display = 'flex';
+        if (joinCodeValue) joinCodeValue.textContent = game.join_code;
+    } else {
+        if (joinCodeDisplay) joinCodeDisplay.style.display = 'none';
+    }
 
     // Ocultar loading
     const loading = document.getElementById('players-loading');
@@ -277,6 +290,22 @@ async function init(): Promise<void> {
     if (startBtn) {
         startBtn.addEventListener('click', () => {
             notifyInfo('Esta funcionalidad estará disponible próximamente', '🚧 En desarrollo');
+        });
+    }
+
+    // Botón copiar código
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    if (copyCodeBtn) {
+        copyCodeBtn.addEventListener('click', () => {
+            const codeValue = document.getElementById('join-code-value');
+            if (codeValue) {
+                const code = codeValue.textContent || '';
+                navigator.clipboard.writeText(code).then(() => {
+                    notifySuccess('Código copiado al portapapeles', '📋 Copiado');
+                }).catch(() => {
+                    notifyError('No se pudo copiar el código', 'Error');
+                });
+            }
         });
     }
 
