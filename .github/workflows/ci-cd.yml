@@ -1,0 +1,247 @@
+name: CI/CD Pipeline - Los Lobos de Castronegro
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # ==========================================
+  # BACKEND TESTS
+  # ==========================================
+  backend-tests:
+    name: Backend Tests (Laravel)
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_database
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, zip, gd, pcntl, sockets
+          coverage: xdebug
+
+      - name: 📦 Copy .env
+        run: |
+          cd back
+          cp .env.example .env || cp .env.testing .env || echo "APP_KEY=base64:test" > .env
+          
+      - name: 🔧 Install Composer dependencies
+        run: |
+          cd back
+          composer install --prefer-dist --no-interaction --no-progress
+
+      - name: 🔑 Generate application key
+        run: |
+          cd back
+          php artisan key:generate
+
+      - name: 🗄️ Run migrations
+        run: |
+          cd back
+          php artisan migrate --force
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: test_database
+          DB_USERNAME: root
+          DB_PASSWORD: test_password
+
+      - name: 🧪 Run PHPUnit tests
+        run: |
+          cd back
+          php artisan test --parallel
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: test_database
+          DB_USERNAME: root
+          DB_PASSWORD: test_password
+
+      - name: 📊 Generate code coverage
+        run: |
+          cd back
+          php artisan test --coverage
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+  # ==========================================
+  # CODE QUALITY CHECKS
+  # ==========================================
+  code-quality:
+    name: Code Quality (Laravel)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, zip
+          tools: phpstan, php-cs-fixer
+
+      - name: 🔧 Install dependencies
+        run: |
+          cd back
+          composer install --prefer-dist --no-interaction
+
+      - name: 🔍 Run PHPStan (Static Analysis)
+        run: |
+          cd back
+          ./vendor/bin/phpstan analyse --memory-limit=2G
+        continue-on-error: true
+
+      - name: 🎨 Check code style (PHP CS Fixer)
+        run: |
+          cd back
+          ./vendor/bin/php-cs-fixer fix --dry-run --diff
+        continue-on-error: true
+
+  # ==========================================
+  # FRONTEND TESTS & BUILD
+  # ==========================================
+  frontend-build:
+    name: Frontend Build & Tests (Vite)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: front/package-lock.json
+
+      - name: 🔧 Install dependencies
+        run: |
+          cd front
+          npm ci
+
+      - name: 🧹 Lint TypeScript
+        run: |
+          cd front
+          npx tsc --noEmit
+        continue-on-error: true
+
+      - name: 🏗️ Build production
+        run: |
+          cd front
+          npm run build
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: front/dist/
+          retention-days: 7
+
+  # ==========================================
+  # DOCKER BUILD TEST
+  # ==========================================
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🏗️ Build backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back
+          file: ./back/Dockerfile
+          push: false
+          tags: werewolf-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🏗️ Build frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          file: ./front/Dockerfile
+          push: false
+          tags: werewolf-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ==========================================
+  # SECURITY SCAN
+  # ==========================================
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔒 Run Composer security checker
+        run: |
+          cd back
+          composer audit
+        continue-on-error: true
+
+      - name: 🔒 Run npm audit
+        run: |
+          cd front
+          npm audit --audit-level=moderate
+        continue-on-error: true
+
+  # ==========================================
+  # DEPLOYMENT (only on main branch)
+  # ==========================================
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-build, docker-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy notification
+        run: |
+          echo "🎮 Deploying Los Lobos de Castronegro to production..."
+          echo "✅ All tests passed!"
+          
+      # Aquí puedes añadir pasos de deployment reales:
+      # - Deploy a servidor
+      # - Actualizar Docker containers
+      # - Notificaciones a Slack/Discord
+      
+      - name: 📢 Success notification
+        if: success()
+        run: |
+          echo "✅ Deployment successful!"
+          echo "🐺 Los Lobos están listos para cazar..."
+
+      - name: ❌ Failure notification
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "🌙 Los lobos tendrán que esperar..."
