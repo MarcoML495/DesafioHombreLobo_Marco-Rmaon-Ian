@@ -1,13 +1,20 @@
-FROM node:20
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiamos package* primero para cache
-COPY package.json package-lock.json* ./
-RUN npm install
+# Copiar package files
+COPY package*.json ./
 
-# Copiamos el resto del front
+# Instalar dependencias durante BUILD
+RUN npm ci --only=production=false
+
+# Copiar código fuente
 COPY . .
 
-# Por defecto, para desarrollo lanzamos Vite
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+# Exponer puerto
+EXPOSE 5173
+
+# Variables de entorno
+ENV HOST=0.0.0.0
+ENV PORT=5173
+
