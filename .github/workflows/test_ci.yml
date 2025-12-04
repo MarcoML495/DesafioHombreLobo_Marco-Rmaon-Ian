@@ -1,0 +1,49 @@
+name: 1. CI - Pruebas de Backend y Migraciones
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test-laravel-app:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del Codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP 8.2 y extensiones
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: sqlite, pdo_sqlite, pdo_mysql, zip, gd, pcntl
+        tools: composer
+        
+    - name: Copiar .env y Generar Key
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+      working-directory: ./back
+
+    - name: Instalar Dependencias de Composer
+      run: composer install --no-interaction --prefer-dist
+      working-directory: ./back
+
+    - name: Configurar y Migrar Base de Datos SQLite
+      run: |
+        mkdir -p database 
+        touch database/database.sqlite
+        php artisan migrate --force
+      working-directory: ./back
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+
+    - name: Ejecutar Pruebas de PHPUnit
+      run: php artisan test
+      working-directory: ./back
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
