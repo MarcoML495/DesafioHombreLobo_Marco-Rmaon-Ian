@@ -1,0 +1,85 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Ejecutar todos los lunes a las 9:00 AM
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Permitir ejecución manual
+
+jobs:
+  update-backend:
+    name: Update Backend Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: 📦 Update Composer dependencies
+        run: |
+          cd back
+          composer update --prefer-dist --no-interaction
+          composer audit
+
+      - name: 📊 Show outdated packages
+        run: |
+          cd back
+          composer outdated --direct
+
+  update-frontend:
+    name: Update Frontend Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔧 Update npm dependencies
+        run: |
+          cd front
+          npm update
+          npm audit
+
+      - name: 📊 Show outdated packages
+        run: |
+          cd front
+          npm outdated
+
+  security-check:
+    name: Security Vulnerabilities Check
+    runs-on: ubuntu-latest
+    needs: [update-backend, update-frontend]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔒 Backend security audit
+        run: |
+          cd back
+          composer audit --format=json > composer-audit.json || true
+          cat composer-audit.json
+
+      - name: 🔒 Frontend security audit
+        run: |
+          cd front
+          npm audit --json > npm-audit.json || true
+          cat npm-audit.json
+
+      - name: 📤 Upload audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audits
+          path: |
+            back/composer-audit.json
+            front/npm-audit.json
