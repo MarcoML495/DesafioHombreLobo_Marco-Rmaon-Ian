@@ -25,7 +25,7 @@ RUN composer install --no-interaction --prefer-dist --no-scripts --no-dev --opti
 COPY . .
 
 # Ejecutar scripts post-install
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize --no-scripts || true
 
 # Configurar permisos
 RUN chown -R www-data:www-data storage bootstrap/cache \
