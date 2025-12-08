@@ -25,4 +25,11 @@ class UserFactory extends Factory
             'role' => 'admin',
         ]);
     }
+
+    public function bot(): Factory{
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Bot-'.fake()->unique()->firstName(),
+            'role' => 'bot', 
+        ]);
+    }
 }

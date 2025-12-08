@@ -321,6 +321,65 @@ class GameController extends Controller
         }
     }
 
+    public function joinLobbyBots(Request $request, $gameId)
+    {
+        try {
+            // Buscar la partida
+            $game = Game::find($gameId);
+
+            if (!$game) {
+                return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
+            }
+
+            // Verificar que esté en lobby
+            if (!$game->isLobby()) {
+                return response()->json(['success' => false,'message' => 'La partida ya comenzó o terminó'], 400);
+            }
+
+            // Verificar que no esté llena
+            if ($game->isFull()) {
+                return response()->json(['success' => false,'message' => 'La partida está llena'], 400);
+            }
+
+            // Coger a todos los bots y meterlos en la partida
+            $bots = User::where('role', '=', 'bot')->get();
+
+            if (count($bots)<=0) {
+                return response()->json(['success' => false,'message' => 'No hay bots en la BD'], 400);
+            }
+
+            foreach ($bots as $bot) {
+                DB::transaction(function () use ($bot, $game) {
+                    LobbyUpdated::dispatch($game->id, 'join');
+                    GamePlayer::create([
+                            'game_id' => $game->id,
+                            'user_id' => $bot->id,
+                            'status' => 'waiting',
+                            'is_active' => true,
+                            'joined_at' => now(),
+                    ]);
+                });
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Te has unido a la partida!',
+                'data' => [
+                    'game_id' => $game->id,
+                    'game_name' => $game->name,
+                    'current_players' => $game->currentPlayersCount(),
+                    'max_players' => $game->max_players
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al unirse: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Salir de un lobby
      * POST /api/lobbies/{gameId}/leave

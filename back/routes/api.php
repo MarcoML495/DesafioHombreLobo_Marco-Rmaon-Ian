@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/lobbies', [GameController::class, 'getLobbies']);
     Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+    Route::post('/lobbies/{gameId}/joinbots', [GameController::class, 'joinLobbyBots']);
     Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
     Route::post('/lobbies/{gameId}/chat', [GameController::class, 'sendMessage']);
 
