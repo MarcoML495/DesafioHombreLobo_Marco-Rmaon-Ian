@@ -56,7 +56,7 @@ class GameController extends Controller
 
         $game->created_by_user_id = $user->id;
         $game->status = 'lobby';
-        $game->min_players = 15;
+        $game->min_players = 2;
         $game->max_players = $req->get('maxPlayers');
 
         try {
@@ -539,5 +539,86 @@ class GameController extends Controller
         LobbyMessage::dispatch($gameId, $user, $request->input('message'));
 
         return response()->json(['success' => true]);
+    }
+
+  
+
+public function startGame(Request $request, $gameId)
+    {
+        $user = $request->user();
+        $game = Game::find($gameId);
+
+        if (!$game) {
+            return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
+        }
+
+        
+        if ($game->created_by_user_id != $user->id) {
+            return response()->json(['success' => false, 'message' => 'Solo el creador puede iniciar la partida'], 403);
+        }
+
+        
+        
+        
+        $players = $game->players()->where('is_active', true)->get();
+        $count = $players->count();
+
+        
+        $numLobos = ($count === 2) ? 1 : max(1, floor($count / 4));
+        
+        
+        $roles = [];
+        for ($i = 0; $i < $numLobos; $i++) {
+            $roles[] = 'lobo';
+        }
+        
+        while (count($roles) < $count) {
+            $roles[] = 'aldeano';
+        }
+
+        shuffle($roles);
+
+        foreach ($players as $index => $player) {
+            $player->role = $roles[$index];
+            $player->save(); 
+        }
+
+        
+        $game->status = 'in_progress';
+        $game->save();
+
+    
+        LobbyUpdated::dispatch($game->id, 'in_progress');
+
+        return response()->json(['success' => true, 'message' => 'Roles repartidos y partida iniciada']);
+    }
+
+    public function getPlayerStatus(Request $request, $gameId)
+    {
+        $user = $request->user();
+
+        
+        $player = GamePlayer::where('game_id', $gameId)
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$player) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No estás jugando en esta partida.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => $player->role ?? 'aldeano', 
+                'is_alive' => $player->status !== 'dead',
+                'status' => $player->status
+            ]
+        ]);
     }
 }
