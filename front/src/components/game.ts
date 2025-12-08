@@ -1,10 +1,168 @@
 import '../styles/variables.css';
 import '../styles/global.css';
 import '../styles/game.css';
+import '../styles/notifications.css'; 
 
-// ==========================================
-// TIPOS Y CONSTANTES
-// ==========================================
+import { notifyError } from './notifications';
+
+const API_URL = 'http://localhost/api';
+
+interface PlayerGameData {
+    id: number;
+    name: string;
+    role: string;
+    is_alive: boolean;
+    description?: string;
+}
+
+interface PlayerSummary {
+    id: number;
+    name: string;
+    avatar: string | null;
+    status: string;
+    is_creator: boolean;
+    role: string | null;
+}
+
+let gameId: number | null = null;
+let currentUserId: number | null = null;
+
+function getAuthToken(): string | null {
+    return sessionStorage.getItem('token');
+}
+
+function getGameIdFromUrl(): number | null {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('game');
+    return id ? parseInt(id) : null;
+}
+
+async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
+    const token = getAuthToken();
+    if (!token || !gameId) return null;
+
+    try {
+        const response = await fetch(`${API_URL}/games/${gameId}/player-status`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            currentUserId = data.data.id;
+            return data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching status:', error);
+    }
+    return null;
+}
+
+async function fetchGamePlayers(): Promise<PlayerSummary[]> {
+    const token = getAuthToken();
+    if (!token || !gameId) return [];
+
+    try {
+        const response = await fetch(`${API_URL}/lobbies/${gameId}/players`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            return data.data.players;
+        }
+    } catch (error) {
+        console.error('Error fetching players:', error);
+    }
+    return [];
+}
+
+function getRoleImage(role: string): string {
+    const validRoles = ['aldeano', 'lobo', 'vidente', 'bruja', 'cazador', 'cupido', 'ladron', 'niña'];
+    const normalizedRole = role.toLowerCase();
+    return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/logo_juego.png';
+}
+
+
+
+function renderPlayersGrid(players: PlayerSummary[], myActualRole?: string) {
+    const grid = document.querySelector('.players-grid') as HTMLElement;
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    grid.removeAttribute('style'); 
+
+    players.forEach(player => {
+        const isMe = player.id === currentUserId;
+        const isAlive = player.status !== 'dead'; 
+        
+        
+        let roleImage = '/logo_juego.png';
+        
+        if (isMe) {
+            
+            if (myActualRole) {
+                roleImage = getRoleImage(myActualRole);
+            } else if (player.role) {
+                roleImage = getRoleImage(player.role);
+            }
+        }
+
+        const playerEl = document.createElement('div');
+        playerEl.className = `player-card-small ${isMe ? 'me' : ''} ${isAlive ? 'alive' : 'dead'}`;
+        
+        
+        playerEl.innerHTML = `
+            <div class="player-card-inner">
+                <img src="${roleImage}" alt="Carta de ${player.name}" class="player-card-img">
+                <span class="player-name-label">
+                    ${player.name} ${isMe ? '(Tú)' : ''}
+                </span>
+            </div>
+        `;
+
+        grid.appendChild(playerEl);
+    });
+}
+
+async function init() {
+    const token = getAuthToken();
+    if (!token) {
+        window.location.href = '../views/login.html';
+        return;
+    }
+
+    gameId = getGameIdFromUrl();
+    if (!gameId) {
+        notifyError('Partida no válida.', 'Error');
+        setTimeout(() => window.location.href = '../views/menuprincipal.html', 2000);
+        return;
+    }
+
+    const myData = await fetchPlayerStatus();
+    
+    
+    
+    if (!myData) {
+        const container = document.getElementById('game-container');
+       
+        if(container) container.innerHTML = '<p class="error-msg">Error cargando información.</p>';
+    }
+
+    const allPlayers = await fetchGamePlayers();
+    
+    
+    renderPlayersGrid(allPlayers, myData?.role);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// ========================
+// CÓDIGO DE FASES Y CHAT
+// ========================
 
 type Phase = 'day' | 'night';
 
@@ -263,9 +421,6 @@ function initializeBackButton() {
     });
 }
 
-// ==========================================
-// INICIALIZACIÓN
-// ==========================================
 
 function initGame() {
     console.log('🎮 Iniciando juego...');
@@ -289,7 +444,7 @@ function initGame() {
     console.log('✅ Juego inicializado - Sistema automático día/noche activado');
 }
 
-// Iniciar cuando el DOM esté listo
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGame);
 } else {
