@@ -82,63 +82,42 @@ function getRoleImage(role: string): string {
     return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/logo_juego.png';
 }
 
-function renderPlayerCard(player: PlayerGameData) {
-    const container = document.getElementById('game-container');
-    if (!container) return;
 
-    const roleImage = getRoleImage(player.role);
-    const statusText = player.is_alive ? 'VIVO' : 'ELIMINADO';
 
-    let description = player.description || '';
-    if (!description) {
-        if (player.role === 'lobo') description = 'Caza a los aldeanos por la noche.';
-        else if (player.role === 'aldeano') description = 'Descubre a los lobos y protege la aldea.';
-        else description = 'Juega con astucia.';
-    }
-
-    container.innerHTML = `
-        <div class="role-card-wrapper">
-            <div class="role-card ${player.role.toLowerCase()} ${player.is_alive ? 'alive' : 'dead'}">
-                <div class="card-header">
-                    <h2 class="role-title">${player.role.toUpperCase()}</h2>
-                    <span class="status-badge">${statusText}</span>
-                </div>
-                <div class="card-image-container">
-                    <img src="${roleImage}" alt="${player.role}" class="role-img">
-                </div>
-                <div class="card-content">
-                    <p class="role-description">${description}</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function renderPlayersGrid(players: PlayerSummary[]) {
-    const grid = document.querySelector('.players-grid');
+function renderPlayersGrid(players: PlayerSummary[], myActualRole?: string) {
+    const grid = document.querySelector('.players-grid') as HTMLElement;
     if (!grid) return;
 
     grid.innerHTML = '';
+    grid.removeAttribute('style'); 
 
     players.forEach(player => {
         const isMe = player.id === currentUserId;
         const isAlive = player.status !== 'dead'; 
-        const statusClass = isAlive ? 'alive' : 'dead';
-
-        const roleToDisplay = player.role ? player.role : 'unknown';
-        const roleImagePath = getRoleImage(roleToDisplay);
+        
+        
+        let roleImage = '/logo_juego.png';
+        
+        if (isMe) {
+            
+            if (myActualRole) {
+                roleImage = getRoleImage(myActualRole);
+            } else if (player.role) {
+                roleImage = getRoleImage(player.role);
+            }
+        }
 
         const playerEl = document.createElement('div');
+        playerEl.className = `player-card-small ${isMe ? 'me' : ''} ${isAlive ? 'alive' : 'dead'}`;
         
-        playerEl.className = `player-card-small ${isMe ? 'me' : ''} ${statusClass}`;
         
-        const imageHtml = `<img src="${roleImagePath}" alt="Rol: ${player.role}" class="player-role-icon-small">`;
-
         playerEl.innerHTML = `
-            <div class="player-avatar-small box-shadow-${player.role}">
-                ${imageHtml}
+            <div class="player-card-inner">
+                <img src="${roleImage}" alt="Carta de ${player.name}" class="player-card-img">
+                <span class="player-name-label">
+                    ${player.name} ${isMe ? '(Tú)' : ''}
+                </span>
             </div>
-            <div class="player-name-small">${player.name} ${isMe ? '(Tú)' : ''}</div>
         `;
 
         grid.appendChild(playerEl);
@@ -160,15 +139,19 @@ async function init() {
     }
 
     const myData = await fetchPlayerStatus();
-    if (myData) {
-        renderPlayerCard(myData);
-    } else {
+    
+    
+    
+    if (!myData) {
         const container = document.getElementById('game-container');
-        if(container) container.innerHTML = '<p class="error-msg">Error cargando tu información.</p>';
+       
+        if(container) container.innerHTML = '<p class="error-msg">Error cargando información.</p>';
     }
 
     const allPlayers = await fetchGamePlayers();
-    renderPlayersGrid(allPlayers);
+    
+    
+    renderPlayersGrid(allPlayers, myData?.role);
 }
 
 if (document.readyState === 'loading') {
@@ -176,9 +159,10 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-// ==========================================
-// TIPOS Y CONSTANTES
-// ==========================================
+
+// ========================
+// CÓDIGO DE FASES Y CHAT
+// ========================
 
 type Phase = 'day' | 'night';
 
@@ -437,9 +421,6 @@ function initializeBackButton() {
     });
 }
 
-// ==========================================
-// INICIALIZACIÓN
-// ==========================================
 
 function initGame() {
     console.log('🎮 Iniciando juego...');
@@ -463,7 +444,7 @@ function initGame() {
     console.log('✅ Juego inicializado - Sistema automático día/noche activado');
 }
 
-// Iniciar cuando el DOM esté listo
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGame);
 } else {
