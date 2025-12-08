@@ -1,75 +1,78 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="../../logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Los lobos de castronegro</title>
+    <title>Los Lobos de Castronegro - Partida</title>
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <div class="page-wrapper">
         <div class="game-layout">
+            <!-- ÁREA DE JUEGO -->
             <div class="game-area">
+                <!-- HEADER DEL JUEGO -->
                 <div class="game-header">
-                    <div class="game-title">🐺 La Guarida del Lobo</div>
-                    <div class="timer">⏱ 02:45</div>
                     <div class="back-button">☰ Menú</div>
+                    <div class="game-title">🐺 La Guarida del Lobo</div>
+                    <div class="timer">☀️ 03:00</div>
+                    <!-- El toggle se añade dinámicamente desde JS -->
                 </div>
+
+                <div id="game-container">
+                </div>
+                
                 <div class="players-grid">
+                    <!-- Jugador activo (tú) -->
                     <div class="player-card active">
-                        <div class="player-avatar"><img src="../../mytopkid.png" alt="Skibidi" width="40" height="40"></div>
-                        <div class="player-name">Tú</div>
-                        <div class="player-role">Aldeano</div>
+                         <div id="game-container">
                     </div>
+                    
+                    </div>  
                 </div>
+
+                <!-- ACCIONES DEL JUEGO -->
                 <div class="game-actions">
                     <button class="action-button">🗳️ Votar</button>
                     <button class="action-button success">✓ Confirmar</button>
                     <button class="action-button danger">✗ Acusar</button>
                 </div>
             </div>
+
+            <!-- PANEL DE CHAT -->
             <div class="chat-panel">
                 <div class="chat-header">💬 Chat del Juego</div>
+                
                 <div class="chat-messages">
                     <div class="message other">
                         <div class="message-author">Jugador2</div>
                         <div class="message-text">¡Buena suerte a todos!</div>
                         <div class="message-time">10:23</div>
                     </div>
+                    
                     <div class="message own">
                         <div class="message-author">Tú</div>
                         <div class="message-text">¡Empecemos!</div>
                         <div class="message-time">10:24</div>
                     </div>
-                    <div class="message other">
-                        <div class="message-author">Jugador5</div>
-                        <div class="message-text">Sospecho del jugador 3...</div>
-                        <div class="message-time">10:25</div>
-                    </div>
-                    <div class="message other">
-                        <div class="message-author">Jugador3</div>
-                        <div class="message-text">¡Yo no he sido! 😤</div>
-                        <div class="message-time">10:25</div>
-                    </div>
-                    <div class="message own">
-                        <div class="message-author">Tú</div>
-                        <div class="message-text">Necesitamos más pruebas</div>
-                        <div class="message-time">10:26</div>
-                    </div>
-                    <div class="message other">
-                        <div class="message-author">Jugador7</div>
-                        <div class="message-text">Propongo votación</div>
-                        <div class="message-time">10:27</div>
-                    </div>
+                    
                 </div>
-                <div class="chat-input-container"><input type="text" class="chat-input"
-                        placeholder="Escribe un mensaje..."><button class="send-button">📤</button></div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" placeholder="Escribe un mensaje...">
+                    <button class="send-button">📤</button>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Script del juego -->
+    <script type="module" src="/src/components/game.ts"></script>
 </body>
-<script type="module" src="/src/components/game.ts"></script>
 
 </html>

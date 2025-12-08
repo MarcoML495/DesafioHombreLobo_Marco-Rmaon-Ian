@@ -37,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
     Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
     Route::post('/lobbies/{gameId}/chat', [GameController::class, 'sendMessage']);
+
+    Route::post('/lobbies/{gameId}/start', [GameController::class, 'startGame']);
+    Route::get('/games/{gameId}/player-status', [GameController::class, 'getPlayerStatus']);
+    
     Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
     
