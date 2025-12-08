@@ -46,10 +46,12 @@
                     <!-- Los jugadores se cargarán aquí -->
                 </div>
 
-                <div class="lobby-room-info">
-                    <p>⏳ Esperando a que se unan más jugadores...</p>
-                    <p id="min-players-msg">Se necesitan al menos <strong id="min-players">15</strong> jugadores para
-                        comenzar</p>
+                <div id="start-game-container" style="display: none; margin-top: 20px; text-align: center;">
+                    <p id="start-game-msg" class="mb-2 text-sm text-gray-400">Esperando jugadores...</p>
+                    <button id="start-game-btn"
+                        class="btn-primary px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Iniciar Partida
+                    </button>
                 </div>
             </div>
 
@@ -73,13 +75,6 @@
 
         </div>
 
-        <!-- Botón iniciar (solo para el creador) -->
-        <div class="lobby-room-actions" id="start-game-container" style="display: none;">
-            <button class="button-primary" id="start-game-btn" disabled>
-                🎮 Iniciar Partida
-            </button>
-            <p id="start-game-msg" class="action-msg">Esperando más jugadores...</p>
-        </div>
     </div>
 
     <!-- Fondo Animado -->
