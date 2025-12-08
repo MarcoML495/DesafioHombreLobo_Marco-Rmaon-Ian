@@ -79,7 +79,7 @@ async function fetchGamePlayers(): Promise<PlayerSummary[]> {
 function getRoleImage(role: string): string {
     const validRoles = ['aldeano', 'lobo', 'vidente', 'bruja', 'cazador', 'cupido', 'ladron', 'niña'];
     const normalizedRole = role.toLowerCase();
-    return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/logo_juego.png';
+    return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/rol_oculto.png';
 }
 
 
@@ -96,7 +96,7 @@ function renderPlayersGrid(players: PlayerSummary[], myActualRole?: string) {
         const isAlive = player.status !== 'dead'; 
         
         
-        let roleImage = '/logo_juego.png';
+        let roleImage = '/rol_oculto.png';
         
         if (isMe) {
             
