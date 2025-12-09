@@ -240,9 +240,9 @@ async function fetchGamePlayers(): Promise<PlayerSummary[]> {
 // ==========================================
 
 function getRoleImage(role: string): string {
-    const validRoles = ['aldeano', 'lobo', 'vidente', 'bruja', 'cazador', 'cupido', 'ladron', 'nina'];
-    const normalizedRole = role.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/logo_juego.png';
+    const validRoles = ['aldeano', 'lobo', 'vidente', 'bruja', 'cazador', 'cupido', 'ladron', 'niña'];
+    const normalizedRole = role.toLowerCase();
+    return validRoles.includes(normalizedRole) ? `/rol_${normalizedRole}.png` : '/rol_oculto.png';
 }
 
 function renderPlayersGrid(players: PlayerSummary[], myRole?: string) {
@@ -259,7 +259,7 @@ function renderPlayersGrid(players: PlayerSummary[], myRole?: string) {
         const isAlive = player.status === 'playing'; 
         const isVotable = isAlive && !isMe && canVote;
         
-        let roleImage = '/logo_juego.png';
+        let roleImage = '/rol_oculto.png';
         
         if (isMe && myRole) {
             roleImage = getRoleImage(myRole);
