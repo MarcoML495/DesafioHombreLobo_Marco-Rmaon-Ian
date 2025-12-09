@@ -172,22 +172,8 @@ async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
     if (!token || !gameId) return null;
 
     try {
-        // Primero obtener el perfil del usuario actual
-        const userResponse = await fetch(`${API_URL}/user`, {
-            method: 'GET',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-        
-        const userData = await userResponse.json();
-        if (userResponse.ok) {
-            currentUserId = userData.id || userData.data?.id;
-        }
-        
-        // Luego obtener datos de la partida
-        const response = await fetch(`${API_URL}/lobbies/${gameId}/players`, {
+        // Obtener datos del jugador actual
+        const response = await fetch(`${API_URL}/games/${gameId}/player-status`, {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json', 
@@ -197,18 +183,16 @@ async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
         
         const data = await response.json();
         if (response.ok && data.success) {
-            // Buscar al jugador actual en la lista
-            const currentPlayer = data.data.players.find((p: any) => p.id === currentUserId);
-            if (currentPlayer) {
-                myActualRole = currentPlayer.role || 'aldeano'; // Store role globally
-                return {
-                    id: currentPlayer.id,
-                    name: currentPlayer.name,
-                    role: currentPlayer.role || 'aldeano',
-                    is_alive: currentPlayer.status !== 'dead',
-                    description: ''
-                };
-            }
+            myActualRole = data.data.role || 'aldeano'; // Store role globally
+            currentUserId = data.data.id;
+            console.log(`👤 Rol cargado desde BD: ${myActualRole}`);
+            return {
+                id: data.data.id,
+                name: data.data.name,
+                role: data.data.role || 'aldeano',
+                is_alive: data.data.is_alive,
+                description: ''
+            };
         }
     } catch (error) {
         console.error('Error fetching status:', error);
@@ -261,8 +245,13 @@ function renderPlayersGrid(players: PlayerSummary[], myRole?: string) {
         
         let roleImage = '/rol_oculto.png';
         
-        if (isMe && myRole) {
-            roleImage = getRoleImage(myRole);
+        // Usar myActualRole (global) o myRole (parámetro)
+        if (isMe) {
+            const actualRole = myActualRole || myRole;
+            if (actualRole) {
+                roleImage = getRoleImage(actualRole);
+                console.log(`🎭 Mi rol: ${actualRole}, imagen: ${roleImage}`);
+            }
         }
 
         const playerEl = document.createElement('div');
@@ -327,6 +316,7 @@ async function loadGamePlayers() {
     const myData = await fetchPlayerStatus();
     const allPlayers = await fetchGamePlayers();
     renderPlayersGrid(allPlayers, myActualRole || myData?.role);
+    updateChatUI(); // Update chat after role is loaded
 }
 
 // ==========================================
@@ -490,15 +480,19 @@ function updateChatUI() {
     const chatInput = document.querySelector('.chat-input') as HTMLInputElement;
     const sendBtn = document.querySelector('.send-button') as HTMLButtonElement;
     
+    console.log(`🔍 updateChatUI: phase=${gameState.phase}, myActualRole=${myActualRole}`);
+    
     if (!chatInput || !sendBtn) return;
     
     if (gameState.phase === 'night' && myActualRole !== 'lobo') {
+        console.log('🚫 Deshabilitando chat (no-lobo en noche)');
         chatInput.disabled = true;
         chatInput.placeholder = '🌙 Los lobos están hablando...';
         chatInput.style.opacity = '0.6';
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.6';
     } else {
+        console.log('✅ Habilitando chat');
         chatInput.disabled = false;
         chatInput.placeholder = 'Escribe un mensaje...';
         chatInput.style.opacity = '1';

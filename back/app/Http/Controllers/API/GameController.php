@@ -726,7 +726,9 @@ class GameController extends Controller
     public function changePhase(Request $request, $gameId)
     {
         $user = $request->user();
-        $game = Game::find($gameId);
+
+        // Lock para evitar race conditions
+        $game = Game::where('id', $gameId)->lockForUpdate()->first();
 
         if (!$game) {
             return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
@@ -742,6 +744,27 @@ class GameController extends Controller
             return response()->json(['success' => false, 'message' => 'No estás en esta partida'], 403);
         }
 
+        // Calcular si realmente debe cambiar fase
+        $phaseDuration = $game->current_phase === 'night' ? 120 : 180;
+        $timeSincePhaseStart = now()->diffInSeconds($game->phase_started_at);
+
+        \Log::info("📊 Phase change request", [
+            'game_id' => $gameId,
+            'user_id' => $user->id,
+            'current_phase' => $game->current_phase,
+            'current_round' => $game->current_round,
+            'elapsed_seconds' => $timeSincePhaseStart,
+            'required_duration' => $phaseDuration,
+            'phase_started_at' => $game->phase_started_at,
+            'should_change' => $timeSincePhaseStart >= ($phaseDuration - 2)
+        ]);
+
+        // Si no ha pasado el tiempo suficiente, ignorar
+        if ($timeSincePhaseStart < $phaseDuration - 2) {
+            \Log::info("⏱️ Too early to change phase");
+            return response()->json(['success' => true, 'message' => 'Fase aún no debe cambiar']);
+        }
+
         // Cambiar fase
         $newPhase = $game->current_phase === 'day' ? 'night' : 'day';
         $newRound = $game->current_round;
@@ -751,11 +774,17 @@ class GameController extends Controller
             $newRound++;
         }
 
-        $game->update([
-            'current_phase' => $newPhase,
-            'current_round' => $newRound,
-            'phase_started_at' => now()
+        \Log::info("✅ Changing phase", [
+            'old_phase' => $game->current_phase,
+            'new_phase' => $newPhase,
+            'old_round' => $game->current_round,
+            'new_round' => $newRound
         ]);
+
+        $game->current_phase = $newPhase;
+        $game->current_round = $newRound;
+        $game->phase_started_at = now();
+        $game->save();
 
         $newPhaseDuration = $newPhase === 'day' ? 180 : 120;
 
