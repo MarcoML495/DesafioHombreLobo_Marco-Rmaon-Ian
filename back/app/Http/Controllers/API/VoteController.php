@@ -250,4 +250,72 @@ class VoteController extends Controller
             ]));
         }
     }
+
+    /**
+    * Variacion de la funcion de votar hecha solo para bots
+    */
+    public function voteBot($gameId, $botId, $targetId)
+    {
+        $game = Game::find($gameId);
+
+        if (!$game || $game->status !== 'in_progress') {
+            return response()->json(['success' => false, 'message' => 'Partida no válida'], 404);
+        }
+
+        // Verificar que el votante esté en la partida y vivo
+        $voter = GamePlayer::where('game_id', $gameId)
+            ->where('user_id', $botId)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->first();
+
+        if (!$voter) {
+            return response()->json(['success' => false, 'message' => 'No puedes votar'], 403);
+        }
+
+        // Verificar que el objetivo esté en la partida y vivo
+        $target = GamePlayer::where('game_id', $gameId)
+            ->where('user_id', $targetId)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->first();
+
+        if (!$target) {
+            return response()->json(['success' => false, 'message' => 'Objetivo no válido'], 400);
+        }
+
+        // Validación según fase
+        if ($game->current_phase === 'night') {
+            // Solo lobos pueden votar de noche
+            if ($voter->role !== 'lobo') {
+                return response()->json(['success' => false, 'message' => 'Solo los lobos votan de noche'], 403);
+            }
+
+            // No pueden votar a otros lobos
+            if ($target->role === 'lobo') {
+                return response()->json(['success' => false, 'message' => 'No puedes votar a otro lobo'], 400);
+            }
+        }
+
+        // Registrar o actualizar voto
+        GameVote::updateOrCreate(
+            [
+                'game_id' => $gameId,
+                'voter_id' => $botId,
+                'phase' => $game->current_phase,
+                'round' => $game->current_round
+            ],
+            [
+                'target_id' => $targetId
+            ]
+        );
+
+        // Verificar si todos votaron
+        $this->checkVotingComplete($game);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Voto registrado'
+        ]);
+    }
 }
