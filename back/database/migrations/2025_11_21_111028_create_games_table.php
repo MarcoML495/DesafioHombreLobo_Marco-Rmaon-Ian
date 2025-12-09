@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('games', function (Blueprint $table) {
-            $table->id('id')->primary();
+            $table->id('id');
             $table->string('name');
             $table->string('join_code', 12)->unique()->nullable();
             $table->foreignId('created_by_user_id')->index();
