@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\GameVote;
+use App\Events\PlayerEliminated;
+use App\Events\GameFinished;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
