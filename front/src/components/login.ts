@@ -111,7 +111,6 @@ async function sendLoginToApi(userData: any): Promise<void> {
             );
             
             sessionStorage.setItem("name", data.data.name);
-            sessionStorage.setItem("password", userData.password);
             sessionStorage.setItem("token", data.data.token);
             
             setTimeout(() => {
