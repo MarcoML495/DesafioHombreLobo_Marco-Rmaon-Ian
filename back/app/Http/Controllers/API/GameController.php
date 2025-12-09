@@ -99,7 +99,6 @@ class GameController extends Controller
 
             //Lista a todos los no-lobos como objetivos
             $targets = GamePlayer::where('game_id', $gameId)
-                ->where('user_id', '!=', $bot->user_id)
                 ->where('is_active', true)
                 ->where('status', 'playing')
                 ->where('role', '!=', 'lobo')
