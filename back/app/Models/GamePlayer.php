@@ -24,6 +24,7 @@ class GamePlayer extends Model
         'user_id',
         'status',
         'is_active',
+        'is_bot',
         'role',
         'joined_at',
         'left_at',
@@ -34,6 +35,7 @@ class GamePlayer extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'is_bot' => 'boolean',
         'joined_at' => 'datetime',
         'left_at' => 'datetime',
     ];
