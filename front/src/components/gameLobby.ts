@@ -59,6 +59,7 @@ interface ChatMessage {
 }
 
 let gameId: number | null = null;
+let playerNumber: number = 0;
 let currentUserId: number | null = null;
 let echo: any = null;
 
@@ -200,6 +201,8 @@ function displayLobbyData(data: GameLobbyData): void {
     const gameInfo = document.getElementById('game-info'); if(gameInfo) gameInfo.textContent = `${game.current_players}/${game.max_players} jugadores`;
     const playerCount = document.getElementById('player-count'); if(playerCount) playerCount.textContent = `${game.current_players}/${game.max_players}`;
     const minPlayers = document.getElementById('min-players'); if(minPlayers) minPlayers.textContent = game.min_players.toString();
+
+    playerNumber = game.current_players;
     
     const loading = document.getElementById('players-loading'); if (loading) loading.style.display = 'none';
     const playersGrid = document.getElementById('players-grid');
@@ -249,6 +252,38 @@ function createPlayerCard(player: Player): HTMLElement {
     return card;
 }
 
+async function joinBots(gameId: number): Promise<void> {
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    return;
+  }
+
+  try {
+    const body: any = {};
+
+    const response = await fetch(`${API_URL}/lobbies/${gameId}/joinbots`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+
+    } else {
+        
+    }
+  } catch (error) {
+    console.error("Error al unirse:", error);
+    notifyError("Error de conexión. Intenta de nuevo.", "Error");
+  }
+}
+
 async function startGame() {
     if (!gameId) return;
 
@@ -256,6 +291,10 @@ async function startGame() {
     if (startBtn) startBtn.disabled = true;
 
     const token = getAuthToken();
+
+    if (playerNumber < 15) {
+        await joinBots(gameId);
+    }
 
     try {
         const response = await fetch(`${API_URL}/lobbies/${gameId}/start`, {

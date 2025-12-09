@@ -320,6 +320,65 @@ class GameController extends Controller
         }
     }
 
+    public function joinLobbyBots(Request $request, $gameId)
+    {
+        try {
+            // Buscar la partida
+            $game = Game::find($gameId);
+
+            if (!$game) {
+                return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
+            }
+
+            // Verificar que esté en lobby
+            if (!$game->isLobby()) {
+                return response()->json(['success' => false,'message' => 'La partida ya comenzó o terminó'], 400);
+            }
+
+            // Verificar que no esté llena
+            if ($game->isFull()) {
+                return response()->json(['success' => false,'message' => 'La partida está llena'], 400);
+            }
+
+            // Coger a todos los bots y meterlos en la partida
+            $bots = User::where('role', '=', 'bot')->get();
+
+            if (count($bots)<=0) {
+                return response()->json(['success' => false,'message' => 'No hay bots en la BD'], 400);
+            }
+
+            foreach ($bots as $bot) {
+                DB::transaction(function () use ($bot, $game) {
+                    LobbyUpdated::dispatch($game->id, 'join');
+                    GamePlayer::create([
+                            'game_id' => $game->id,
+                            'user_id' => $bot->id,
+                            'status' => 'waiting',
+                            'is_active' => true,
+                            'joined_at' => now(),
+                    ]);
+                });
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Te has unido a la partida!',
+                'data' => [
+                    'game_id' => $game->id,
+                    'game_name' => $game->name,
+                    'current_players' => $game->currentPlayersCount(),
+                    'max_players' => $game->max_players
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al unirse: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Salir de un lobby
      * POST /api/lobbies/{gameId}/leave
@@ -726,47 +785,97 @@ class GameController extends Controller
     public function changePhase(Request $request, $gameId)
     {
         $user = $request->user();
-        $game = Game::find($gameId);
 
-        if (!$game) {
-            return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
-        }
+        return DB::transaction(function () use ($user, $gameId) {
+            // Lock para evitar race conditions
+            $game = Game::where('id', $gameId)->lockForUpdate()->first();
 
-        // Verificar que el usuario esté en la partida
-        $isInGame = GamePlayer::where('game_id', $gameId)
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->exists();
+            if (!$game) {
+                return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
+            }
 
-        if (!$isInGame) {
-            return response()->json(['success' => false, 'message' => 'No estás en esta partida'], 403);
-        }
+            // Verificar que el usuario esté en la partida
+            $isInGame = GamePlayer::where('game_id', $gameId)
+                ->where('user_id', $user->id)
+                ->where('is_active', true)
+                ->exists();
 
-        // Cambiar fase
-        $newPhase = $game->current_phase === 'day' ? 'night' : 'day';
-        $newRound = $game->current_round;
+            if (!$isInGame) {
+                return response()->json(['success' => false, 'message' => 'No estás en esta partida'], 403);
+            }
 
-        // Si vuelve a ser día, incrementar ronda
-        if ($newPhase === 'day') {
-            $newRound++;
-        }
+            // Calcular si realmente debe cambiar fase
+            $phaseDuration = $game->current_phase === 'night' ? 120 : 180;
+            $now = now();
+            $phaseStart = \Carbon\Carbon::parse($game->phase_started_at);
+            $timeSincePhaseStart = abs($now->diffInSeconds($phaseStart));
+            $timeRemaining = max(0, $phaseDuration - $timeSincePhaseStart);
 
-        $game->update([
-            'current_phase' => $newPhase,
-            'current_round' => $newRound,
-            'phase_started_at' => now()
-        ]);
+            \Log::info("📊 Phase change request", [
+                'game_id' => $gameId,
+                'user_id' => $user->id,
+                'current_phase' => $game->current_phase,
+                'current_round' => $game->current_round,
+                'now' => $now->toDateTimeString(),
+                'phase_started_at' => $phaseStart->toDateTimeString(),
+                'elapsed_seconds' => $timeSincePhaseStart,
+                'required_duration' => $phaseDuration,
+                'time_remaining' => $timeRemaining
+            ]);
 
-        $newPhaseDuration = $newPhase === 'day' ? 180 : 120;
+            // Si aún queda tiempo según el backend, no cambiar
+            if ($timeRemaining > 1) { // pequeña tolerancia de 1s para compensar desfases
+                \Log::info("⏱️ Too early to change phase");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Fase aún no debe cambiar',
+                    'time_remaining' => $timeRemaining,
+                    'phase' => $game->current_phase,
+                    'round' => $game->current_round,
+                    'started_at' => $game->phase_started_at
+                ]);
+            }
 
-        // Broadcast a todos
-        broadcast(new GamePhaseChanged($game->id, [
-            'phase' => $newPhase,
-            'round' => $newRound,
-            'time_remaining' => $newPhaseDuration,
-            'started_at' => now()->toIso8601String()
-        ]));
+            // Cambiar fase
+            $newPhase = $game->current_phase === 'day' ? 'night' : 'day';
+            $newRound = $game->current_round;
 
-        return response()->json(['success' => true]);
+            // Si vuelve a ser día, incrementar ronda
+            if ($newPhase === 'day') {
+                $newRound++;
+            }
+
+            \Log::info("✅ Changing phase", [
+                'old_phase' => $game->current_phase,
+                'new_phase' => $newPhase,
+                'old_round' => $game->current_round,
+                'new_round' => $newRound
+            ]);
+
+            $game->current_phase = $newPhase;
+            $game->current_round = $newRound;
+            $game->phase_started_at = now();
+            $game->save();
+
+            $newPhaseDuration = $newPhase === 'day' ? 180 : 120;
+
+            // Broadcast a todos
+            broadcast(new GamePhaseChanged($game->id, [
+                'phase' => $newPhase,
+                'round' => $newRound,
+                'time_remaining' => $newPhaseDuration,
+                'started_at' => now()->toIso8601String()
+            ]));
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'phase' => $newPhase,
+                    'round' => $newRound,
+                    'time_remaining' => $newPhaseDuration,
+                    'started_at' => now()->toIso8601String()
+                ]
+            ]);
+        });
     }
 }

@@ -65,6 +65,34 @@ let echo: any = null;
 let timerInterval: number | null = null;
 let myVote: number | null = null;
 let myActualRole: string | null = null;
+let isChangingPhase = false;
+
+function setGameStateFromServer(
+    phase: 'day' | 'night',
+    round: number,
+    startedAtIso: string | null,
+    timeRemainingFromServer?: number
+) {
+    const duration = phase === 'night' ? 120 : 180;
+    const startedAt = startedAtIso ? new Date(startedAtIso).toISOString() : new Date().toISOString();
+    const startedAtMs = new Date(startedAt).getTime();
+    // Tiempo restante calculado en cliente usando started_at del backend
+    const computedRemaining = Math.max(
+        0,
+        Math.floor((startedAtMs + duration * 1000 - Date.now()) / 1000)
+    );
+    // Si el backend envía time_remaining, usamos el menor para no extender el contador
+    const remaining = typeof timeRemainingFromServer === 'number'
+        ? Math.min(timeRemainingFromServer, computedRemaining)
+        : computedRemaining;
+
+    gameState = {
+        phase,
+        round,
+        time_remaining: remaining,
+        started_at: startedAt
+    };
+}
 
 // ==========================================
 // ESTADO DEL JUEGO (SINCRONIZADO)
@@ -131,8 +159,19 @@ function subscribeToGame(gId: number) {
     // Evento: Cambio de fase (cuando lo implementes en el backend)
     channel.listen('.game.phase.changed', (data: GamePhaseData) => {
         console.log('🌓 Cambio de fase recibido:', data);
+        const oldPhase = gameState.phase;
         gameState = data;
         myVote = null; // Reset vote on phase change
+        
+        // Limpiar chat si cambió de noche->día y no soy lobo
+        if (oldPhase === 'night' && data.phase === 'day' && myActualRole !== 'lobo') {
+            const chatMessages = document.querySelector('.chat-messages') as HTMLElement;
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+                console.log('🧹 Chat limpiado al amanecer');
+            }
+        }
+        
         showPhaseTransition(data.phase);
         updateGameUI();
         startSyncedTimer();
@@ -140,6 +179,11 @@ function subscribeToGame(gId: number) {
     
     // Evento: Mensaje de chat
     channel.listen('.message.sent', (e: ChatMessage) => {
+        // Filtrar mensajes de noche si no soy lobo
+        if (gameState.phase === 'night' && myActualRole !== 'lobo') {
+            console.log('🚫 Mensaje de noche bloqueado (no-lobo)');
+            return;
+        }
         appendChatMessage(e);
     });
 
@@ -172,22 +216,8 @@ async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
     if (!token || !gameId) return null;
 
     try {
-        // Primero obtener el perfil del usuario actual
-        const userResponse = await fetch(`${API_URL}/user`, {
-            method: 'GET',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-        
-        const userData = await userResponse.json();
-        if (userResponse.ok) {
-            currentUserId = userData.id || userData.data?.id;
-        }
-        
-        // Luego obtener datos de la partida
-        const response = await fetch(`${API_URL}/lobbies/${gameId}/players`, {
+        // Obtener datos del jugador actual
+        const response = await fetch(`${API_URL}/games/${gameId}/player-status`, {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json', 
@@ -197,18 +227,16 @@ async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
         
         const data = await response.json();
         if (response.ok && data.success) {
-            // Buscar al jugador actual en la lista
-            const currentPlayer = data.data.players.find((p: any) => p.id === currentUserId);
-            if (currentPlayer) {
-                myActualRole = currentPlayer.role || 'aldeano'; // Store role globally
-                return {
-                    id: currentPlayer.id,
-                    name: currentPlayer.name,
-                    role: currentPlayer.role || 'aldeano',
-                    is_alive: currentPlayer.status !== 'dead',
-                    description: ''
-                };
-            }
+            myActualRole = data.data.role || 'aldeano'; // Store role globally
+            currentUserId = data.data.id;
+            console.log(`👤 Rol cargado desde BD: ${myActualRole}`);
+            return {
+                id: data.data.id,
+                name: data.data.name,
+                role: data.data.role || 'aldeano',
+                is_alive: data.data.is_alive,
+                description: ''
+            };
         }
     } catch (error) {
         console.error('Error fetching status:', error);
@@ -233,6 +261,30 @@ async function fetchGamePlayers(): Promise<PlayerSummary[]> {
         console.error('Error fetching players:', error);
     }
     return [];
+}
+
+async function fetchCurrentPhase(): Promise<void> {
+    const token = getAuthToken();
+    if (!token || !gameId) return;
+
+    try {
+        const response = await fetch(`${API_URL}/games/${gameId}/phase`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+            setGameStateFromServer(
+                data.data.phase,
+                data.data.round,
+                data.data.started_at,
+                data.data.time_remaining
+            );
+        }
+    } catch (error) {
+        console.error('Error fetching current phase:', error);
+    }
 }
 
 // ==========================================
@@ -261,8 +313,13 @@ function renderPlayersGrid(players: PlayerSummary[], myRole?: string) {
         
         let roleImage = '/rol_oculto.png';
         
-        if (isMe && myRole) {
-            roleImage = getRoleImage(myRole);
+        // Usar myActualRole (global) o myRole (parámetro)
+        if (isMe) {
+            const actualRole = myActualRole || myRole;
+            if (actualRole) {
+                roleImage = getRoleImage(actualRole);
+                console.log(`🎭 Mi rol: ${actualRole}, imagen: ${roleImage}`);
+            }
         }
 
         const playerEl = document.createElement('div');
@@ -327,6 +384,7 @@ async function loadGamePlayers() {
     const myData = await fetchPlayerStatus();
     const allPlayers = await fetchGamePlayers();
     renderPlayersGrid(allPlayers, myActualRole || myData?.role);
+    updateChatUI(); // Update chat after role is loaded
 }
 
 // ==========================================
@@ -402,15 +460,19 @@ function formatTime(seconds: number): string {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+function getRemainingSecondsFromState(): number {
+    const now = new Date().getTime();
+    const startedAt = new Date(gameState.started_at).getTime();
+    const elapsed = Math.floor((now - startedAt) / 1000);
+    return Math.max(0, gameState.time_remaining - elapsed);
+}
+
 function updateTimer() {
     const timerElement = document.querySelector('.timer') as HTMLElement;
     if (!timerElement) return;
     
     // Calcular tiempo restante basado en el timestamp del servidor
-    const now = new Date().getTime();
-    const startedAt = new Date(gameState.started_at).getTime();
-    const elapsed = Math.floor((now - startedAt) / 1000);
-    const remaining = Math.max(0, gameState.time_remaining - elapsed);
+    const remaining = getRemainingSecondsFromState();
     
     // Actualizar display
     const icon = gameState.phase === 'day' ? '☀️' : '🌙';
@@ -426,7 +488,7 @@ function updateTimer() {
     // Si timer = 0, cambiar fase (cualquier jugador puede hacerlo)
     if (remaining === 0) {
         clearInterval(timerInterval!);
-        handlePhaseChange();
+        verifyAndChangePhase();
     }
 }
 
@@ -439,12 +501,27 @@ function startSyncedTimer() {
     timerInterval = setInterval(updateTimer, 1000) as unknown as number;
 }
 
+async function verifyAndChangePhase() {
+    // Sincroniza contra el backend antes de pedir cambio, para evitar desfases
+    await fetchCurrentPhase();
+    updateGameUI();
+    const remaining = getRemainingSecondsFromState();
+
+    if (remaining === 0) {
+        await handlePhaseChange();
+    } else {
+        // Si el backend dice que aún queda tiempo, seguimos con el contador real
+        startSyncedTimer();
+    }
+}
+
 // ==========================================
 // CAMBIO DE FASE (SOLO CREADOR)
 // ==========================================
 
 async function handlePhaseChange() {
-    if (!gameId) return;
+    if (!gameId || isChangingPhase) return;
+    isChangingPhase = true;
     
     try {
         const token = getAuthToken();
@@ -460,10 +537,41 @@ async function handlePhaseChange() {
         const data = await response.json();
         
         if (!data.success) {
-            console.error('Error changing phase:', data.message);
+            console.warn('Phase change rejected:', data.message || 'Unknown');
+            // Re-sincronizar usando los datos del backend (fase/round/start) para evitar desfases
+            if (data.phase && data.round && data.started_at) {
+                setGameStateFromServer(
+                    data.phase,
+                    data.round,
+                    data.started_at,
+                    data.time_remaining
+                );
+            } else {
+                await fetchCurrentPhase();
+            }
+            updateGameUI();
+            startSyncedTimer();
+            return;
         }
+
+        // Actualizar estado con la respuesta inmediata (por si el broadcast se pierde)
+        if (data.data) {
+            setGameStateFromServer(
+                data.data.phase,
+                data.data.round,
+                data.data.started_at,
+                data.data.time_remaining
+            );
+        }
+
+        // Fallback: refrescar fase desde backend en caso de que no llegue el broadcast o la data
+        await fetchCurrentPhase();
+        updateGameUI();
+        startSyncedTimer();
     } catch (error) {
         console.error('Error changing phase:', error);
+    } finally {
+        isChangingPhase = false;
     }
 }
 
@@ -490,15 +598,19 @@ function updateChatUI() {
     const chatInput = document.querySelector('.chat-input') as HTMLInputElement;
     const sendBtn = document.querySelector('.send-button') as HTMLButtonElement;
     
+    console.log(`🔍 updateChatUI: phase=${gameState.phase}, myActualRole=${myActualRole}`);
+    
     if (!chatInput || !sendBtn) return;
     
     if (gameState.phase === 'night' && myActualRole !== 'lobo') {
+        console.log('🚫 Deshabilitando chat (no-lobo en noche)');
         chatInput.disabled = true;
         chatInput.placeholder = '🌙 Los lobos están hablando...';
         chatInput.style.opacity = '0.6';
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.6';
     } else {
+        console.log('✅ Habilitando chat');
         chatInput.disabled = false;
         chatInput.placeholder = 'Escribe un mensaje...';
         chatInput.style.opacity = '1';
@@ -652,6 +764,7 @@ async function init() {
     subscribeToGame(gameId);
 
     // Cargar datos iniciales
+    await fetchCurrentPhase();
     await loadGamePlayers();
     
     // Iniciar timer
