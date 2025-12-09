@@ -15,6 +15,12 @@ class Game extends Model
         'max_players',
     ];
 
+    protected $casts = [
+        'phase_started_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     /**
      * RELACIONES
      */
@@ -41,8 +47,8 @@ class Game extends Model
     public function activePlayers()
     {
         return $this->hasMany(GamePlayer::class, 'game_id')
-                    ->where('is_active', true)
-                    ->whereIn('status', ['waiting', 'ready', 'playing']);
+            ->where('is_active', true)
+            ->whereIn('status', ['waiting', 'ready', 'playing']);
     }
 
     /**
@@ -87,9 +93,9 @@ class Game extends Model
     public function currentPlayersCount(): int
     {
         return $this->players()
-                    ->where('is_active', true)
-                    ->whereIn('status', ['waiting', 'ready', 'playing'])
-                    ->count();
+            ->where('is_active', true)
+            ->whereIn('status', ['waiting', 'ready', 'playing'])
+            ->count();
     }
 
     /**
@@ -122,10 +128,10 @@ class Game extends Model
     public function hasPlayer(int $userId): bool
     {
         return $this->players()
-                    ->where('user_id', $userId)
-                    ->where('is_active', true)
-                    ->whereIn('status', ['waiting', 'ready', 'playing'])
-                    ->exists();
+            ->where('user_id', $userId)
+            ->where('is_active', true)
+            ->whereIn('status', ['waiting', 'ready', 'playing'])
+            ->exists();
     }
 
     /**

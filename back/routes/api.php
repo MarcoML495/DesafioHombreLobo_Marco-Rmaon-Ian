@@ -6,14 +6,10 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\GameController;
 use App\Http\Controllers\API\AdminUserController;
+use App\Http\Controllers\API\VoteController;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Broadcast;
-
-/*
-Route::get('/nologin', function () {
-    return response()->json(["success"=>false, "message" => "Unauthorised"],203);
-}); */
 
 
 Route::post('register', [AuthController::class, 'register']);
@@ -24,56 +20,42 @@ Route::middleware('auth:sanctum')->group(function () {
     // Perfil de usuario
     Route::get('/user', [UserController::class, 'getProfile']);
     Route::put('/user', [UserController::class, 'updateProfile']);
-
-    // Cambiar contraseña
     Route::post('/user/change-password', [UserController::class, 'changePassword']);
-
-    // Avatar (opcional para futuro)
     Route::post('/user/avatar', [UserController::class, 'updateAvatar']);
 
-    Route::post('/game/insert', [GameController::class, 'insertGame']);
-
-    Route::get('/lobbies', [GameController::class, 'getLobbies']);
-    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
-    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
-    Route::post('/lobbies/{gameId}/chat', [GameController::class, 'sendMessage']);
-
-    Route::post('/lobbies/{gameId}/start', [GameController::class, 'startGame']);
-    Route::get('/games/{gameId}/player-status', [GameController::class, 'getPlayerStatus']);
-    
+    // Broadcasting auth
     Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
-    
+    // Admin routes
     Route::prefix('admin')->group(function () {
-        Route::get('/users', [AdminUserController::class, 'index']); // Listar todos los usuarios
-        Route::post('/users', [AdminUserController::class, 'store']); // Crear un nuevo usuario
-        Route::get('/users/{id}', [AdminUserController::class, 'show']); // Obtener un usuario por ID
-        Route::put('/users/{id}', [AdminUserController::class, 'update']); // Actualizar un usuario
-        Route::delete('/users/{id}', [AdminUserController::class, 'destroy']); // Eliminar un usuario
-        
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::post('/users', [AdminUserController::class, 'store']);
+        Route::get('/users/{id}', [AdminUserController::class, 'show']);
+        Route::put('/users/{id}', [AdminUserController::class, 'update']);
+        Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
     });
 
-    // Listar lobbies disponibles
+    // Lobby routes
     Route::get('/lobbies', [GameController::class, 'getLobbies']);
+    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
+    Route::get('/lobbies/{gameId}/players', [GameController::class, 'getLobbyPlayers']);
+    Route::post('/lobbies/{gameId}/chat', [GameController::class, 'sendMessage']);
+    Route::post('/lobbies/{gameId}/start', [GameController::class, 'startGame']);
 
-    // Crear nueva partida
+    // Game routes
+    Route::get('/my-active-game', [GameController::class, 'getActiveGame']);
+    Route::get('/games/{id}', [GameController::class, 'findGame']);
+    Route::get('/games', [GameController::class, 'getGames']);
     Route::post('/games', [GameController::class, 'insertGame']);
 
-    // Unirse a una partida
-    Route::post('/lobbies/{gameId}/join', [GameController::class, 'joinLobby']);
+    // GAME PHASE ROUTES (SISTEMA DÍA/NOCHE)
+    Route::post('/games/{gameId}/change-phase', [GameController::class, 'changePhase']);
 
-    // Abandonar una partida
-    Route::post('/lobbies/{gameId}/leave', [GameController::class, 'leaveLobby']);
+    Route::get('/games/{gameId}/phase', [GameController::class, 'getCurrentPhase']);
+    Route::get('/games/{gameId}/player-status', [GameController::class, 'getPlayerStatus']);
+    Route::post('/games/{gameId}/chat', [GameController::class, 'sendGameMessage']);
 
-    // Obtener partida activa del usuario
-    Route::get('/my-active-game', [GameController::class, 'getActiveGame']);
-
-    // Obtener jugadores en la sala de espera
-    Route::get('/lobbies/{gameId}/players', [GameController::class, 'getLobbyPlayers']);
-
-    // Buscar juego por ID
-    Route::get('/games/{id}', [GameController::class, 'findGame']);
-
-    // Obtener todos los juegos (quizás quieras restringir esto solo a admins)
-    Route::get('/games', [GameController::class, 'getGames']);
+    Route::post('/games/{gameId}/vote', [VoteController::class, 'vote']);
+    Route::get('/games/{gameId}/votes', [VoteController::class, 'getVotes']);
 });
