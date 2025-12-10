@@ -162,6 +162,13 @@ class AdminUserController extends Controller{
             ], 404);
         }
 
+        if ($user->id == auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes eliminar tu propia cuenta de administrador.'
+            ], 403); 
+        }
+
         try {
             $user->delete();
 
