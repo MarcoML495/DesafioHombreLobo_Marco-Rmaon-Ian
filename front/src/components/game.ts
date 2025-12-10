@@ -6,7 +6,7 @@ import "../styles/global.css";
 import "../styles/game.css";
 import "../styles/notifications.css";
 
-import { notifyError, notifySuccess } from "./notifications";
+import { notifyError, notifySuccess, showConfirm } from "./notifications";
 import { showVictoryModal, showDeathModal } from "./notifications";
 
 declare global {
@@ -17,9 +17,11 @@ declare global {
 }
 window.Pusher = Pusher;
 
-const API_URL = "http://localhost/api"; // Nginx proxy al backend
-const REVERB_HOST = "localhost";
-const REVERB_PORT = 8080;
+
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost/api";
+const REVERB_HOST = import.meta.env.VITE_REVERB_HOST || "localhost";
+const REVERB_PORT = parseInt(import.meta.env.VITE_REVERB_PORT || "8080");
 const REVERB_KEY = "werewolf_lobby_key";
 
 interface PlayerGameData {
@@ -788,20 +790,14 @@ function updateChatUI() {
   if (!isPlayerAlive) {
     console.log("💀 Deshabilitando chat (jugador muerto)");
     chatInput.disabled = true;
-    chatInput.placeholder = "💀 No puedes escribir porque has muerto";
+    chatInput.placeholder = "💀";
     chatInput.style.opacity = "0.5";
     chatInput.style.cursor = "not-allowed";
     sendBtn.disabled = true;
     sendBtn.style.opacity = "0.5";
     sendBtn.style.cursor = "not-allowed";
     
-    // Agregar mensaje de muerte si no existe
-    if (chatInputContainer && !document.querySelector('.chat-death-notice')) {
-      const deathNotice = document.createElement('div');
-      deathNotice.className = 'chat-death-notice';
-      deathNotice.innerHTML = '💀 Has sido eliminado. Solo puedes leer los mensajes.';
-      chatInputContainer.insertBefore(deathNotice, chatInput);
-    }
+    
     return;
   }
 
@@ -929,22 +925,30 @@ function escapeHtml(text: string): string {
 // BOTÓN VOLVER
 // ==========================================
 
-function initializeBackButton() {
+async function initializeBackButton() {
   const backButton = document.querySelector(".back-button");
   if (!backButton) return;
 
-  backButton.addEventListener("click", () => {
-    if (confirm("¿Seguro que quieres abandonar la partida?")) {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
+  backButton.addEventListener("click", async () => {
+    const confirmed = await showConfirm({
+      title: "¿Abandonar partida?",
+      message: "Si abandonas ahora, perderás tu lugar en la partida.",
+      confirmText: "Sí, abandonar",
+      cancelText: "Quedarme",
+      type: "warning"
+    });
 
-      if (window.Echo && gameId) {
-        window.Echo.leave(`lobby.${gameId}`);
-      }
+    if (!confirmed) return;
 
-      window.location.href = "../views/menuprincipal.html";
+    if (timerInterval) {
+      clearInterval(timerInterval);
     }
+
+    if (window.Echo && gameId) {
+      window.Echo.leave(`lobby.${gameId}`);
+    }
+
+    window.location.href = "../views/menuprincipal.html";
   });
 }
 
