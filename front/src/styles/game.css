@@ -21,7 +21,7 @@
   --shadow-primary-hover: rgba(212, 160, 23, 0.5);
   --border-primary: #d4a017;
   --border-dark: #2d3e5f;
-  
+
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -29,16 +29,16 @@
   --spacing-lg: 16px;
   --spacing-xl: 24px;
   --spacing-xxl: 32px;
-  
+
   /* Radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-circle: 50%;
-  
+
   /* Transitions */
   --transition-fast: 0.2s ease;
-  
+
   /* Específicos del juego - DÍA */
   --game-bg: #16213e;
   --game-text: #e8e8e8;
@@ -50,7 +50,7 @@
 /* ==========================================
    TEMA NOCHE (DARK MODE)
    ========================================== */
-[data-theme='night'] {
+[data-theme="night"] {
   /* Noche - Colores fríos y oscuros */
   --bg-dark: #0a0a0f;
   --bg-card: #1a1a2e;
@@ -68,7 +68,7 @@
   --shadow-primary-hover: rgba(139, 92, 246, 0.6);
   --border-primary: #8b5cf6;
   --border-dark: #3d2970;
-  
+
   /* Específicos del juego - NOCHE */
   --game-bg: #0f0f1e;
   --game-text: #c7c7ff;
@@ -81,16 +81,15 @@
    TRANSICIÓN SUAVE ENTRE TEMAS
    ========================================== */
 * {
-  transition: background-color 0.5s ease, 
-              color 0.5s ease, 
-              border-color 0.5s ease,
-              box-shadow 0.5s ease;
+  transition: background-color 0.5s ease, color 0.5s ease,
+    border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* ==========================================
    LAYOUT BASE - FULLSCREEN
    ========================================== */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -99,7 +98,7 @@ html, body {
 
 body {
   background-color: var(--bg-dark);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-light);
   transition: background-color 0.8s ease;
 }
@@ -173,8 +172,13 @@ body {
 }
 
 @keyframes pulse-warning {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .back-button {
@@ -269,8 +273,7 @@ body {
 /* Borde dorado para tu carta */
 .player-card-small.me .player-card-img {
   border: 3px solid #ffd700;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
-              0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* Efecto para cartas muertas */
@@ -434,16 +437,18 @@ body {
 }
 
 .message.own {
-  background: linear-gradient(135deg, 
-    rgba(212, 160, 23, 0.2) 0%, 
+  background: linear-gradient(
+    135deg,
+    rgba(212, 160, 23, 0.2) 0%,
     rgba(212, 160, 23, 0.05) 100%
   );
   margin-left: 20%;
 }
 
-[data-theme='night'] .message.own {
-  background: linear-gradient(135deg, 
-    rgba(139, 92, 246, 0.3) 0%, 
+[data-theme="night"] .message.own {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.3) 0%,
     rgba(139, 92, 246, 0.1) 100%
   );
 }
@@ -589,7 +594,7 @@ body {
   animation: rotateSun 2s linear infinite;
 }
 
-[data-theme='night'] .sun-icon {
+[data-theme="night"] .sun-icon {
   opacity: 0;
   transform: translateX(-50%) translateY(-50px);
 }
@@ -600,24 +605,33 @@ body {
   transform: translateX(-50%) translateY(50px);
 }
 
-[data-theme='night'] .moon-icon {
+[data-theme="night"] .moon-icon {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   animation: glowMoon 2s ease-in-out infinite;
 }
 
 @keyframes rotateSun {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(360deg); }
+  from {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
 }
 
 @keyframes glowMoon {
-  0%, 100% { filter: drop-shadow(0 0 20px #8b5cf6); }
-  50% { filter: drop-shadow(0 0 40px #a78bfa); }
+  0%,
+  100% {
+    filter: drop-shadow(0 0 20px #8b5cf6);
+  }
+  50% {
+    filter: drop-shadow(0 0 40px #a78bfa);
+  }
 }
 
 .phase-title {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: bold;
   margin: 20px 0;
   color: var(--color-primary);
@@ -647,7 +661,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================
@@ -657,12 +673,12 @@ body {
   .game-layout {
     grid-template-columns: 1fr 320px;
   }
-  
+
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 12px;
   }
-  
+
   .player-card-img {
     width: 80px;
     height: 120px;
@@ -676,17 +692,17 @@ body {
   .page-wrapper {
     padding: 15px;
   }
-  
+
   .game-layout {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 350px;
     gap: 15px;
   }
-  
+
   .chat-panel {
     min-height: 350px;
   }
-  
+
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
   }
@@ -699,72 +715,72 @@ body {
   .page-wrapper {
     padding: 10px;
   }
-  
+
   .game-layout {
     grid-template-rows: 1fr 300px;
   }
-  
+
   .chat-panel {
     min-height: 300px;
     padding: 15px;
   }
-  
+
   .game-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .game-title {
     font-size: 18px;
   }
-  
+
   .timer {
     font-size: 16px;
     padding: 6px 12px;
   }
-  
+
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
     gap: 10px;
   }
-  
+
   .player-card-img {
     width: 70px;
     height: 105px;
   }
-  
+
   .player-name-label {
     font-size: 0.7rem;
     padding: 4px 8px;
   }
-  
+
   .game-actions {
     flex-direction: row;
     gap: 8px;
   }
-  
+
   .action-button {
     font-size: 13px;
     padding: 10px 8px;
   }
-  
+
   .message.own {
     margin-left: 10%;
   }
-  
+
   .message.other {
     margin-right: 10%;
   }
-  
+
   .chat-input {
     font-size: 16px; /* Evita zoom en iOS */
   }
-  
+
   .phase-title {
     font-size: 32px;
   }
-  
+
   .phase-description {
     font-size: 18px;
   }
@@ -777,99 +793,99 @@ body {
   .page-wrapper {
     padding: 8px;
   }
-  
+
   .game-layout {
     gap: 10px;
     grid-template-rows: 1fr 280px;
   }
-  
+
   .game-area,
   .chat-panel {
     border-radius: 8px;
     padding: 12px;
   }
-  
+
   .game-title {
     font-size: 16px;
   }
-  
+
   .timer {
     font-size: 14px;
     padding: 5px 10px;
   }
-  
+
   .back-button {
     font-size: 12px;
     padding: 6px 12px;
   }
-  
+
   .players-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
-  
+
   .player-card-img {
     width: 60px;
     height: 90px;
   }
-  
+
   .player-name-label {
     font-size: 0.65rem;
     padding: 3px 6px;
     margin-top: 4px;
   }
-  
+
   .action-button {
     font-size: 12px;
     padding: 8px 6px;
   }
-  
+
   .chat-panel {
     min-height: 280px;
   }
-  
+
   .chat-header {
     font-size: 15px;
     padding-bottom: 10px;
     margin-bottom: 10px;
   }
-  
+
   .chat-messages {
     padding: 8px;
     margin-bottom: 10px;
   }
-  
+
   .message {
     padding: 6px 10px;
     margin-bottom: 8px;
   }
-  
+
   .message.own,
   .message.other {
     margin-left: 0;
     margin-right: 0;
   }
-  
+
   .message-author {
     font-size: 11px;
   }
-  
+
   .message-text {
     font-size: 13px;
   }
-  
+
   .message-time {
     font-size: 9px;
   }
-  
+
   .chat-input-container {
     padding-top: 8px;
   }
-  
+
   .chat-input {
     padding: 8px 12px;
   }
-  
+
   .send-button {
     padding: 8px 16px;
     font-size: 16px;
@@ -883,72 +899,72 @@ body {
   .page-wrapper {
     padding: 8px;
   }
-  
+
   .game-layout {
     grid-template-columns: 1fr 280px;
     grid-template-rows: 1fr;
     gap: 8px;
   }
-  
+
   .game-header {
     padding-bottom: 6px;
     margin-bottom: 6px;
   }
-  
+
   .game-title {
     font-size: 14px;
   }
-  
+
   .timer {
     font-size: 13px;
     padding: 5px 10px;
   }
-  
+
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 6px;
   }
-  
+
   .player-card-img {
     width: 55px;
     height: 82px;
   }
-  
+
   .player-name-label {
     font-size: 0.6rem;
     padding: 2px 4px;
   }
-  
+
   .game-actions {
     gap: 6px;
   }
-  
+
   .action-button {
     padding: 6px 8px;
     font-size: 11px;
   }
-  
+
   .chat-panel {
     padding: 10px;
     min-height: auto;
   }
-  
+
   .chat-header {
     font-size: 14px;
     padding-bottom: 8px;
     margin-bottom: 8px;
   }
-  
+
   .chat-messages {
     padding: 6px;
     margin-bottom: 8px;
   }
-  
+
   .message {
     padding: 4px 8px;
     margin-bottom: 6px;
   }
-  
+
   .chat-input,
   .send-button {
     padding: 6px 10px;
@@ -961,123 +977,127 @@ body {
    ========================================== */
 
 .vote-btn {
-    width: 100%;
-    margin-top: 8px;
-    padding: 6px 10px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    color: var(--bg-dark);
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .vote-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-primary-hover);
 }
 
 .player-card-small.voted .vote-btn {
-    background: var(--color-green);
-    color: white;
+  background: var(--color-green);
+  color: white;
 }
 
 .vote-btn.voted-btn {
-    background: var(--color-green);
-    color: white;
-    cursor: not-allowed;
-    opacity: 0.8;
+  background: var(--color-green);
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 .vote-btn.voted-btn:hover {
-    transform: none;
-    box-shadow: none;
+  transform: none;
+  box-shadow: none;
 }
 
 .player-card-small.voted {
-    box-shadow: 0 0 20px rgba(38, 222, 129, 0.5);
+  box-shadow: 0 0 20px rgba(38, 222, 129, 0.5);
 }
 
 .player-card-small.dead {
-    filter: brightness(0.7) saturate(0);
-    border: 3px solid #e74c3c;
-    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+  filter: brightness(0.7) saturate(0);
+  border: 3px solid #e74c3c;
+  box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
 }
 
 .player-card-small.dead .player-card-img {
-    filter: sepia(100%) hue-rotate(-20deg) saturate(400%);
+  filter: sepia(100%) hue-rotate(-20deg) saturate(400%);
 }
 
 .player-card-small.dead .vote-btn {
-    display: none;
+  display: none;
 }
 
 .player-name-label.dead-label {
-    color: #e74c3c;
-    font-weight: bold;
+  color: #e74c3c;
+  font-weight: bold;
 }
 /* ==========================================
    VOTE VISUALIZATION
    ========================================== */
 
 .vote-count {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
-    z-index: 10;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+  z-index: 10;
 }
 
 .vote-arrows {
-    width: 100%;
-    margin-top: 6px;
-    font-size: 10px;
-    color: var(--color-primary);
+  width: 100%;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--color-primary);
 }
 
 .vote-arrows .arrow {
-    background: rgba(var(--color-primary-rgb), 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin: 2px 0;
-    border-left: 3px solid var(--color-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  background: rgba(var(--color-primary-rgb), 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 2px 0;
+  border-left: 3px solid var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 768px) {
-    .vote-count {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
-    
-    .vote-arrows {
-        font-size: 9px;
-    }
+  .vote-count {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .vote-arrows {
+    font-size: 9px;
+  }
 }
 
 @media (max-width: 768px) {
-    .vote-btn {
-        font-size: 11px;
-        padding: 4px 8px;
-        margin-top: 6px;
-    }
+  .vote-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-top: 6px;
+  }
 }
 
 @media (max-width: 480px) {
-    .vote-btn {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
+  .vote-btn {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
 }
 /* ============================================
    GAME MODALS (Victory & Death)
@@ -1135,7 +1155,11 @@ body {
   padding: 30px;
   border-bottom: 2px solid rgba(212, 160, 23, 0.3);
   text-align: center;
-  background: linear-gradient(180deg, rgba(212, 160, 23, 0.1) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(212, 160, 23, 0.1) 0%,
+    transparent 100%
+  );
 }
 
 .victory-modal .game-modal-header h2 {
@@ -1237,7 +1261,8 @@ body {
 }
 
 @keyframes deathPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -1283,5 +1308,98 @@ body {
 
   .death-message {
     font-size: 16px;
+  }
+}
+/* ============================================
+   PHASE PROGRESS BAR
+   ============================================ */
+
+.phase-progress-container {
+  width: 300px;
+  text-align: center;
+}
+
+.phase-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 2px solid #d4a017;
+  border-radius: 20px;
+  overflow: visible;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.phase-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+  border-radius: 18px;
+  transition: width 1s linear;
+  box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+.phase-progress-bar[data-phase="night"] .phase-progress-fill {
+  background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #1e3a8a 100%);
+}
+
+.phase-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: left 1s linear;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+}
+
+.phase-icon-svg {
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.phase-progress-bar[data-phase="night"] .phase-icon {
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
+}
+
+.phase-time-remaining {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #d4a017;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .phase-progress-container {
+    width: 200px;
+  }
+
+  .phase-progress-bar {
+    height: 35px;
+  }
+
+  .phase-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .phase-icon-svg {
+    width: 32px;
+    height: 32px;
   }
 }

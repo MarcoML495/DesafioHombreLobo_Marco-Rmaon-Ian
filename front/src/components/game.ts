@@ -503,15 +503,9 @@ function createTransitionModal(): HTMLElement {
   modal.className = "phase-transition-modal";
   modal.innerHTML = `
         <div class="transition-content">
-            <div class="phase-icon">
-                <i class="fas fa-sun sun-icon"></i>
-                <i class="fas fa-moon moon-icon"></i>
-            </div>
+            <div class="phase-svg-container" id="phase-svg-container"></div>
             <h2 class="phase-title">Amanece</h2>
             <p class="phase-description">Los aldeanos se despiertan...</p>
-            <div class="transition-loader">
-                <div class="loader-circle"></div>
-            </div>
         </div>
     `;
   document.body.appendChild(modal);
@@ -522,21 +516,70 @@ function showPhaseTransition(newPhase: "day" | "night") {
   const modal = createTransitionModal();
   const title = modal.querySelector(".phase-title") as HTMLElement;
   const description = modal.querySelector(".phase-description") as HTMLElement;
+  const svgContainer = modal.querySelector("#phase-svg-container") as HTMLElement;
 
   if (newPhase === "night") {
-    title.textContent = "🌙 Cae la Noche";
+    title.textContent = "Cae la Noche";
     description.textContent = "Los lobos despiertan... ¡Ten cuidado!";
+    svgContainer.innerHTML = `
+      <svg viewBox="0 0 200 200" class="phase-transition-svg">
+        <defs>
+          <radialGradient id="moonGlow">
+            <stop offset="0%" style="stop-color:#e0e7ff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="80" fill="url(#moonGlow)" opacity="0.3">
+          <animate attributeName="r" values="80;90;80" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="100" cy="100" r="50" fill="#e0e7ff">
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="85" cy="85" r="15" fill="#cbd5e1" opacity="0.3"/>
+        <circle cx="95" cy="105" r="20" fill="#cbd5e1" opacity="0.2"/>
+        ${[...Array(20)].map((_, i) => {
+          const angle = (i / 20) * Math.PI * 2;
+          const x = 100 + Math.cos(angle) * 120;
+          const y = 100 + Math.sin(angle) * 120;
+          return `<circle cx="${x}" cy="${y}" r="2" fill="#fff" opacity="0.8">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="${1 + Math.random()}s" repeatCount="indefinite"/>
+          </circle>`;
+        }).join('')}
+      </svg>
+    `;
   } else {
-    title.textContent = "☀️ Amanece";
+    title.textContent = "Amanece";
     description.textContent = "Los aldeanos se despiertan...";
+    svgContainer.innerHTML = `
+      <svg viewBox="0 0 200 200" class="phase-transition-svg">
+        <defs>
+          <radialGradient id="sunGlow">
+            <stop offset="0%" style="stop-color:#fef08a;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="80" fill="url(#sunGlow)" opacity="0.4">
+          <animate attributeName="r" values="80;95;80" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="100" cy="100" r="45" fill="#fbbf24">
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="20s" repeatCount="indefinite"/>
+        </circle>
+        ${[...Array(12)].map((_, i) => {
+          const angle = (i / 12) * Math.PI * 2;
+          const x1 = 100 + Math.cos(angle) * 60;
+          const y1 = 100 + Math.sin(angle) * 60;
+          const x2 = 100 + Math.cos(angle) * 85;
+          const y2 = 100 + Math.sin(angle) * 85;
+          return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f59e0b" stroke-width="4" stroke-linecap="round">
+            <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+          </line>`;
+        }).join('')}
+      </svg>
+    `;
   }
 
   setTimeout(() => modal.classList.add("show"), 10);
-
-  setTimeout(() => {
-    changeTheme(newPhase);
-  }, 1000);
-
+  setTimeout(() => changeTheme(newPhase), 1000);
   setTimeout(() => {
     modal.classList.remove("show");
     setTimeout(() => modal.remove(), 500);
@@ -577,24 +620,40 @@ function getRemainingSecondsFromState(): number {
 }
 
 function updateTimer() {
-  const timerElement = document.querySelector(".timer") as HTMLElement;
-  if (!timerElement) return;
-
-  // Calcular tiempo restante basado en el timestamp del servidor
   const remaining = getRemainingSecondsFromState();
-
-  // Actualizar display
-  const icon = gameState.phase === "day" ? "☀️" : "🌙";
-  timerElement.textContent = `${icon} ${formatTime(remaining)}`;
-
-  // Cambiar color cuando queda poco tiempo
-  if (remaining <= 30) {
-    timerElement.classList.add("timer-warning");
-  } else {
-    timerElement.classList.remove("timer-warning");
+  const progressFill = document.getElementById('phase-progress-fill') as HTMLElement;
+  const progressBar = document.querySelector('.phase-progress-bar') as HTMLElement;
+  const phaseIcon = document.getElementById('phase-icon') as HTMLElement;
+  const iconImg = document.getElementById('phase-icon-img') as HTMLImageElement;
+  
+  // Calcular porcentaje
+  const phaseDuration = gameState.phase === 'night' ? 40 : 60;
+  const percentage = Math.min(100, ((phaseDuration - remaining) / phaseDuration) * 100);
+  
+  if (progressFill) {
+    progressFill.style.width = `${percentage}%`;
   }
-
-  // Si timer = 0, cambiar fase (cualquier jugador puede hacerlo)
+  
+  // Posicionar icono según progreso
+  if (phaseIcon && progressBar) {
+    const barWidth = progressBar.offsetWidth;
+    const iconWidth = 50;
+    const iconPosition = (percentage / 100) * (barWidth - iconWidth);
+    phaseIcon.style.left = `${iconPosition}px`;
+    phaseIcon.style.right = 'auto';
+  }
+  
+  // Actualizar atributo data-phase
+  if (progressBar) {
+    progressBar.setAttribute('data-phase', gameState.phase);
+  }
+  
+  // Cambiar SVG según fase
+  if (iconImg) {
+    iconImg.src = gameState.phase === 'night' ? '/luna.svg' : '/sol.svg';
+    iconImg.alt = gameState.phase === 'night' ? 'Luna' : 'Sol';
+  }
+  
   if (remaining === 0) {
     clearInterval(timerInterval!);
     verifyAndChangePhase();
