@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\GameVote;
-use App\Events\PlayerEliminated;
-use App\Events\GameFinished;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class VoteController extends Controller
@@ -35,7 +32,6 @@ class VoteController extends Controller
             return response()->json(['success' => false, 'message' => 'Partida no válida'], 404);
         }
 
-        // Verificar que el votante esté en la partida y vivo
         $voter = GamePlayer::where('game_id', $gameId)
             ->where('user_id', $user->id)
             ->where('is_active', true)
@@ -46,7 +42,6 @@ class VoteController extends Controller
             return response()->json(['success' => false, 'message' => 'No puedes votar'], 403);
         }
 
-        // Verificar que el objetivo esté en la partida y vivo
         $target = GamePlayer::where('game_id', $gameId)
             ->where('user_id', $request->target_id)
             ->where('is_active', true)
@@ -57,20 +52,16 @@ class VoteController extends Controller
             return response()->json(['success' => false, 'message' => 'Objetivo no válido'], 400);
         }
 
-        // Validación según fase
         if ($game->current_phase === 'night') {
-            // Solo lobos pueden votar de noche
             if ($voter->role !== 'lobo') {
                 return response()->json(['success' => false, 'message' => 'Solo los lobos votan de noche'], 403);
             }
 
-            // No pueden votar a otros lobos
             if ($target->role === 'lobo') {
                 return response()->json(['success' => false, 'message' => 'No puedes votar a otro lobo'], 400);
             }
         }
 
-        // Registrar o actualizar voto
         GameVote::updateOrCreate(
             [
                 'game_id' => $gameId,
@@ -82,9 +73,6 @@ class VoteController extends Controller
                 'target_id' => $request->target_id
             ]
         );
-
-        // Verificar si todos votaron
-        $this->checkVotingComplete($game);
 
         return response()->json([
             'success' => true,
@@ -120,149 +108,41 @@ class VoteController extends Controller
             ->with(['voter:id,name', 'target:id,name'])
             ->get();
 
-        // Filtrar votos según rol
         if ($game->current_phase === 'night' && $player->role !== 'lobo') {
-            // Los no-lobos no ven votos de noche
             $votes = collect();
         }
 
-        // Contar quién ha votado
-        $eligibleVoters = $this->getEligibleVoters($game);
+        $eligibleVoters = GamePlayer::where('game_id', $game->id)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->when($game->current_phase === 'night', fn($q) => $q->where('role', 'lobo'))
+            ->get();
+
         $votedCount = $votes->pluck('voter_id')->unique()->count();
-        $totalVoters = $eligibleVoters->count();
 
         return response()->json([
             'success' => true,
             'data' => [
                 'votes' => $votes,
                 'voted_count' => $votedCount,
-                'total_voters' => $totalVoters,
-                'all_voted' => $votedCount === $totalVoters,
+                'total_voters' => $eligibleVoters->count(),
+                'all_voted' => $votedCount === $eligibleVoters->count(),
                 'my_vote' => $votes->where('voter_id', $user->id)->first()
             ]
         ]);
     }
 
     /**
-     * Verificar si todos votaron y ejecutar resultado
+     * Variacion de la funcion de votar hecha solo para bots
      */
-    private function checkVotingComplete(Game $game)
-    {
-        $eligibleVoters = $this->getEligibleVoters($game);
-
-        $votes = GameVote::where('game_id', $game->id)
-            ->where('phase', $game->current_phase)
-            ->where('round', $game->current_round)
-            ->get();
-
-        $votedCount = $votes->pluck('voter_id')->unique()->count();
-
-        if ($votedCount === $eligibleVoters->count()) {
-            $this->executeVoteResult($game, $votes);
-        }
-    }
-
-    /**
-     * Obtener votantes elegibles
-     */
-    private function getEligibleVoters(Game $game)
-    {
-        $query = GamePlayer::where('game_id', $game->id)
-            ->where('is_active', true)
-            ->where('status', 'playing');
-
-        if ($game->current_phase === 'night') {
-            $query->where('role', 'lobo');
-        }
-
-        return $query->get();
-    }
-
-    /**
-     * Ejecutar resultado de votación
-     */
-    private function executeVoteResult(Game $game, $votes)
-    {
-        // Contar votos por objetivo
-        $voteCounts = $votes->groupBy('target_id')
-            ->map(fn($group) => $group->count())
-            ->sortDesc();
-
-        if ($voteCounts->isEmpty()) {
-            return;
-        }
-
-        // Obtener el más votado
-        $eliminatedId = $voteCounts->keys()->first();
-
-        // Marcar como muerto
-        $eliminated = GamePlayer::where('game_id', $game->id)
-            ->where('user_id', $eliminatedId)
-            ->first();
-
-        if ($eliminated) {
-            $eliminated->update(['status' => 'dead']);
-
-            // Broadcast evento de eliminación
-            broadcast(new \App\Events\PlayerEliminated($game->id, [
-                'player_id' => $eliminatedId,
-                'player_name' => $eliminated->user->name,
-                'phase' => $game->current_phase,
-                'round' => $game->current_round
-            ]));
-        }
-
-        // Verificar condición de victoria
-        $this->checkWinCondition($game);
-    }
-
-    /**
-     * Verificar condición de victoria
-     */
-    private function checkWinCondition(Game $game)
-    {
-        $alivePlayers = GamePlayer::where('game_id', $game->id)
-            ->where('is_active', true)
-            ->where('status', 'playing')
-            ->get();
-
-        $aliveWolves = $alivePlayers->where('role', 'lobo')->count();
-        $aliveVillagers = $alivePlayers->where('role', '!=', 'lobo')->count();
-
-        $winner = null;
-
-        if ($aliveWolves === 0) {
-            $winner = 'villagers';
-        } elseif ($aliveWolves >= $aliveVillagers) {
-            $winner = 'wolves';
-        }
-
-        if ($winner) {
-            $game->update(['status' => 'finished']);
-
-            broadcast(new \App\Events\GameFinished($game->id, [
-                'winner' => $winner,
-                'alive_players' => $alivePlayers->map(fn($p) => [
-                    'id' => $p->user_id,
-                    'name' => $p->user->name,
-                    'role' => $p->role
-                ])
-            ]));
-        }
-    }
-
-    /**
-    * Variacion de la funcion de votar hecha solo para bots
-    */
     public function voteBot($gameId, $botId, $targetId)
     {
         $game = Game::find($gameId);
 
         if (!$game || $game->status !== 'in_progress') {
-            return response()->json(['success' => false, 'message' => 'Partida no válida'], 404);
+            return false;
         }
 
-        // Verificar que el votante esté en la partida y vivo
         $voter = GamePlayer::where('game_id', $gameId)
             ->where('user_id', $botId)
             ->where('is_active', true)
@@ -270,10 +150,9 @@ class VoteController extends Controller
             ->first();
 
         if (!$voter) {
-            return response()->json(['success' => false, 'message' => 'No puedes votar'], 403);
+            return false;
         }
 
-        // Verificar que el objetivo esté en la partida y vivo
         $target = GamePlayer::where('game_id', $gameId)
             ->where('user_id', $targetId)
             ->where('is_active', true)
@@ -281,23 +160,15 @@ class VoteController extends Controller
             ->first();
 
         if (!$target) {
-            return response()->json(['success' => false, 'message' => 'Objetivo no válido'], 400);
+            return false;
         }
 
-        // Validación según fase
         if ($game->current_phase === 'night') {
-            // Solo lobos pueden votar de noche
-            if ($voter->role !== 'lobo') {
-                return response()->json(['success' => false, 'message' => 'Solo los lobos votan de noche'], 403);
-            }
-
-            // No pueden votar a otros lobos
-            if ($target->role === 'lobo') {
-                return response()->json(['success' => false, 'message' => 'No puedes votar a otro lobo'], 400);
+            if ($voter->role !== 'lobo' || $target->role === 'lobo') {
+                return false;
             }
         }
 
-        // Registrar o actualizar voto
         GameVote::updateOrCreate(
             [
                 'game_id' => $gameId,
@@ -310,12 +181,6 @@ class VoteController extends Controller
             ]
         );
 
-        // Verificar si todos votaron
-        $this->checkVotingComplete($game);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Voto registrado'
-        ]);
+        return true;
     }
 }

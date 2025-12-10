@@ -20,7 +20,14 @@
                 <div class="game-header">
                     <div class="back-button">☰ Menú</div>
                     <div class="game-title">🐺 La Guarida del Lobo</div>
-                    <div class="timer">☀️ 03:00</div>
+                    <div class="phase-progress-container">
+                        <div class="phase-progress-bar" data-phase="day">
+                            <div class="phase-progress-fill" id="phase-progress-fill"></div>
+                            <div class="phase-icon" id="phase-icon">
+                                <img id="phase-icon-img" src="/sol.svg" alt="Sol" class="phase-icon-svg">
+                            </div>
+                        </div>
+                    </div>
                     <!-- El toggle se añade dinámicamente desde JS -->
                 </div>
 

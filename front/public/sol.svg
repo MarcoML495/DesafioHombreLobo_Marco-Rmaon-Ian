@@ -1,0 +1,41 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sunGradient">
+      <stop offset="0%" style="stop-color:#fef08a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Resplandor -->
+  <circle cx="50" cy="50" r="45" fill="#fef08a" opacity="0.3">
+    <animate attributeName="r" values="42;48;42" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Círculo principal -->
+  <circle cx="50" cy="50" r="25" fill="url(#sunGradient)"/>
+  
+  <!-- Rayos -->
+  <g stroke="#f59e0b" stroke-width="3" stroke-linecap="round">
+    <line x1="50" y1="10" x2="50" y2="20"/>
+    <line x1="73" y1="17" x2="67" y2="23"/>
+    <line x1="83" y1="33" x2="77" y2="39"/>
+    <line x1="90" y1="50" x2="80" y2="50"/>
+    <line x1="83" y1="67" x2="77" y2="61"/>
+    <line x1="73" y1="83" x2="67" y2="77"/>
+    <line x1="50" y1="90" x2="50" y2="80"/>
+    <line x1="27" y1="83" x2="33" y2="77"/>
+    <line x1="17" y1="67" x2="23" y2="61"/>
+    <line x1="10" y1="50" x2="20" y2="50"/>
+    <line x1="17" y1="33" x2="23" y2="39"/>
+    <line x1="27" y1="17" x2="33" y2="23"/>
+  </g>
+  
+  <animateTransform
+    attributeName="transform"
+    type="rotate"
+    from="0 50 50"
+    to="360 50 50"
+    dur="20s"
+    repeatCount="indefinite"/>
+</svg>

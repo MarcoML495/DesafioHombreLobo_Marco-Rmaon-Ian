@@ -272,33 +272,36 @@ interface DeathOptions {
 export function showDeathModal(options: DeathOptions): void {
   const { playerName, phase, duration = 4000 } = options;
   
-  const overlay = document.createElement('div');
-  overlay.className = 'game-modal-overlay death-modal';
-  
-  let message: string;
-  if (phase === 'disconnect') {
-    message = `${playerName} se ha desconectado...`;
-  } else if (phase === 'night') {
-    message = `${playerName} fue devorado por los lobos durante la noche...`;
-  } else {
-    message = `${playerName} fue eliminado por votación del pueblo`;
-  }
-  
-  overlay.innerHTML = `
-    <div class="game-modal-content death-announcement">
-      <div class="game-modal-body">
-        <div class="death-icon">💀</div>
-        <h2>¡Alguien ha muerto!</h2>
-        <p class="death-message">${message}</p>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(overlay);
-  setTimeout(() => overlay.classList.add('show'), 10);
-  
+  // Esperar 2s para que termine animación de cambio de fase
   setTimeout(() => {
-    overlay.classList.remove('show');
-    setTimeout(() => overlay.remove(), 500);
-  }, duration);
+    const overlay = document.createElement('div');
+    overlay.className = 'game-modal-overlay death-modal';
+    
+    let message: string;
+    if (phase === 'disconnect') {
+      message = `${playerName} se ha desconectado...`;
+    } else if (phase === 'night') {
+      message = `${playerName} fue devorado por los lobos durante la noche...`;
+    } else {
+      message = `${playerName} fue eliminado por votación del pueblo`;
+    }
+    
+    overlay.innerHTML = `
+      <div class="game-modal-content death-announcement">
+        <div class="game-modal-body">
+          <div class="death-icon">💀</div>
+          <h2>¡Alguien ha muerto!</h2>
+          <p class="death-message">${message}</p>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.classList.add('show'), 10);
+    
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      setTimeout(() => overlay.remove(), 500);
+    }, duration);
+  }, 2000);
 }
