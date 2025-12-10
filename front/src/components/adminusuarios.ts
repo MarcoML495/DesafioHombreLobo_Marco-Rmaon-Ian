@@ -77,6 +77,9 @@ export function initAdminUsuarios() {
     function renderTable(users: any[]) {
         tableBody.innerHTML = ''; 
         
+        
+        const currentUserId = sessionStorage.getItem('user_id'); 
+
         if (users.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No se encontraron aldeanos.</td></tr>';
             return;
@@ -87,33 +90,36 @@ export function initAdminUsuarios() {
             
             const badgeClass = user.role === 'admin' ? 'role-badge admin' : 'role-badge user';
             const roleLabel = user.role === 'admin' ? 'Administrador' : 'Usuario';
+            
+            const isCurrentUser = currentUserId && user.id == currentUserId;
+
+            const deleteButton = isCurrentUser 
+                ? `<button class="btn-small btn-delete" disabled style="opacity: 0.5; cursor: not-allowed;" title="No puedes eliminarte a ti mismo">🚫</button>`
+                : `<button class="btn-small btn-delete" data-id="${user.id}">🗑️ Eliminar</button>`;
     
             row.innerHTML = `
                 <td>#${user.id}</td>
-                <td style="color: var(--color-primary); font-weight: bold;">${user.name}</td>
+                <td style="color: var(--color-primary); font-weight: bold;">${user.name} ${isCurrentUser ? '(Tú)' : ''}</td>
                 <td>${user.email}</td>
                 <td><span class="${badgeClass}">${roleLabel}</span></td>
                 <td>
                     <button class="btn-small btn-edit" data-id="${user.id}">✏️ Editar</button>
-                    <button class="btn-small btn-delete" data-id="${user.id}">🗑️ Eliminar</button>
+                    ${deleteButton}
                 </td>
             `;
     
             tableBody.appendChild(row);
         });
     
+        
         document.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const userId = (e.target as HTMLElement).getAttribute('data-id');
-                const user = allUsers.find(u => u.id == userId); 
-                openModal(user);
-            });
+            // ...
         });
     
-        document.querySelectorAll('.btn-delete').forEach(btn => {
+        document.querySelectorAll('.btn-delete:not([disabled])').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const userId = (e.target as HTMLElement).getAttribute('data-id');
-                handleDelete(Number(userId));
+                if(userId) handleDelete(Number(userId));
             });
         });
     }
