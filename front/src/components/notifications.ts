@@ -205,3 +205,100 @@ export function alert(message: string): void {
 export function confirm(message: string): Promise<boolean> {
   return showConfirm({ message });
 }
+
+/**
+ * Modal de victoria
+ */
+interface VictoryOptions {
+  winner: 'wolves' | 'villagers';
+  alivePlayers: Array<{id: number, name: string, role: string}>;
+  onClose?: () => void;
+}
+
+export function showVictoryModal(options: VictoryOptions): void {
+  const { winner, alivePlayers, onClose } = options;
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'game-modal-overlay victory-modal';
+  
+  const isWolves = winner === 'wolves';
+  const title = isWolves ? '🐺 Victoria de los Lobos' : '👥 Victoria de los Aldeanos';
+  const message = isWolves 
+    ? 'Los lobos han diezmado a los aldeanos...' 
+    : '¡Los aldeanos han eliminado a todos los lobos!';
+  
+  overlay.innerHTML = `
+    <div class="game-modal-content">
+      <div class="game-modal-header">
+        <h2>${title}</h2>
+      </div>
+      <div class="game-modal-body">
+        <p class="victory-message">${message}</p>
+        <div class="survivors-list">
+          <h3>Supervivientes:</h3>
+          ${alivePlayers.map(p => `
+            <div class="survivor-item">
+              <img src="/rol_${p.role.toLowerCase()}.png" class="survivor-img" onerror="this.src='/rol_oculto.png'">
+              <span>${p.name} - ${p.role}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="game-modal-footer">
+        <button class="btn btn-primary victory-close-btn">Volver al menú</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.classList.add('show'), 10);
+  
+  const closeBtn = overlay.querySelector('.victory-close-btn');
+  closeBtn?.addEventListener('click', () => {
+    if (onClose) onClose();
+    else window.location.href = '../views/menuprincipal.html';
+  });
+}
+
+/**
+ * Modal de muerte
+ */
+interface DeathOptions {
+  playerName: string;
+  phase: 'day' | 'night';
+  duration?: number;
+}
+
+export function showDeathModal(options: DeathOptions): void {
+  const { playerName, phase, duration = 4000 } = options;
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'game-modal-overlay death-modal';
+  
+  let message: string;
+  if (phase === 'disconnect') {
+    message = `${playerName} se ha desconectado...`;
+  } else if (phase === 'night') {
+    message = `${playerName} fue devorado por los lobos durante la noche...`;
+  } else {
+    message = `${playerName} fue eliminado por votación del pueblo`;
+  }
+  
+  overlay.innerHTML = `
+    <div class="game-modal-content death-announcement">
+      <div class="game-modal-body">
+        <div class="death-icon">💀</div>
+        <h2>¡Alguien ha muerto!</h2>
+        <p class="death-message">${message}</p>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.classList.add('show'), 10);
+  
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 500);
+  }, duration);
+}
