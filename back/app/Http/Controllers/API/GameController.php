@@ -320,65 +320,6 @@ class GameController extends Controller
         }
     }
 
-    public function joinLobbyBots(Request $request, $gameId)
-    {
-        try {
-            // Buscar la partida
-            $game = Game::find($gameId);
-
-            if (!$game) {
-                return response()->json(['success' => false, 'message' => 'Partida no encontrada'], 404);
-            }
-
-            // Verificar que esté en lobby
-            if (!$game->isLobby()) {
-                return response()->json(['success' => false,'message' => 'La partida ya comenzó o terminó'], 400);
-            }
-
-            // Verificar que no esté llena
-            if ($game->isFull()) {
-                return response()->json(['success' => false,'message' => 'La partida está llena'], 400);
-            }
-
-            // Coger a todos los bots y meterlos en la partida
-            $bots = User::where('role', '=', 'bot')->get();
-
-            if (count($bots)<=0) {
-                return response()->json(['success' => false,'message' => 'No hay bots en la BD'], 400);
-            }
-
-            foreach ($bots as $bot) {
-                DB::transaction(function () use ($bot, $game) {
-                    LobbyUpdated::dispatch($game->id, 'join');
-                    GamePlayer::create([
-                            'game_id' => $game->id,
-                            'user_id' => $bot->id,
-                            'status' => 'waiting',
-                            'is_active' => true,
-                            'joined_at' => now(),
-                    ]);
-                });
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => '¡Te has unido a la partida!',
-                'data' => [
-                    'game_id' => $game->id,
-                    'game_name' => $game->name,
-                    'current_players' => $game->currentPlayersCount(),
-                    'max_players' => $game->max_players
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al unirse: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
     /**
      * Salir de un lobby
      * POST /api/lobbies/{gameId}/leave
@@ -525,19 +466,37 @@ class GameController extends Controller
                 ], 403);
             }
 
+            // Obtener mi rol para determinar qué mostrar
+            $myPlayer = GamePlayer::where('game_id', $gameId)
+                ->where('user_id', $user->id)
+                ->where('is_active', true)
+                ->first();
+
+            $myRole = $myPlayer ? $myPlayer->role : null;
+
             // Obtener todos los jugadores ACTIVOS
             $players = GamePlayer::with(['user:id,name'])
                 ->where('game_id', $gameId)
                 ->where('is_active', true)
-                ->whereIn('status', ['waiting', 'ready', 'playing'])
+                ->whereIn('status', ['waiting', 'ready', 'playing', 'dead'])
                 ->orderBy('joined_at', 'asc')
                 ->get()
-                ->map(function ($player) use ($game) {
+                ->map(function ($player) use ($game, $myRole) {
+                    $showRole = null;
+
+                    // Mostrar rol si: está muerto O (soy lobo Y es lobo Y es de noche)
+                    if ($player->status === 'dead') {
+                        $showRole = $player->role;
+                    } elseif ($myRole === 'lobo' && $player->role === 'lobo' && $game->current_phase === 'night') {
+                        $showRole = $player->role;
+                    }
+
                     return [
                         'id' => $player->user->id,
                         'name' => $player->user->name,
-                        'avatar' => null, // Avatar no disponible por ahora
+                        'avatar' => null,
                         'status' => $player->status,
+                        'role' => $showRole,
                         'is_creator' => $player->user_id === $game->created_by_user_id,
                         'joined_at' => $player->joined_at->diffForHumans(),
                     ];
@@ -712,12 +671,12 @@ class GameController extends Controller
             }
 
             // Calcular tiempo restante
-            $phaseDuration = ($game->current_phase === 'night') ? 120 : 180; // 2 min noche, 3 min día
+            $phaseDuration = ($game->current_phase === 'night') ? 40 : 60; // 40s noche, 60s día
 
             // Asegurarse de que phase_started_at sea un objeto Carbon
             $startedAt = $game->phase_started_at ? \Carbon\Carbon::parse($game->phase_started_at) : now();
 
-            $elapsed = now()->diffInSeconds($startedAt);
+            $elapsed = abs(now()->diffInSeconds($startedAt));
             $timeRemaining = max(0, $phaseDuration - $elapsed);
 
             return response()->json([
@@ -805,10 +764,8 @@ class GameController extends Controller
             }
 
             // Calcular si realmente debe cambiar fase
-            $phaseDuration = $game->current_phase === 'night' ? 120 : 180;
-            $now = now();
-            $phaseStart = \Carbon\Carbon::parse($game->phase_started_at);
-            $timeSincePhaseStart = abs($now->diffInSeconds($phaseStart));
+            $phaseDuration = $game->current_phase === 'night' ? 40 : 60;
+            $timeSincePhaseStart = abs(now()->diffInSeconds($game->phase_started_at));
             $timeRemaining = max(0, $phaseDuration - $timeSincePhaseStart);
 
             \Log::info("📊 Phase change request", [
@@ -816,10 +773,9 @@ class GameController extends Controller
                 'user_id' => $user->id,
                 'current_phase' => $game->current_phase,
                 'current_round' => $game->current_round,
-                'now' => $now->toDateTimeString(),
-                'phase_started_at' => $phaseStart->toDateTimeString(),
                 'elapsed_seconds' => $timeSincePhaseStart,
                 'required_duration' => $phaseDuration,
+                'phase_started_at' => $game->phase_started_at,
                 'time_remaining' => $timeRemaining
             ]);
 
@@ -857,7 +813,7 @@ class GameController extends Controller
             $game->phase_started_at = now();
             $game->save();
 
-            $newPhaseDuration = $newPhase === 'day' ? 180 : 120;
+            $newPhaseDuration = $newPhase === 'day' ? 60 : 40;
 
             // Broadcast a todos
             broadcast(new GamePhaseChanged($game->id, [
@@ -877,5 +833,75 @@ class GameController extends Controller
                 ]
             ]);
         });
+    }
+
+
+    /**
+     * Marcar jugador como muerto al desconectarse
+     * POST /api/games/{gameId}/disconnect
+     */
+    public function handleDisconnect(Request $request, $gameId)
+    {
+        $user = $request->user();
+        $game = Game::find($gameId);
+
+        if (!$game || $game->status !== 'in_progress') {
+            return response()->json(['success' => false], 404);
+        }
+
+        $player = GamePlayer::where('game_id', $gameId)
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->first();
+
+        if ($player) {
+            $player->update(['status' => 'dead']);
+
+            // Broadcast eliminación
+            broadcast(new \App\Events\PlayerEliminated($game->id, [
+                'player_id' => $user->id,
+                'player_name' => $user->name,
+                'phase' => 'disconnect',
+                'round' => $game->current_round
+            ]));
+
+            // Verificar condición de victoria
+            $this->checkWinConditionAfterDisconnect($game);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    private function checkWinConditionAfterDisconnect(Game $game)
+    {
+        $alivePlayers = GamePlayer::where('game_id', $game->id)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->get();
+
+        $aliveWolves = $alivePlayers->where('role', 'lobo')->count();
+        $aliveVillagers = $alivePlayers->where('role', '!=', 'lobo')->count();
+
+        $winner = null;
+
+        if ($aliveWolves === 0) {
+            $winner = 'villagers';
+        } elseif ($aliveWolves >= $aliveVillagers) {
+            $winner = 'wolves';
+        }
+
+        if ($winner) {
+            $game->update(['status' => 'finished']);
+
+            broadcast(new \App\Events\GameFinished($game->id, [
+                'winner' => $winner,
+                'alive_players' => $alivePlayers->map(fn($p) => [
+                    'id' => $p->user_id,
+                    'name' => $p->user->name,
+                    'role' => $p->role
+                ])
+            ]));
+        }
     }
 }

@@ -2,6 +2,8 @@
    SISTEMA DE NOTIFICACIONES PERSONALIZADAS
    ========================================== */
 
+
+   
 /* Contenedor de notificaciones */
 .notification-container {
   position: fixed;
@@ -310,3 +312,4 @@
     width: 100%;
   }
 }
+

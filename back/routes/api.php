@@ -59,4 +59,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/games/{gameId}/vote', [VoteController::class, 'vote']);
     Route::get('/games/{gameId}/votes', [VoteController::class, 'getVotes']);
+
+    Route::post('/games/{gameId}/disconnect', [GameController::class, 'handleDisconnect']);
 });

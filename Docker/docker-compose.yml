@@ -41,33 +41,6 @@ services:
         php artisan serve --host=0.0.0.0 --port=8000
       "
 
-  scheduler:
-    build:
-      context: ../back
-      dockerfile: Dockerfile
-    container_name: laravel_scheduler
-    working_dir: /var/www/html
-    volumes:
-      - ../back:/var/www/html
-      - back_vendor:/var/www/html/vendor
-    depends_on:
-      - back
-      - mysql
-    networks:
-      - app_net
-    environment:
-      - DB_HOST=mysql
-      - DB_DATABASE=ManadaFullHouse
-      - DB_USERNAME=root
-      - DB_PASSWORD=Miguel
-    command: >
-      sh -c "
-        echo '⏰ Esperando a que Laravel esté listo...' &&
-        sleep 10 &&
-        echo '🕐 Iniciando Laravel Scheduler...' &&
-        php artisan schedule:work
-      "
-
   front:
     build:
       context: ../front

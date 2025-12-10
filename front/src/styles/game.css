@@ -984,17 +984,85 @@ body {
     color: white;
 }
 
+.vote-btn.voted-btn {
+    background: var(--color-green);
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.vote-btn.voted-btn:hover {
+    transform: none;
+    box-shadow: none;
+}
+
 .player-card-small.voted {
     box-shadow: 0 0 20px rgba(38, 222, 129, 0.5);
 }
 
 .player-card-small.dead {
-    opacity: 0.4;
-    filter: grayscale(100%);
+    filter: brightness(0.7) saturate(0);
+    border: 3px solid #e74c3c;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+}
+
+.player-card-small.dead .player-card-img {
+    filter: sepia(100%) hue-rotate(-20deg) saturate(400%);
 }
 
 .player-card-small.dead .vote-btn {
     display: none;
+}
+
+.player-name-label.dead-label {
+    color: #e74c3c;
+    font-weight: bold;
+}
+/* ==========================================
+   VOTE VISUALIZATION
+   ========================================== */
+
+.vote-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+    z-index: 10;
+}
+
+.vote-arrows {
+    width: 100%;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--color-primary);
+}
+
+.vote-arrows .arrow {
+    background: rgba(var(--color-primary-rgb), 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 2px 0;
+    border-left: 3px solid var(--color-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .vote-count {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    .vote-arrows {
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1010,4 +1078,210 @@ body {
         font-size: 10px;
         padding: 3px 6px;
     }
+}
+/* ============================================
+   GAME MODALS (Victory & Death)
+   ============================================ */
+
+.game-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10002;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.game-modal-overlay.show {
+  opacity: 1;
+}
+
+.game-modal-content {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 2px solid #d4a017;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(212, 160, 23, 0.5);
+  animation: gameModalSlideIn 0.3s ease-out;
+}
+
+@keyframes gameModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Victory Modal */
+.victory-modal .game-modal-content {
+  max-width: 700px;
+}
+
+.victory-modal .game-modal-header {
+  padding: 30px;
+  border-bottom: 2px solid rgba(212, 160, 23, 0.3);
+  text-align: center;
+  background: linear-gradient(180deg, rgba(212, 160, 23, 0.1) 0%, transparent 100%);
+}
+
+.victory-modal .game-modal-header h2 {
+  margin: 0;
+  color: #d4a017;
+  font-size: 36px;
+  text-shadow: 0 2px 10px rgba(212, 160, 23, 0.5);
+}
+
+.victory-modal .game-modal-body {
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.victory-message {
+  font-size: 22px;
+  color: #e0e0e0;
+  margin-bottom: 35px;
+  font-weight: 500;
+}
+
+.survivors-list {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 160, 23, 0.2);
+}
+
+.survivors-list h3 {
+  color: #d4a017;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.survivor-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.survivor-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 160, 23, 0.3);
+}
+
+.survivor-img {
+  width: 45px;
+  height: 68px;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+.game-modal-footer {
+  padding: 25px;
+  border-top: 2px solid rgba(212, 160, 23, 0.3);
+  display: flex;
+  justify-content: center;
+}
+
+.victory-close-btn {
+  padding: 14px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.victory-close-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(212, 160, 23, 0.4);
+}
+
+/* Death Modal */
+.death-modal .game-modal-content {
+  max-width: 500px;
+  border-color: #e74c3c;
+}
+
+.death-announcement .game-modal-body {
+  padding: 50px 30px;
+  text-align: center;
+}
+
+.death-icon {
+  font-size: 90px;
+  margin-bottom: 25px;
+  animation: deathPulse 1.5s ease-in-out;
+  filter: drop-shadow(0 0 20px rgba(231, 76, 60, 0.6));
+}
+
+@keyframes deathPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.death-announcement h2 {
+  color: #e74c3c;
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(231, 76, 60, 0.5);
+}
+
+.death-message {
+  font-size: 20px;
+  color: #cccccc;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .game-modal-content {
+    width: 95%;
+  }
+
+  .victory-modal .game-modal-header h2 {
+    font-size: 28px;
+  }
+
+  .victory-message {
+    font-size: 18px;
+  }
+
+  .death-icon {
+    font-size: 70px;
+  }
+
+  .death-announcement h2 {
+    font-size: 24px;
+  }
+
+  .death-message {
+    font-size: 16px;
+  }
 }
