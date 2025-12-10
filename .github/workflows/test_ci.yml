@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout del Codigo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Configurar PHP 8.2 y extensiones
       uses: shivammathur/setup-php@v2
