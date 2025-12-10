@@ -634,6 +634,7 @@ async function handlePhaseChange() {
 
   try {
     const token = getAuthToken();
+    
     const response = await fetch(`${API_URL}/games/${gameId}/change-phase`, {
       method: "POST",
       headers: {

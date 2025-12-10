@@ -7,12 +7,15 @@ use App\Http\Controllers\API\VoteController;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\GamePlayer;
+use App\Models\GameVote;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Events\LobbyMessage;
 use App\Events\LobbyUpdated;
 use App\Events\GamePhaseChanged;
+use App\Events\PlayerEliminated;
+use App\Events\GameFinished;
 
 class GameController extends Controller
 {
@@ -65,7 +68,7 @@ class GameController extends Controller
                     ->where('is_active', true)
                     ->where('status', 'playing')
                     ->get();
-                
+
                 if (count($targets)>0) {
                     //Selecciona uno de los posibles objetivos al azar
                     $target = $targets[rand(0,(count($targets)-1))];
@@ -103,8 +106,8 @@ class GameController extends Controller
                 ->where('status', 'playing')
                 ->where('role', '!=', 'lobo')
                 ->get();
-            
-            
+
+
 
             if (count($targets)>0) {
                 //Selecciona uno de los posibles objetivos al azar
@@ -459,7 +462,7 @@ class GameController extends Controller
                 return response()->json(['success' => false,'message' => 'No hay suficientes bots en la BD'], 400);
             }
 
-            for ($i=0; $i < $numbots; $i++) { 
+            for ($i=0; $i < $numbots; $i++) {
                 $bot = $bots[$i];
                 DB::transaction(function () use ($bot, $game) {
                     LobbyUpdated::dispatch($game->id, 'join');
@@ -967,6 +970,8 @@ class GameController extends Controller
             }
 
             // Cambiar fase
+            $oldPhase = $game->current_phase;
+            $oldRound = $game->current_round;
             $newPhase = $game->current_phase === 'day' ? 'night' : 'day';
             $newRound = $game->current_round;
 
@@ -975,8 +980,18 @@ class GameController extends Controller
                 $newRound++;
             }
 
+            // COMPUTAR VOTOS DE LA FASE ANTERIOR
+            $previousVotes = GameVote::where('game_id', $game->id)
+                ->where('phase', $oldPhase)
+                ->where('round', $oldRound)
+                ->get();
+
+            if ($previousVotes->isNotEmpty()) {
+                $this->executeVoteResult($game, $previousVotes);
+            }
+
             \Log::info("✅ Changing phase", [
-                'old_phase' => $game->current_phase,
+                'old_phase' => $oldPhase,
                 'new_phase' => $newPhase,
                 'old_round' => $game->current_round,
                 'new_round' => $newRound
@@ -1011,6 +1026,111 @@ class GameController extends Controller
         });
     }
 
+
+    /**
+     * Computar votos al final de fase (DEPRECATED - votos se computan en changePhase)
+     * POST /api/games/{gameId}/compute-votes
+     */
+    public function computeVotes(Request $request, $gameId)
+    {
+        // Este endpoint ya no ejecuta votos, solo devuelve estadísticas
+        $game = Game::find($gameId);
+
+        if (!$game || $game->status !== 'in_progress') {
+            return response()->json(['success' => false], 404);
+        }
+
+        $eligibleVoters = $this->getEligibleVotersForPhase($game);
+
+        $votes = GameVote::where('game_id', $game->id)
+            ->where('phase', $game->current_phase)
+            ->where('round', $game->current_round)
+            ->get();
+
+        $votedCount = $votes->pluck('voter_id')->unique()->count();
+        $totalVoters = $eligibleVoters->count();
+
+        return response()->json([
+            'success' => true,
+            'voted' => $votedCount,
+            'total' => $totalVoters
+        ]);
+    }
+
+    private function getEligibleVotersForPhase(Game $game)
+    {
+        $query = GamePlayer::where('game_id', $game->id)
+            ->where('is_active', true)
+            ->where('status', 'playing');
+
+        if ($game->current_phase === 'night') {
+            $query->where('role', 'lobo');
+        }
+
+        return $query->get();
+    }
+
+    private function executeVoteResult(Game $game, $votes)
+    {
+        $voteCounts = $votes->groupBy('target_id')
+            ->map(fn($group) => $group->count())
+            ->sortDesc();
+
+        if ($voteCounts->isEmpty()) {
+            return;
+        }
+
+        $eliminatedId = $voteCounts->keys()->first();
+
+        $eliminated = GamePlayer::where('game_id', $game->id)
+            ->where('user_id', $eliminatedId)
+            ->first();
+
+        if ($eliminated) {
+            $eliminated->update(['status' => 'dead']);
+
+            broadcast(new PlayerEliminated($game->id, [
+                'player_id' => $eliminatedId,
+                'player_name' => $eliminated->user->name,
+                'phase' => $game->current_phase,
+                'round' => $game->current_round
+            ]));
+        }
+
+        $this->checkWinCondition($game);
+    }
+
+    private function checkWinCondition(Game $game)
+    {
+        $alivePlayers = GamePlayer::where('game_id', $game->id)
+            ->where('is_active', true)
+            ->where('status', 'playing')
+            ->get();
+
+        $aliveWolves = $alivePlayers->where('role', 'lobo')->count();
+        $aliveVillagers = $alivePlayers->where('role', '!=', 'lobo')->count();
+
+        $winner = null;
+
+        if ($aliveWolves === 0) {
+            $winner = 'villagers';
+        } elseif ($aliveWolves >= $aliveVillagers) {
+            $winner = 'wolves';
+        }
+
+        if ($winner) {
+            $game->update(['status' => 'finished']);
+
+            broadcast(new GameFinished($game->id, [
+                'winner' => $winner,
+                'alive_players' => $alivePlayers->map(fn($p) => [
+                    'id' => $p->user_id,
+                    'name' => $p->user->name,
+                    'role' => $p->role
+                ])
+            ]));
+        }
+    }
 
     /**
      * Marcar jugador como muerto al desconectarse

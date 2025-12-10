@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/games', [GameController::class, 'getGames']);
     Route::post('/games', [GameController::class, 'insertGame']);
 
+
     // GAME PHASE ROUTES (SISTEMA DÍA/NOCHE)
     Route::post('/games/{gameId}/change-phase', [GameController::class, 'changePhase']);
 
@@ -61,4 +62,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/games/{gameId}/votes', [VoteController::class, 'getVotes']);
 
     Route::post('/games/{gameId}/disconnect', [GameController::class, 'handleDisconnect']);
+    
+    Route::post('/games/{gameId}/compute-votes', [GameController::class, 'computeVotes']);
 });
