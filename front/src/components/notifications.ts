@@ -227,6 +227,12 @@ export function showVictoryModal(options: VictoryOptions): void {
     ? 'Los lobos han diezmado a los aldeanos...' 
     : '¡Los aldeanos han eliminado a todos los lobos!';
   
+
+  const winnersToShow = alivePlayers.filter(player => {
+    const isWolf = player.role.toLowerCase() === 'lobo';
+    return isWolves ? isWolf : !isWolf;
+  });
+  
   overlay.innerHTML = `
     <div class="game-modal-content">
       <div class="game-modal-header">
@@ -235,8 +241,8 @@ export function showVictoryModal(options: VictoryOptions): void {
       <div class="game-modal-body">
         <p class="victory-message">${message}</p>
         <div class="survivors-list">
-          <h3>Supervivientes:</h3>
-          ${alivePlayers.map(p => `
+          <h3>${isWolves ? 'Manada ganadora:' : 'Supervivientes:'}</h3>
+          ${winnersToShow.map(p => `
             <div class="survivor-item">
               <img src="/rol_${p.role.toLowerCase()}.png" class="survivor-img" onerror="this.src='/rol_oculto.png'">
               <span>${p.name} - ${p.role}</span>
