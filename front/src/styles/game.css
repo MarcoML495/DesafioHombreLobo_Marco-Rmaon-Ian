@@ -1403,3 +1403,49 @@ body {
     height: 32px;
   }
 }
+
+/* ==========================================
+   CHAT DISABLED FOR DEAD PLAYERS
+   ========================================== */
+
+.chat-input:disabled {
+  background-color: #2a2a2a;
+  color: #666;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+.send-button:disabled {
+  background-color: #3a3a3a;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+.send-button:disabled:hover {
+  background-color: #3a3a3a;
+  transform: none;
+}
+
+.chat-death-notice {
+  padding: 12px;
+  background: linear-gradient(135deg, #4a1a1a 0%, #2a0a0a 100%);
+  color: #ff6b6b;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  font-weight: 500;
+  animation: fadeInDeath 0.3s ease-in;
+}
+
+@keyframes fadeInDeath {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
