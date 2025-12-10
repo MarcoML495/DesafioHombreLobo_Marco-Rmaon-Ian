@@ -71,6 +71,7 @@ let echo: any = null;
 let timerInterval: number | null = null;
 let myActualRole: string | null = null;
 let isChangingPhase = false;
+let isPlayerAlive: boolean = true;
 
 function setGameStateFromServer(
   phase: "day" | "night",
@@ -203,6 +204,14 @@ function subscribeToGame(gId: number) {
   // Evento: Jugador eliminado
   channel.listen(".player.eliminated", (data: any) => {
     console.log("💀 Jugador eliminado:", data);
+    
+    // Si soy yo el eliminado, actualizar estado
+    if (data.player_id === currentUserId) {
+      isPlayerAlive = false;
+      console.log("💀 Has sido eliminado");
+      updateChatUI();
+    }
+    
     showDeathModal({
       playerName: data.player_name,
       phase: data.phase as "day" | "night",
@@ -243,8 +252,9 @@ async function fetchPlayerStatus(): Promise<PlayerGameData | null> {
     const data = await response.json();
     if (response.ok && data.success) {
       myActualRole = data.data.role || "aldeano"; // Store role globally
+      isPlayerAlive = data.data.is_alive; // Store alive status
       currentUserId = data.data.id;
-      console.log(`👤 Rol cargado desde BD: ${myActualRole}`);
+      console.log(`👤 Rol cargado desde BD: ${myActualRole}, Vivo: ${isPlayerAlive}`);
       return {
         id: data.data.id,
         name: data.data.name,
@@ -762,31 +772,64 @@ function updateGameUI() {
   updateChatUI();
 }
 
-// Actualizar UI del chat según fase
+// Actualizar UI del chat según fase y estado del jugador
 function updateChatUI() {
   const chatInput = document.querySelector(".chat-input") as HTMLInputElement;
   const sendBtn = document.querySelector(".send-button") as HTMLButtonElement;
+  const chatInputContainer = document.querySelector(".chat-input-container") as HTMLDivElement;
 
   console.log(
-    `🔍 updateChatUI: phase=${gameState.phase}, myActualRole=${myActualRole}`
+    `🔍 updateChatUI: phase=${gameState.phase}, myActualRole=${myActualRole}, isAlive=${isPlayerAlive}`
   );
 
   if (!chatInput || !sendBtn) return;
 
+  // Si el jugador está muerto, deshabilitar completamente el chat
+  if (!isPlayerAlive) {
+    console.log("💀 Deshabilitando chat (jugador muerto)");
+    chatInput.disabled = true;
+    chatInput.placeholder = "💀 No puedes escribir porque has muerto";
+    chatInput.style.opacity = "0.5";
+    chatInput.style.cursor = "not-allowed";
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = "0.5";
+    sendBtn.style.cursor = "not-allowed";
+    
+    // Agregar mensaje de muerte si no existe
+    if (chatInputContainer && !document.querySelector('.chat-death-notice')) {
+      const deathNotice = document.createElement('div');
+      deathNotice.className = 'chat-death-notice';
+      deathNotice.innerHTML = '💀 Has sido eliminado. Solo puedes leer los mensajes.';
+      chatInputContainer.insertBefore(deathNotice, chatInput);
+    }
+    return;
+  }
+
+  // Remover mensaje de muerte si existe
+  const deathNotice = document.querySelector('.chat-death-notice');
+  if (deathNotice) {
+    deathNotice.remove();
+  }
+
+  // Si el jugador está vivo, aplicar reglas de fase
   if (gameState.phase === "night" && myActualRole !== "lobo") {
     console.log("🚫 Deshabilitando chat (no-lobo en noche)");
     chatInput.disabled = true;
     chatInput.placeholder = "🌙 Los lobos están hablando...";
     chatInput.style.opacity = "0.6";
+    chatInput.style.cursor = "not-allowed";
     sendBtn.disabled = true;
     sendBtn.style.opacity = "0.6";
+    sendBtn.style.cursor = "not-allowed";
   } else {
     console.log("✅ Habilitando chat");
     chatInput.disabled = false;
     chatInput.placeholder = "Escribe un mensaje...";
     chatInput.style.opacity = "1";
+    chatInput.style.cursor = "text";
     sendBtn.disabled = false;
     sendBtn.style.opacity = "1";
+    sendBtn.style.cursor = "pointer";
   }
 }
 
@@ -822,6 +865,12 @@ function initializeChat() {
   async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message || !gameId) return;
+
+    // Prevenir envío si el jugador está muerto
+    if (!isPlayerAlive) {
+      console.warn("💀 Jugador muerto no puede enviar mensajes");
+      return;
+    }
 
     const token = getAuthToken();
     chatInput.value = "";
