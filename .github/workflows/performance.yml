@@ -95,7 +95,7 @@ jobs:
           K6_OUT: json=results.json
 
       - name: 📤 Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: k6-results
           path: results.json
