@@ -1,0 +1,67 @@
+/* ==========================================
+   VARIABLES CSS - PALETA DE COLORES
+   Los Lobos de Castronegro
+   ========================================== */
+
+:root {
+  /* Colores Principales */
+  --color-primary: #d4a017;
+  --color-primary-light: #f4c430;
+  --color-primary-dark: #443828;
+  --color-gold: #ffd700;
+  --color-red: #D32F2F;
+  --color-green: #4CAF50;
+
+  /* Backgrounds */
+  --bg-darkest: #0f0f0f;
+  --bg-dark: #1a1a1a;
+  --bg-card: #2b1810;
+  --bg-input: #252525;
+  --bg-medium: #2a2a2a;
+  --bg-light: #3a3a3a;
+  --bg-lighter: #4a4a4a;
+  --bg-card-hover: #3a2318;
+
+  /* Textos */
+  --text-light: #fff8dc;
+  --text-white: #ffffff;
+  --text-dark: #1a1a1a;
+  --text-gray: #888;
+
+  /* Bordes */
+  --border-primary: #d4a017;
+  --border-dark: #3a3a3a;
+
+  /* Estados */
+  --color-success: #4caf50;
+  --color-error: #ff6b6b;
+  --color-warning: #ffa500;
+
+  /* Colores de Roles */
+  --color-lobo: brown;
+  --color-aldea: gold;
+  --color-neutro: white;
+
+  /* Sombras */
+  --shadow-primary: rgba(212, 160, 23, 0.3);
+  --shadow-dark: rgba(0, 0, 0, 0.8);
+  --shadow-primary-hover: rgba(212, 160, 23, 0.4);
+
+  /* Transiciones */
+  --transition-fast: 0.3s;
+  --transition-medium: 0.5s;
+
+  /* Espaciados */
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 15px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+  --spacing-xxl: 40px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-circle: 50%;
+}

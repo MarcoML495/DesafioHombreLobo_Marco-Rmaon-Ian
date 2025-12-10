@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sala de Espera - Los Lobos de Castronegro</title>
+</head>
+
+<body>
+
+    <div class="screen">
+        <!-- Header de la sala -->
+        <div class="lobby-room-header">
+            <button class="back-button-new" id="leave-game-btn">← Abandonar Partida</button>
+            <div class="lobby-room-title">
+                <h1 id="game-name">Cargando...</h1>
+                <p id="game-info">0/0 jugadores</p>
+            </div>
+            <!-- Código de acceso (solo para partidas privadas) -->
+            <div id="join-code-display" class="join-code-badge" style="display: none;">
+                <span class="code-label">🔑</span>
+                <span class="code-value" id="join-code-value">----</span>
+                <button class="code-copy-btn" id="copy-code-btn" title="Copiar código">
+                    📋
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="lobby-room-container">
+
+            <!-- Lista de jugadores -->
+            <div class="players-section">
+                <div class="section-header">
+                    <h2>🐺 Jugadores en la Aldea</h2>
+                    <span class="player-count" id="player-count">0/15</span>
+                </div>
+
+                <div class="loading-spinner" id="players-loading">
+                    <div class="spinner"></div>
+                    <p>Cargando jugadores...</p>
+                </div>
+
+                <div class="players-grid" id="players-grid">
+                    
+                </div>
+
+                <div id="start-game-container" class="start-game-area" style="display: none;">
+                    <p id="start-game-msg">Esperando jugadores...</p>
+                    <button id="start-game-btn" class="btn-start">
+                        <span class="btn-icon">⚔️</span> Iniciar Partida
+                    </button>
+                </div>
+            </div>
+
+            
+            <div class="chat-section">
+                <div class="section-header">
+                    <h2>💬 Chat de la Aldea</h2>
+                </div>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="system-message">Bienvenido al chat de la aldea.</div>
+                    </div>
+
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Escribe un mensaje..." autocomplete="off"
+                            maxlength="255">
+                        <button type="submit" id="send-btn">➤</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    
+    <div class="animated-background">
+        <div class="background-flames"></div>
+        <div class="background-overlay"></div>
+        <div class="background-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <script type="module" src="../components/gameLobby.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Los Lobos de Castronegro - Partida</title>
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <div class="game-layout">
+            <!-- ÁREA DE JUEGO -->
+            <div class="game-area">
+                <!-- HEADER DEL JUEGO -->
+                <div class="game-header">
+                    <div class="back-button">⬅ Salir</div>
+                    <div class="game-title">🐺 La Guarida del Lobo</div>
+                    <div class="phase-progress-container">
+                        <div class="phase-progress-bar" data-phase="day">
+                            <div class="phase-progress-fill" id="phase-progress-fill"></div>
+                            <div class="phase-icon" id="phase-icon">
+                                <img id="phase-icon-img" src="/sol.svg" alt="Sol" class="phase-icon-svg">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- El toggle se añade dinámicamente desde JS -->
+                </div>
+
+                <div id="game-container">
+                </div>
+                
+                <div class="players-grid">
+                    <!-- Jugador activo (tú) -->
+                    <div class="player-card active">
+                         <div id="game-container">
+                    </div>
+                    
+                    </div>  
+                </div>
+
+                
+            </div>
+
+            <!-- PANEL DE CHAT -->
+            <div class="chat-panel">
+                <div class="chat-header">💬 Mesenger de Castronegro</div>
+                
+                <div class="chat-messages">
+                    <div class="message other">
+                        <div class="message-author">Consejo de Lobos</div>
+                        <div class="message-text">¡Bienvenidos a Loba busca esposa!</div>
+                    </div>
+                    
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" placeholder="Escribe un mensaje...">
+                    <button class="send-button">📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script del juego -->
+    <script type="module" src="/src/components/game.ts"></script>
+</body>
+
+</html>

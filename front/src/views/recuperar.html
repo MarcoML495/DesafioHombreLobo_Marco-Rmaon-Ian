@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../../logo.png" />
+  <title>Recuperar Contraseña</title>
+</head>
+
+<body>
+  <nav class="main-navbar">
+
+    <div class="navbar-logo">
+      <a href="home.html">
+        <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+      </a>
+    </div>
+
+    <ul class="navbar-links" id="navbar-guest-links">
+      <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+      <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+    </ul>
+
+    <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+    </ul>
+  </nav>
+
+  <div class="login-container">
+    <h1 class="main-title">LOS LOBOS DE CASTRONEGRO</h1>
+    <p class="subtitle-login">Recuperar contraseña</p>
+
+    <form class="login-form">
+
+      <div class="form-row">
+        <label for="email">Introduce tu correo</label>
+        <input id="email" type="email" placeholder="correo@example.com" required>
+      </div>
+
+      <div style="margin-top: 30px;">
+        <button id="btn-recuperar" type="button" class="button-primary button-login">
+          Enviar contraseña nueva
+        </button>
+      </div>
+
+      <p id="resultado" style="margin-top: 20px;"></p>
+
+      <div class="register-link">
+        ¿Recordaste tu contraseña?
+        <span><a href="login.html">Iniciar sesión</a></span>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Fondo Animado -->
+  <div class="animated-background">
+    <div class="background-flames"></div>
+    <div class="background-wolf">
+      <img src="/lobofondo.png" alt="Lobo">
+    </div>
+    <div class="background-villager">
+      <img src="/aldeanofondo.png" alt="Aldeano">
+    </div>
+
+    <div class="background-overlay"></div>
+    <div class="background-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+
+  <script type="module" src="../components/recuperar.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+version: 2
+updates:
+  # Backend - Composer
+  - package-ecosystem: "composer"
+    directory: "/back"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "DjCucaracha"
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "⬆️"
+      prefix-development: "⬆️ dev"
+    ignore:
+      # Ignorar actualizaciones de versiones principales
+      - dependency-name: "laravel/framework"
+        update-types: ["version-update:semver-major"]
+
+  # Frontend - npm
+  - package-ecosystem: "npm"
+    directory: "/front"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "DjCucaracha"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "⬆️"
+      prefix-development: "⬆️ dev"
+    ignore:
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/back"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/front"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"

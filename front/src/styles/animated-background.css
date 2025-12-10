@@ -1,0 +1,234 @@
+/* ============================================
+   FONDO ANIMADO - Los Lobos de Castronegro
+   ============================================ */
+
+.animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+/* Capa de fondo con llamas */
+.background-flames {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/fondo.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 1;
+    animation: flamesWave 8s ease-in-out infinite;
+    filter: blur(2px);
+
+}
+
+/* Lobo - Lado izquierdo */
+.background-wolf {
+    position: absolute;
+    left: -5%;
+    bottom: -10%;
+    width: 70%;
+    height: auto;
+    opacity: 0.9;
+    animation: floatWolf 6s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.background-wolf img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 30px rgba(212, 160, 23, 0.5));
+    filter: blur(3px);
+
+}
+
+/* Aldeano - Lado derecho */
+.background-villager {
+    position: absolute;
+    right: -5%;
+    bottom: -10%;
+    width: 65%;
+    height: auto;
+    opacity: 0.9;
+    animation: floatVillager 7s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.background-villager img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 30px rgba(212, 160, 23, 0.5));
+    filter: blur(3px);
+}
+
+/* Overlay para oscurecer un poco */
+.background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    pointer-events: none;
+}
+
+/* Animación de ondulación de llamas */
+@keyframes flamesWave {
+    0%, 100% {
+        transform: scale(1) translateY(0);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.05) translateY(-10px);
+        opacity: 0.7;
+    }
+}
+
+/* Animación de flotación del lobo */
+@keyframes floatWolf {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-15px) translateX(10px) rotate(1deg);
+    }
+    50% {
+        transform: translateY(-5px) translateX(-5px) rotate(-1deg);
+    }
+    75% {
+        transform: translateY(-20px) translateX(5px) rotate(0.5deg);
+    }
+}
+
+/* Animación de flotación del aldeano */
+@keyframes floatVillager {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    30% {
+        transform: translateY(-10px) translateX(-8px) rotate(-1deg);
+    }
+    60% {
+        transform: translateY(-18px) translateX(5px) rotate(1deg);
+    }
+    90% {
+        transform: translateY(-5px) translateX(-3px) rotate(-0.5deg);
+    }
+}
+
+/* Partículas flotantes opcionales */
+.background-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #D4A017;
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 8s linear infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+.particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+.particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+.particle:nth-child(7) { left: 70%; animation-delay: 6s; }
+.particle:nth-child(8) { left: 80%; animation-delay: 7s; }
+.particle:nth-child(9) { left: 90%; animation-delay: 2.5s; }
+.particle:nth-child(10) { left: 15%; animation-delay: 4.5s; }
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Responsive - Tablets */
+@media (max-width: 1024px) {
+    .background-wolf {
+        left: -10%;
+        width: 50%;
+        bottom: 5%;
+    }
+
+    .background-villager {
+        right: -10%;
+        width: 45%;
+        bottom: 10%;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .background-wolf {
+        left: -15%;
+        width: 60%;
+        bottom: 0;
+        opacity: 0.5;
+    }
+
+    .background-villager {
+        right: -15%;
+        width: 55%;
+        bottom: 5%;
+        opacity: 0.5;
+    }
+
+    .background-flames {
+        opacity: 0.4;
+    }
+
+    /* Simplificar animaciones en móvil para mejor rendimiento */
+    @keyframes floatWolf {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @keyframes floatVillager {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+}
+
+/* Desactivar animaciones si el usuario prefiere reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .background-flames,
+    .background-wolf,
+    .background-villager,
+    .particle {
+        animation: none !important;
+    }
+}

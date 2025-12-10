@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../logo.png" />
+    <title>Administración de Usuarios - Los Lobos</title>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav class="main-navbar">
+        <div class="navbar-logo">
+            <a href="home.html">
+                <img src="../../logo.png" alt="Logo Los Lobos de Castronegro">
+            </a>
+        </div>
+        <ul class="navbar-links" id="navbar-guest-links">
+            <li><a href="login.html" class="nav-link">Iniciar Sesión</a></li>
+            <li><a href="registrar.html" class="nav-link">Crear Cuenta</a></li>
+        </ul>
+        <ul class="navbar-links" id="navbar-user-links" style="display: none;">
+        </ul>
+    </nav>
+
+    <div class="screen">
+        <div class="menu-header">
+            <div class="logo-title">
+                <div class="title-text">GESTIÓN DE USUARIOS</div>
+            </div>
+
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="text" id="search-input" placeholder="Buscar por nombre..."
+                    style="padding: 10px; border-radius: 8px; border: 2px solid var(--border-primary); background: var(--bg-card); color: white; width: 250px;">
+
+                <button id="btn-add-user" class="button-primary" style="padding: 10px 20px;">
+                    + Nuevo Usuario
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="user-modal" class="modal">
+        <div class="lobby-container" style="max-width: 500px;">
+            <div class="lobby-form">
+                <h2 id="modal-title" class="section-title" style="text-align: center; font-size: 24px;">Usuario</h2>
+
+                <form id="user-form">
+                    <input type="hidden" id="user-id">
+
+                    <div class="form-section">
+                        <label for="user-name">Nombre</label>
+                        <input type="text" id="user-name" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-section">
+                        <label for="user-email">Email</label>
+                        <input type="email" id="user-email" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-section">
+                        <label for="user-password">Contraseña</label>
+                        <input type="password" id="user-password" placeholder="(Dejar vacío si no cambia)"
+                            style="width: 100%;">
+                    </div>
+
+                    <div class="form-section">
+                        <label for="user-role">Rol</label>
+                        <select id="user-role" class="input-field-new" style="width: 100%; margin-top: 10px;">
+                            <option value="user">Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="btn-cancel-modal" class="button-secondary">Cancelar</button>
+                        <button type="submit" class="button-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Fondo Animado -->
+    <div class="animated-background">
+        <div class="background-flames"></div>
+        <div class="background-overlay"></div>
+        <div class="background-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <script type="module" src="../main.ts"></script>
+</body>
+
+</html>
