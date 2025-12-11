@@ -1,0 +1,19 @@
+{
+  "name": "desafio-hombre-lobo-root",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "back/**/*.php": [
+      "./back/vendor/bin/pint"
+    ],
+    "front/**/*.{ts,tsx,js,jsx}": [
+      "bash -c \"cd front && npx tsc --noEmit\""
+    ]
+  }
+}
