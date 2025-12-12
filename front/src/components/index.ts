@@ -17,7 +17,7 @@ const HOME_VIEW_PATH = "/src/views/home.html";
 //Si detecta que estas en index te redirige a home
 const redirectToHome = () => {
   const inIndex =
-    window.location.href == "http://localhost:5173/" ||
+    window.location.href == "http://localhost/" ||
     window.location.href.includes("index.html");
   if (!inIndex) return;
   window.location.href = HOME_VIEW_PATH;
